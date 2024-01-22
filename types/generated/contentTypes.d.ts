@@ -787,6 +787,12 @@ export interface ApiActionAction extends Schema.CollectionType {
       Attribute.SetMinMax<{
         min: 1;
       }>;
+    role: Attribute.Relation<
+      'api::action.action',
+      'manyToOne',
+      'plugin::users-permissions.role'
+    > &
+      Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
