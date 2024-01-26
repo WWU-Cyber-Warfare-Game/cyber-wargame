@@ -56,7 +56,7 @@ export default function SignUpPanel() {
             router.push("/");
         } catch (error) {
             console.error(error);
-            if (axios.isAxiosError(error) && error.response?.status === 400) {
+            if (axios.isAxiosError(error) && error.response) {
                 setError(error.response.data.error.message);
             } else {
                 setError("Unknown error");
