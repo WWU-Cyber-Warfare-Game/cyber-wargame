@@ -6,37 +6,18 @@ import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 
 export default function SignUpPanel() {
-    // for testing purposes, set default values
-    const defaultEmail = "test@test.com";
-    const defaultUsername = "test";
-    const defaultPassword = "password";
-
-    const [email, setEmail] = useState(defaultEmail);
-    const [username, setUsername] = useState(defaultUsername);
-    const [password, setPassword] = useState(defaultPassword);
-    const [confirm, setConfirm] = useState(defaultPassword);
     const [error, setError] = useState("");
 
     const router = useRouter();
 
-    function onEmailChange(event: React.ChangeEvent<HTMLInputElement>) {
-        setEmail(event.target.value);
-    }
-
-    function onUsernameChange(event: React.ChangeEvent<HTMLInputElement>) {
-        setUsername(event.target.value);
-    }
-
-    function onPasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
-        setPassword(event.target.value);
-    }
-
-    function onConfirmChange(event: React.ChangeEvent<HTMLInputElement>) {
-        setConfirm(event.target.value);
-    }
-
     async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+
+        const formData = new FormData(event.currentTarget);
+        const email = formData.get("email");
+        const username = formData.get("username");
+        const password = formData.get("password");
+        const confirm = formData.get("confirmPassword");
         
         // check if passwords match
         if (password !== confirm) {
@@ -68,13 +49,13 @@ export default function SignUpPanel() {
         <div>
             <form id={styles.form} onSubmit={onSubmit}>
                 <label htmlFor="email">Email</label>
-                <input type="email" id="email" name="email" onChange={onEmailChange} required defaultValue={defaultEmail} />
+                <input type="email" id="email" name="email" required />
                 <label htmlFor="username">Username</label>
-                <input type="text" id="username" name="username" onChange={onUsernameChange} required defaultValue={defaultUsername} />
+                <input type="text" id="username" name="username" required />
                 <label htmlFor="password">Password</label>
-                <input type="password" id="password" name="password" onChange={onPasswordChange} required defaultValue={defaultPassword} />
+                <input type="password" id="password" name="password" required />
                 <label htmlFor="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" onChange={onConfirmChange} required defaultValue={defaultPassword} />
+                <input type="password" id="confirmPassword" name="confirmPassword" required />
                 <button type="submit">Sign Up</button>
             </form>
             <p id={styles.error}>{error}</p>
