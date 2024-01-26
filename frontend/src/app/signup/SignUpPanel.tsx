@@ -29,7 +29,7 @@ export default function SignUpPanel() {
 
         // send post request to strapi
         try {
-            const response = await axios.post("http://localhost:1337/api/auth/local/register", {
+            const response = await axios.post("http://localhost:1337/api/auth/local/register", { // TODO: allow for custom API URL
                 username: username,
                 email: email,
                 password: password

@@ -19,7 +19,7 @@ export default function LogInPanel() {
 
         // send post request to strapi
         try {
-            const response = await axios.post("http://localhost:1337/api/auth/local", {
+            const response = await axios.post("http://localhost:1337/api/auth/local", { // TODO: allow for custom API URL
                 identifier: email,
                 password: password
             });
