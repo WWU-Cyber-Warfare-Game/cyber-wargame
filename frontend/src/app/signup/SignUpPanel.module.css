@@ -1,5 +1,11 @@
-#main {
+#form {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: left;
+    width: 300px;
+}
+
+#error {
+    color: red;
 }
