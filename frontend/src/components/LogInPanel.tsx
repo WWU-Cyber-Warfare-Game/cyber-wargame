@@ -28,11 +28,13 @@ export default function LogInPanel(props: LogInPanelProps) {
 
         // send post request to strapi
         try {
+            const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
+
             if (props.signup) {
                 const email = formData.get("email");
                 const username = formData.get("username");
                 const password = formData.get("password");
-                await axios.post("http://localhost:1337/api/auth/local/register", { // TODO: allow for custom API URL
+                await axios.post(`${strapiUrl}/api/auth/local/register`, {
                     username: username,
                     email: email,
                     password: password
@@ -40,7 +42,7 @@ export default function LogInPanel(props: LogInPanelProps) {
             } else {
                 const email = formData.get("email");
                 const password = formData.get("password");
-                await axios.post("http://localhost:1337/api/auth/local", { // TODO: allow for custom API URL
+                await axios.post(`${strapiUrl}/api/auth/local`, {
                     identifier: email,
                     password: password
                 });
