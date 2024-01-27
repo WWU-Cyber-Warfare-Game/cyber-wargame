@@ -70,7 +70,7 @@ export default function LogInPanel(props: LogInPanelProps) {
                 <input type="password" id="password" name="password" required />
                 <label htmlFor="confirmPassword">Confirm Password</label>
                 <input type="password" id="confirmPassword" name="confirmPassword" required />
-                <button type="submit">{props.signup ? "Sign Up" : "Log In"}</button>
+                <button type="submit">Sign Up</button>
             </form>
             :
             <form id={styles.form} onSubmit={onSubmit}>
