@@ -1,4 +1,4 @@
-import LogInPanel from "./LogInPanel";
+import LogInPanel from "@/components/LogInPanel";
 
 export default function LogIn() {
     return (
