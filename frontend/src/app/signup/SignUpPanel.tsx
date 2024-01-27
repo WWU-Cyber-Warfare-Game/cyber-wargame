@@ -2,7 +2,7 @@
 
 import styles from "./SignUpPanel.module.css";
 import { useState } from "react";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, isAxiosError } from "axios";
 import { useRouter } from "next/navigation";
 
 export default function SignUpPanel() {
@@ -39,8 +39,10 @@ export default function SignUpPanel() {
             console.error(error);
             if (axios.isAxiosError(error) && error.response) {
                 setError(error.response.data.error.message);
+            } else if (isAxiosError(error)) {
+                setError(error.message);
             } else {
-                setError("Unknown error");
+                setError("An unknown error occurred");
             }
         }
     }

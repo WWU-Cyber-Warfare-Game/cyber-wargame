@@ -2,7 +2,7 @@
 
 import styles from "./LogInPanel.module.css";
 import { useState } from "react";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, isAxiosError } from "axios";
 import { useRouter } from "next/navigation";
 
 export default function LogInPanel() {
@@ -23,11 +23,14 @@ export default function LogInPanel() {
                 identifier: email,
                 password: password
             });
+            console.log("JWT: " + response.data.jwt); // TODO: remove, for debugging only
             router.push("/");
         } catch (error) {
             console.error(error);
             if (axios.isAxiosError(error) && error.response) {
                 setError(error.response.data.error.message);
+            } else if (isAxiosError(error)) {
+                setError(error.message);
             } else {
                 setError("An unknown error occurred");
             }
