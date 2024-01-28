@@ -6,6 +6,10 @@
     width: 300px;
 }
 
+.input:invalid {
+    border: 1px solid red;
+}
+
 #error {
     color: red;
 }
