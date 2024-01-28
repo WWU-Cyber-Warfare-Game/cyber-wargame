@@ -10,11 +10,10 @@ const authRoutes = [
 export async function middleware(req: NextRequest) {
     const cookie = req.cookies.get("jwt");
     const currentPath = req.nextUrl.pathname;
-    const user = await validateUser(cookie?.value); // TODO: find another way to do this, currently it calls the api like 8 times for each page load
 
-    console.log(user);
-
-    if (authRoutes.includes(currentPath) && !user) {
-        return NextResponse.redirect(new URL('/login', req.url))
+    if (authRoutes.includes(currentPath)) {
+        // FIXME: validateUser is called twice per page for some reason
+        const user = await validateUser(cookie?.value);
+        if (!user) return NextResponse.redirect(new URL('/login', req.url))
     }
 }
