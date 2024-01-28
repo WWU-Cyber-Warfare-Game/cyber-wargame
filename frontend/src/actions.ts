@@ -75,6 +75,11 @@ export async function signUp(prevState: string | null, formData: FormData) {
     redirect("/dashboard");
 }
 
+export async function logOut() {
+    cookies().delete("jwt");
+    redirect("/");
+}
+
 export async function validateUser(jwt: string | undefined) {
     const res = await fetch(`${STRAPI_URL}/api/users/me`, {
         headers: {

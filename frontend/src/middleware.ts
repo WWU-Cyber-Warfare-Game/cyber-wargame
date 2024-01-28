@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateUser } from "./actions";
+import { validateUser, logOut } from "./actions";
+import { headers } from "next/headers";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
@@ -11,6 +12,7 @@ export async function middleware(req: NextRequest) {
     const cookie = req.cookies.get("jwt");
     const currentPath = req.nextUrl.pathname;
 
+    // validates users for authorized pages
     if (authRoutes.includes(currentPath)) {
         // FIXME: validateUser is called twice per page for some reason
         const user = await validateUser(cookie?.value);
