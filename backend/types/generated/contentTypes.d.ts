@@ -823,8 +823,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     >;
     teamRole: Attribute.Enumeration<
       ['leader', 'intelligence', 'military', 'media', 'diplomat']
-    > &
-      Attribute.Required;
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
