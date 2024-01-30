@@ -1,0 +1,15 @@
+#form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: left;
+    width: 300px;
+}
+
+.input:invalid {
+    border: 1px solid red;
+}
+
+#error {
+    color: red;
+}
