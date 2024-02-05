@@ -5,12 +5,12 @@ import { headers } from "next/headers";
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
 const authRoutes = [
-    "/dashboard"
+    'dashboard'
 ];
 
 export async function middleware(req: NextRequest) {
     const cookie = req.cookies.get("jwt");
-    const currentPath = req.nextUrl.pathname;
+    const currentPath = req.nextUrl.pathname.split('/')[1];
 
     // validates users for authorized pages
     if (authRoutes.includes(currentPath)) {
