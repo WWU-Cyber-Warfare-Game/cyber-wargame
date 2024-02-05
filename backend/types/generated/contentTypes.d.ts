@@ -418,11 +418,6 @@ export interface ApiTeamTeam extends Schema.CollectionType {
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
-    teamMembers: Attribute.Relation<
-      'api::team.team',
-      'oneToMany',
-      'plugin::users-permissions.user'
-    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -823,6 +818,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     >;
     teamRole: Attribute.Enumeration<
       ['leader', 'intelligence', 'military', 'media', 'diplomat']
+    >;
+    team: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToOne',
+      'api::team.team'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

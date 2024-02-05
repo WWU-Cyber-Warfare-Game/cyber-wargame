@@ -75,6 +75,11 @@
         "diplomat"
       ],
       "required": false
+    },
+    "team": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::team.team"
     }
   }
 }

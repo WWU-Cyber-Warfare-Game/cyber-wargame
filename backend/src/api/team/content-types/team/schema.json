@@ -15,11 +15,6 @@
     "name": {
       "type": "string",
       "required": true
-    },
-    "teamMembers": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "plugin::users-permissions.user"
     }
   }
 }
