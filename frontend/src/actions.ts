@@ -80,7 +80,15 @@ export async function logOut() {
     redirect("/");
 }
 
-export async function validateUser(jwt: string | undefined) {
+export async function validateUser(jwt?: string | undefined) {
+    if (!jwt) {
+        if (cookies().get("jwt")) {
+            jwt = cookies().get("jwt")?.value;
+        } else {
+            return null;
+        }
+    }
+    
     const res = await fetch(`${STRAPI_URL}/api/users/me`, {
         headers: {
             Authorization: `Bearer ${jwt}`
