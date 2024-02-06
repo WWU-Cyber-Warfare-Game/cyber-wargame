@@ -17,16 +17,12 @@ export default {
   bootstrap(/*{ strapi }*/) {
     var io  = require('socket.io')(strapi.server.httpServer, {
       cors: {
-        origin: 'http://localhost:3000/dashboard',
+        origin: ['http://localhost:3000/dashboard', 'http://localhost:3000/chat'], //dashboard, can add other origins
         methods: ['GET', 'POST'],
-        allowedHeaders: ['my-custom-header'],
-        credentials: true,
       },
     });
     io.on('connection', function (socket) {
-      socket.on('join', () => {
-        console.log('A user connected')
-      })
-    });
+      console.log('user connected with ID:' + socket.id)
+    })
   }
 };
