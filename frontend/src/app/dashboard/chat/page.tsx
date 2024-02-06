@@ -2,11 +2,10 @@ import Link from "next/link";
 import { getTeamUsers, validateUser } from "@/actions";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import styles from "./ChatPage.module.css";
 
 export default async function ChatPage() {
-    const jwt = cookies().get("jwt")?.value;
-    const user = await validateUser(jwt);
-
+    const user = await validateUser();
     if (!user) {
         redirect("/login");
     }
@@ -15,13 +14,15 @@ export default async function ChatPage() {
     
     return (
         <div>
-            <h2>Chat Page</h2>
-            <Link href="/dashboard">Back to dashboard</Link>
             <p>Welcome to the chat page!</p>
             <ul>
-                <li>Team</li>
+                <Link href="/dashboard/chat/team"><li className={styles.chatList}>Team</li></Link>
                 {teamUsers.map((teamUser) => (
-                    <li key={teamUser.id}>{teamUser.username} ({teamUser.teamRole})</li>
+                    <li className={styles.chatList} key={teamUser.id}>
+                        <Link href={`/dashboard/chat/${teamUser.username}`}>
+                            {teamUser.teamRole} ({teamUser.username})
+                        </Link>
+                    </li>
                 ))}
             </ul>
         </div>

@@ -116,3 +116,17 @@ export async function getTeamUsers(teamId: number) {
     console.error(res);
     return [] as User[];
 }
+
+export async function getUser(username: string) {
+    const res = await fetch(`${STRAPI_URL}/api/users?populate=*&filters[username][$eq]=${username}`, {
+        headers: {
+            Authorization: `Bearer ${STRAPI_API_TOKEN}`
+        }
+    });
+
+    if (res.ok) {
+        return await res.json() as User;
+    }
+    console.error(res);
+    return null;
+}
