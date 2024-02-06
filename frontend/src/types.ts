@@ -16,4 +16,13 @@ export interface User {
     createdAt: Date;
     updatedAt: Date;
     teamRole: TeamRole;
+    team: Team;
+}
+
+export interface Team {
+    id: number;
+    name: string;
+    createdAt: Date;
+    updatedAt: Date;
+    publishedAt: Date;
 }
