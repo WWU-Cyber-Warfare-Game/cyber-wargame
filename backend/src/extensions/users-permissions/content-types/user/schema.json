@@ -75,6 +75,12 @@
         "diplomat"
       ],
       "required": false
+    },
+    "messages": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::message.message",
+      "mappedBy": "users_permissions_user"
     }
   }
 }
