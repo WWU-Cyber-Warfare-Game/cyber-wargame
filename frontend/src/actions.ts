@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { User } from "./types";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
+const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 
 export async function logIn(prevState: string | null, formData: FormData) {
     const formSchema = z.object({
@@ -89,7 +90,7 @@ export async function validateUser(jwt?: string | undefined) {
         }
     }
     
-    const res = await fetch(`${STRAPI_URL}/api/users/me`, {
+    const res = await fetch(`${STRAPI_URL}/api/users/me?populate=*`, {
         headers: {
             Authorization: `Bearer ${jwt}`
         }
@@ -100,4 +101,18 @@ export async function validateUser(jwt?: string | undefined) {
     } else {
         return null;
     }
+}
+
+export async function getTeamUsers(teamId: number) {
+    const res = await fetch(`${STRAPI_URL}/api/users?populate=*&filters[team][id][$eq]=${teamId}`, {
+        headers: {
+            Authorization: `Bearer ${STRAPI_API_TOKEN}`
+        }
+    });
+
+    if (res.ok) {
+        return await res.json() as User[];
+    }
+    console.error(res);
+    return [] as User[];
 }
