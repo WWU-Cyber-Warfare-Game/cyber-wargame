@@ -26,3 +26,10 @@ export interface Team {
     updatedAt: Date;
     publishedAt: Date;
 }
+
+export interface Message {
+    message: string;
+    date: Date;
+    sender: string;
+    receiver: string;
+}

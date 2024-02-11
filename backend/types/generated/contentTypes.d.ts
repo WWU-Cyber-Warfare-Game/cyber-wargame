@@ -405,6 +405,47 @@ export interface ApiActionAction extends Schema.CollectionType {
   };
 }
 
+export interface ApiMessageMessage extends Schema.CollectionType {
+  collectionName: 'messages';
+  info: {
+    singularName: 'message';
+    pluralName: 'messages';
+    displayName: 'Message';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    sender: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    receiver: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    message: Attribute.Text & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiTeamTeam extends Schema.CollectionType {
   collectionName: 'teams';
   info: {
@@ -852,6 +893,7 @@ declare module '@strapi/types' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'api::action.action': ApiActionAction;
+      'api::message.message': ApiMessageMessage;
       'api::team.team': ApiTeamTeam;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
