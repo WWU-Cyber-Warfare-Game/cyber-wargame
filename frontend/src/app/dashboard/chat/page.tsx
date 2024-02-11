@@ -7,7 +7,7 @@ import { User } from "@/types";
 
 export default async function ChatPage() {
     const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-    
+
     const user = await validateUser();
     if (!user) {
         redirect("/login");
@@ -23,16 +23,18 @@ export default async function ChatPage() {
     return (
         <div>
             <p>Welcome to the chat page!</p>
-            { user.team ?
+            {user.team ?
                 <ul>
                     <Link href="/dashboard/chat/team"><li className={styles.chatList}>{teamName}</li></Link>
-                    {teamUsers.map((teamUser) => (
-                        <li className={styles.chatList} key={teamUser.id}>
-                            <Link href={`/dashboard/chat/${teamUser.username}`}>
-                                {capitalize(teamUser.teamRole)} ({teamUser.username})
-                            </Link>
-                        </li>
-                    ))}
+                    {teamUsers
+                        .filter(teamUser => teamUser.username !== user.username)
+                        .map((teamUser) => (
+                            <li className={styles.chatList} key={teamUser.id}>
+                                <Link href={`/dashboard/chat/${teamUser.username}`}>
+                                    {capitalize(teamUser.teamRole)} ({teamUser.username})
+                                </Link>
+                            </li>
+                        ))}
                 </ul>
                 :
                 <p>You are not currently on a team.</p>
