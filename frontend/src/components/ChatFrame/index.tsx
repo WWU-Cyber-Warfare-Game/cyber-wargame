@@ -26,7 +26,7 @@ export default function ChatFrame({ slug }: ChatFrameProps) {
             <ul id={styles.messageList}>
                 {messages.map((message) => (
                     <li key={message.date.valueOf()}>
-                        <Message message={message.message} sender={message.sender} />
+                        <Message message={message.message} sender={message.sender} date={message.date} />
                     </li>
                 ))}
             </ul>
