@@ -30,6 +30,10 @@ export default function ChatFrame({ slug }: ChatFrameProps) {
                     </li>
                 ))}
             </ul>
+            <div id={styles.inputContainer}>
+                <input type="text" id={styles.messageInput} />
+                <button id={styles.sendButton}>Send</button>
+            </div>
         </div>
     );
 }
