@@ -16,8 +16,8 @@ export default async function ChatPage() {
     let teamUsers: User[] = [];
     let teamName;
     if (user.team) {
-        teamUsers = await getTeamUsers(user.team.id);
-        teamName = user.team.name;
+        teamUsers = await getTeamUsers(user.team);
+        teamName = user.team;
     }
 
     return (
@@ -29,7 +29,7 @@ export default async function ChatPage() {
                     {teamUsers
                         .filter(teamUser => teamUser.username !== user.username)
                         .map((teamUser) => (
-                            <li className={styles.chatList} key={teamUser.id}>
+                            <li className={styles.chatList} key={teamUser.username}>
                                 <Link href={`/dashboard/chat/${teamUser.username}`}>
                                     {capitalize(teamUser.teamRole)} ({teamUser.username})
                                 </Link>
