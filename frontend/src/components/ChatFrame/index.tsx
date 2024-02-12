@@ -7,19 +7,42 @@ import Message from "@/components/ChatFrame/Message";
 import styles from "./ChatFrame.module.css";
 
 interface ChatFrameProps {
-    slug: string;
+    sender: string;
+    receiver: string;
 }
 
-export default function ChatFrame({ slug }: ChatFrameProps) {
+export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
     const [messages, setMessages] = useState<MessageInterface[]>([]);
+    const [messageInput, setMessageInput] = useState("");
     
     useEffect(() => {
-        getMessages(slug).then((messages) => {
+        getMessages(receiver).then((messages) => {
             if (messages) {
                 setMessages(messages);
             }
         });
-    }, [slug]);
+    }, [receiver]);
+
+    function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+        setMessageInput(event.target.value);
+    }
+
+    function handleSendClick() {
+        if (messageInput.trim() !== "") {
+            const newMessage: MessageInterface = {
+                message: messageInput,
+                sender: sender,
+                receiver: receiver,
+                date: new Date(),
+            };
+
+            // Update messages state with the new message
+            setMessages([...messages, newMessage]);
+
+            // Clear message input
+            setMessageInput("");
+        }
+    }
     
     return(
         <div id={styles.chatFrame}>
@@ -31,8 +54,8 @@ export default function ChatFrame({ slug }: ChatFrameProps) {
                 ))}
             </ul>
             <div id={styles.inputContainer}>
-                <input type="text" id={styles.messageInput} />
-                <button id={styles.sendButton}>Send</button>
+                <input type="text" id={styles.messageInput} value={messageInput} onChange={handleInputChange} />
+                <button id={styles.sendButton} onClick={handleSendClick}>Send</button>
             </div>
         </div>
     );
