@@ -9,8 +9,10 @@ interface MessageProps {
 export default function Message({ message, sender, date }: MessageProps) {
     return(
         <div id={styles.message}>
-            <p id={styles.sender}>{sender}</p>
-            <p id={styles.messageText}>{message}</p>
+            <div id={styles.senderMessage}>
+                <p id={styles.sender}>{sender}</p>
+                <p id={styles.messageText}>{message}</p>
+            </div>
             <p id={styles.date}>{date.toLocaleTimeString()}</p>
         </div>
     );
