@@ -7,28 +7,28 @@ import { AdminPanelRelationPropertyModification } from '../../../../common/schem
 export interface Message {
   id: number;
   attributes: {
-    createdAt: Date;    updatedAt: Date;    publishedAt?: Date;    users_permissions_user?: { data: User };
-    content?: string;
-    Time?: Date;
+    createdAt: Date;    updatedAt: Date;    publishedAt?: Date;    sender?: { data: User };
+    receiver?: { data: User };
+    message: string;
   };
 }
 export interface Message_Plain {
   id: number;
-  createdAt: Date;  updatedAt: Date;  publishedAt?: Date;  users_permissions_user?: User_Plain;
-  content?: string;
-  Time?: Date;
+  createdAt: Date;  updatedAt: Date;  publishedAt?: Date;  sender?: User_Plain;
+  receiver?: User_Plain;
+  message: string;
 }
 
 export interface Message_NoRelations {
   id: number;
-  createdAt: Date;  updatedAt: Date;  publishedAt?: Date;  users_permissions_user?: number;
-  content?: string;
-  Time?: Date;
+  createdAt: Date;  updatedAt: Date;  publishedAt?: Date;  sender?: number;
+  receiver?: number;
+  message: string;
 }
 
 export interface Message_AdminPanelLifeCycle {
   id: number;
-  createdAt: Date;  updatedAt: Date;  publishedAt?: Date;  users_permissions_user?: AdminPanelRelationPropertyModification<User_Plain>;
-  content?: string;
-  Time?: Date;
+  createdAt: Date;  updatedAt: Date;  publishedAt?: Date;  sender?: AdminPanelRelationPropertyModification<User_Plain>;
+  receiver?: AdminPanelRelationPropertyModification<User_Plain>;
+  message: string;
 }

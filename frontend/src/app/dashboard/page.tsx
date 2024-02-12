@@ -8,7 +8,7 @@ export default function Dashboard() {
         <div>
             <h2>Dashboard</h2>
             <p>Welcome to your dashboard.</p>
-            <div><Link href={'/chat'}>Chat</Link></div>
+            <Link href="/dashboard/chat">Go to chat</Link>
         </div>
     );
 }

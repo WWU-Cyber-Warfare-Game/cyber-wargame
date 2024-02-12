@@ -411,18 +411,23 @@ export interface ApiMessageMessage extends Schema.CollectionType {
     singularName: 'message';
     pluralName: 'messages';
     displayName: 'Message';
+    description: '';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
-    users_permissions_user: Attribute.Relation<
+    sender: Attribute.Relation<
       'api::message.message',
-      'manyToOne',
+      'oneToOne',
       'plugin::users-permissions.user'
     >;
-    content: Attribute.Text;
-    Time: Attribute.DateTime;
+    receiver: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    message: Attribute.Text & Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -454,11 +459,6 @@ export interface ApiTeamTeam extends Schema.CollectionType {
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
-    teamMembers: Attribute.Relation<
-      'api::team.team',
-      'oneToMany',
-      'plugin::users-permissions.user'
-    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -860,10 +860,10 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     teamRole: Attribute.Enumeration<
       ['leader', 'intelligence', 'military', 'media', 'diplomat']
     >;
-    messages: Attribute.Relation<
+    team: Attribute.Relation<
       'plugin::users-permissions.user',
-      'oneToMany',
-      'api::message.message'
+      'oneToOne',
+      'api::team.team'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

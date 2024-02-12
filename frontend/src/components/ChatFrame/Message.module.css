@@ -1,0 +1,21 @@
+#message {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+#sender {
+    font-weight: bold;
+    margin: 0px;
+}
+
+#messageText {
+    margin: 0px;
+}
+
+#senderMessage {
+    display: flex;
+    flex-direction: column;
+}
