@@ -1,4 +1,7 @@
+import {io} from 'socket.io-client';
 import Link from "next/link";
+
+const socket = io('http://localhost:1337');
 
 export default function Dashboard() {
     return (

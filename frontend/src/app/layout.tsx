@@ -3,8 +3,6 @@ import Link from "next/link";
 import "./globals.css";
 import { validateUser } from "@/actions";
 import { cookies } from "next/headers";
-import { useEffect, useState } from "react";
-import { User } from "@/types";
 
 export const metadata: Metadata = {
   title: "Create Next App",
