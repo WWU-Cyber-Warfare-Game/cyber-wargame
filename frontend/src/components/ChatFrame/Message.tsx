@@ -7,13 +7,11 @@ interface MessageProps {
 }
 
 export default function Message({ message, sender, date }: MessageProps) {
-    const newDate = new Date(date); // I don't know why I have to do this, but it doesn't work without otherwise
-    
     return(
         <div id={styles.message}>
             <p id={styles.sender}>{sender}</p>
             <p id={styles.messageText}>{message}</p>
-            <p id={styles.date}>{newDate.toLocaleTimeString()}</p>
+            <p id={styles.date}>{date.toLocaleTimeString()}</p>
         </div>
     );
 }
