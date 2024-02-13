@@ -54,7 +54,15 @@ export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
                 ))}
             </ul>
             <div id={styles.inputContainer}>
-                <input type="text" id={styles.messageInput} value={messageInput} onChange={handleInputChange} />
+                <input
+                    type="text"
+                    id={styles.messageInput}
+                    value={messageInput}
+                    onChange={handleInputChange}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSendClick();
+                    }}
+                />
                 <button id={styles.sendButton} onClick={handleSendClick}>Send</button>
             </div>
         </div>
