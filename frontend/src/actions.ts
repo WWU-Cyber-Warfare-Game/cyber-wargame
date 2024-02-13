@@ -10,6 +10,15 @@ import { User, Message } from "./types";
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 
+function parseUser(data: any): User {
+    return {
+        username: data.username,
+        email: data.email,
+        teamRole: data.teamRole,
+        team: data.team.name
+    }
+}
+
 export async function logIn(prevState: string | null, formData: FormData) {
     const formSchema = z.object({
         identifier: z.string(),
@@ -81,14 +90,9 @@ export async function logOut() {
     redirect("/");
 }
 
-export async function validateUser(jwt?: string | undefined) {
-    if (!jwt) {
-        if (cookies().get("jwt")) {
-            jwt = cookies().get("jwt")?.value;
-        } else {
-            return null;
-        }
-    }
+export async function validateUser() {
+    let jwt = cookies().get("jwt")?.value;
+    if (!jwt) return null;
 
     const res = await fetch(`${STRAPI_URL}/api/users/me?populate=*`, {
         headers: {
@@ -97,21 +101,23 @@ export async function validateUser(jwt?: string | undefined) {
     });
 
     if (res.ok) {
-        return await res.json() as User;
+        const unparsedData = await res.json();
+        return parseUser(unparsedData);
     } else {
         return null;
     }
 }
 
-export async function getTeamUsers(teamId: number) {
-    const res = await fetch(`${STRAPI_URL}/api/users?populate=*&filters[team][id][$eq]=${teamId}`, {
+export async function getTeamUsers(team: string) {
+    const res = await fetch(`${STRAPI_URL}/api/users?populate=*&filters[team][name][$eq]=${team}`, {
         headers: {
             Authorization: `Bearer ${STRAPI_API_TOKEN}`
         }
     });
 
     if (res.ok) {
-        return await res.json() as User[];
+        const unparsedData = await res.json();
+        return unparsedData.map((user: any) => parseUser(user));
     }
     console.error(res);
     return [] as User[];
@@ -125,7 +131,10 @@ export async function getUser(username: string) {
     });
 
     if (res.ok) {
-        return await res.json() as User;
+        const unparsedData = await res.json();
+        const user = unparsedData[0];
+        if (!user) return null;
+        return parseUser(user);
     }
     console.error(res);
     return null;
@@ -138,7 +147,7 @@ export async function getMessages(username: string) {
 
     function parseResponseData(data: any) {
         let messages: Message[] = [];
-        data.forEach(function(m: any) {
+        data.forEach(function (m: any) {
             const newMessage: Message = {
                 message: m.attributes.message,
                 date: new Date(Date.parse(m.attributes.createdAt)),
