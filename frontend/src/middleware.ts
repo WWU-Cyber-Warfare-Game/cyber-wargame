@@ -18,7 +18,7 @@ export async function middleware(req: NextRequest) {
     // validates users for authorized pages
     if (authRoutes.includes(currentPath)) {
         // FIXME: validateUser is called twice per page for some reason
-        const user = await validateUser(cookie?.value);
-        if (!user) return NextResponse.redirect(new URL('/login', req.url))
+        const user = await validateUser();
+        if (!user) return NextResponse.redirect(new URL('/login', req.url));
     }
 }

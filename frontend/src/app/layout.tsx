@@ -14,7 +14,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await validateUser(cookies().get("jwt")?.value);
+  const user = await validateUser();
 
   return (
     <html lang="en">

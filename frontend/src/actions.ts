@@ -90,14 +90,9 @@ export async function logOut() {
     redirect("/");
 }
 
-export async function validateUser(jwt?: string | undefined) {
-    if (!jwt) {
-        if (cookies().get("jwt")) {
-            jwt = cookies().get("jwt")?.value;
-        } else {
-            return null;
-        }
-    }
+export async function validateUser() {
+    let jwt = cookies().get("jwt")?.value;
+    if (!jwt) return null;
 
     const res = await fetch(`${STRAPI_URL}/api/users/me?populate=*`, {
         headers: {
@@ -152,7 +147,7 @@ export async function getMessages(username: string) {
 
     function parseResponseData(data: any) {
         let messages: Message[] = [];
-        data.forEach(function(m: any) {
+        data.forEach(function (m: any) {
             const newMessage: Message = {
                 message: m.attributes.message,
                 date: new Date(Date.parse(m.attributes.createdAt)),
