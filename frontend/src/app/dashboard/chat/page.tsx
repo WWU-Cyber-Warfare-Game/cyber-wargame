@@ -25,7 +25,6 @@ export default async function ChatPage() {
             <p>Welcome to the chat page!</p>
             {user.team ?
                 <ul>
-                    <Link href="/dashboard/chat/team"><li className={styles.chatList}>{teamName}</li></Link>
                     {teamUsers
                         .filter(teamUser => teamUser.username !== user.username)
                         .map((teamUser) => (
