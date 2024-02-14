@@ -25,6 +25,9 @@
     "message": {
       "type": "text",
       "required": true
+    },
+    "date": {
+      "type": "datetime"
     }
   }
 }

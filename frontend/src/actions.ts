@@ -150,7 +150,7 @@ export async function getMessages(username: string) {
         data.forEach(function (m: any) {
             const newMessage: Message = {
                 message: m.attributes.message,
-                date: new Date(Date.parse(m.attributes.createdAt)),
+                date: new Date(Date.parse(m.attributes.date)),
                 sender: m.attributes.sender.data.attributes.username,
                 receiver: m.attributes.receiver.data.attributes.username
             }
