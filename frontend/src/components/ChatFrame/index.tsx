@@ -15,6 +15,7 @@ interface ChatFrameProps {
     jwt: string;
 }
 
+// TODO: add connection error handling
 export default function ChatFrame({ sender, receiver, jwt }: ChatFrameProps) {
     const [messages, setMessages] = useState<MessageInterface[]>([]);
     const [messageInput, setMessageInput] = useState("");
