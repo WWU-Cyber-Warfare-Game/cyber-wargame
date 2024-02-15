@@ -7,7 +7,7 @@ import Message from "@/components/ChatFrame/Message";
 import styles from "./ChatFrame.module.css";
 import { io } from "socket.io-client";
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
+const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 const socket = io(STRAPI_URL);
 
 interface ChatFrameProps {

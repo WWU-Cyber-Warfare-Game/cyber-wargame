@@ -2,6 +2,13 @@ import { Server } from 'socket.io';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
+interface Message {
+  message: string;
+  date: Date;
+  sender: string;
+  receiver: string;
+}
+
 export default {
   /**
    * An asynchronous register function that runs before
