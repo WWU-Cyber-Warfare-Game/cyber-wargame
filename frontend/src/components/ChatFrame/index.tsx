@@ -1,7 +1,7 @@
 "use client";
 
 import { getMessages } from "@/actions";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Message as MessageInterface } from "@/types";
 import Message from "@/components/ChatFrame/Message";
 import styles from "./ChatFrame.module.css";
@@ -18,6 +18,14 @@ interface ChatFrameProps {
 export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
     const [messages, setMessages] = useState<MessageInterface[]>([]);
     const [messageInput, setMessageInput] = useState("");
+    const endOfListRef = useRef<HTMLDivElement>(null);
+
+    // scroll to the end of the message list when new messages are added
+    useEffect(() => {
+        if (endOfListRef.current) {
+            endOfListRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages]);
 
     // join corresponding room when component mounts
     useEffect(() => {
@@ -74,6 +82,7 @@ export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
                         <Message message={message.message} sender={message.sender} date={message.date} />
                     </li>
                 ))}
+                <div ref={endOfListRef} />
             </ul>
             <div id={styles.inputContainer}>
                 <input
