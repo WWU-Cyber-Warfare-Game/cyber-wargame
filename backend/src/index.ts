@@ -29,21 +29,30 @@ export default {
    * This gives you an opportunity to set up your data model,
    * run jobs, or perform some special logic.
    */
-  async bootstrap({ strapi }) {
+  async bootstrap({ /* strapi */ }) {
     const io = new Server(strapi.server.httpServer, {
       cors: {
         origin: [`${FRONTEND_URL}`], //dashboard, can add other origins
         methods: ['GET', 'POST'],
       },
     });
-    io.on('connection', (socket) => {
-      console.log('user connected with ID:' + socket.id)
+    io.on('connection', (socket) => { // TODO: figure out why like 10 users connect at once
+      console.log('user connected with ID:' + socket.id);
 
-      socket.on('message', (message: Message, users: string[]) => {
-        console.log(`message received from ${socket.id}`, message);
-        socket.to(getRoomName(users[0], users[1])).emit('message', message);
+      // listen for messages, add to strapi, and emit to room
+      socket.on('message', async (message: Message) => {
+        socket.to(getRoomName(message.sender, message.receiver)).emit('message', message);
+        await strapi.entityService.create('api::message.message', {
+          data: {
+            message: message.message,
+            date: message.date,
+            sender: message.sender,
+            receiver: message.receiver,
+          }
+        });
       });
 
+      // join room when user connects
       socket.on('join-room', (users: string[]) => {
         socket.join(getRoomName(users[0], users[1]));
       });

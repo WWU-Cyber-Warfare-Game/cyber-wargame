@@ -142,7 +142,6 @@ export async function getUser(username: string) {
 
 export async function getMessages(username: string) {
     // TODO: check if Strapi pagination returns first or last results, could possibly not be returning most recent messages
-    // TODO: message may come in out of order, need to account for this
     // also this is really ugly and not good TypeScript code but Strapi is being a pain in the ass
 
     function parseResponseData(data: any) {
@@ -151,8 +150,8 @@ export async function getMessages(username: string) {
             const newMessage: Message = {
                 message: m.attributes.message,
                 date: new Date(Date.parse(m.attributes.date)),
-                sender: m.attributes.sender.data.attributes.username,
-                receiver: m.attributes.receiver.data.attributes.username
+                sender: m.attributes.sender,
+                receiver: m.attributes.receiver
             }
             messages.push(newMessage);
         });
@@ -166,32 +165,18 @@ export async function getMessages(username: string) {
     }
 
     // get messages where user is sender and username is receiver
-    const res1 = await fetch(`${STRAPI_URL}/api/messages?populate=*&filters[sender][username][$eq]=${user.username}&filters[receiver][username]=${username}`, {
+    const res = await fetch(`${STRAPI_URL}/api/messages?populate=*&filters[sender][username][$eq]=${user.username}&filters[receiver][username]=${username}`, {
         headers: {
             Authorization: `Bearer ${STRAPI_API_TOKEN}`
         }
     });
 
-    if (!res1.ok) {
-        console.error(res1);
+    if (!res.ok) {
+        console.error(res);
         return null;
     }
 
-    const data1 = await res1.json();
+    const data = await res.json();
 
-    // get messages where user is receiver and username is sender
-    const res2 = await fetch(`${STRAPI_URL}/api/messages?populate=*&filters[sender][username][$eq]=${username}&filters[receiver][username]=${user.username}`, {
-        headers: {
-            Authorization: `Bearer ${STRAPI_API_TOKEN}`
-        }
-    });
-
-    if (!res2.ok) {
-        console.error(res1);
-        return null;
-    }
-
-    const data2 = await res2.json();
-
-    return [...parseResponseData(data1.data), ...parseResponseData(data2.data)].sort((a, b) => a.date.valueOf() - b.date.valueOf());
+    return parseResponseData(data.data).sort((a, b) => a.date.valueOf() - b.date.valueOf());
 }

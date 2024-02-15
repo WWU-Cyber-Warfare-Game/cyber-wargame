@@ -28,6 +28,7 @@ export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
     useEffect(() => {
         getMessages(receiver).then((messages) => {
             if (messages) {
+                console.log(messages);
                 setMessages(messages);
             }
         });
@@ -68,8 +69,8 @@ export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
     return(
         <div id={styles.chatFrame}>
             <ul id={styles.messageList}>
-                {messages.map((message) => (
-                    <li key={message.date.valueOf()}>
+                {messages.map((message, index) => (
+                    <li key={index}>
                         <Message message={message.message} sender={message.sender} date={message.date} />
                     </li>
                 ))}
