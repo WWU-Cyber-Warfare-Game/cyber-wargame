@@ -164,19 +164,37 @@ export async function getMessages(username: string) {
         return null;
     }
 
+    console.log(user.username, username);
+
+    // TODO: combine these two API calls into one
+
     // get messages where user is sender and username is receiver
-    const res = await fetch(`${STRAPI_URL}/api/messages?populate=*&filters[sender][username][$eq]=${user.username}&filters[receiver][username]=${username}`, {
+    const res1 = await fetch(`${STRAPI_URL}/api/messages?populate=*&filters[sender][$eq]=${user.username}&filters[receiver][$eq]=${username}`, {
         headers: {
             Authorization: `Bearer ${STRAPI_API_TOKEN}`
         }
     });
 
-    if (!res.ok) {
-        console.error(res);
+    if (!res1.ok) {
+        console.error(res1);
         return null;
     }
 
-    const data = await res.json();
+    const data1 = await res1.json();
 
-    return parseResponseData(data.data).sort((a, b) => a.date.valueOf() - b.date.valueOf());
+    // get messages where user is sender and username is receiver
+    const res2 = await fetch(`${STRAPI_URL}/api/messages?populate=*&filters[sender][$eq]=${username}&filters[receiver][$eq]=${user.username}`, {
+        headers: {
+            Authorization: `Bearer ${STRAPI_API_TOKEN}`
+        }
+    });
+
+    if (!res2.ok) {
+        console.error(res2);
+        return null;
+    }
+
+    const data2 = await res2.json();
+
+    return [...parseResponseData(data1.data), ...parseResponseData(data2.data)].sort((a, b) => a.date.valueOf() - b.date.valueOf());
 }
