@@ -18,7 +18,13 @@ interface ChatFrameProps {
 export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
     const [messages, setMessages] = useState<MessageInterface[]>([]);
     const [messageInput, setMessageInput] = useState("");
+
+    // join corresponding room when component mounts
+    useEffect(() => {
+        socket.emit("join-room", [sender, receiver]);
+    }, [sender, receiver]);
     
+    // get messages from the server when component mounts
     useEffect(() => {
         getMessages(receiver).then((messages) => {
             if (messages) {
@@ -27,15 +33,18 @@ export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
         });
     }, [receiver]);
 
+    // listen for new messages from the server
     socket.on("message", (message: MessageInterface) => {
         message.date = new Date(message.date);
         setMessages([...messages, message]);
     });
 
+    // update message input state when user types
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         setMessageInput(event.target.value);
     }
 
+    // send message to the server and update messages state
     function handleSendClick() {
         if (messageInput.trim() !== "") {
             const newMessage: MessageInterface = {
