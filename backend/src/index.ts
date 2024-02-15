@@ -21,7 +21,7 @@ export default {
   bootstrap(/*{ strapi }*/) {
     const io = new Server(strapi.server.httpServer, {
       cors: {
-        origin: [`${FRONTEND_URL}/dashboard`], //dashboard, can add other origins
+        origin: [`${FRONTEND_URL}`], //dashboard, can add other origins
         methods: ['GET', 'POST'],
       },
     });
