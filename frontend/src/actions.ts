@@ -164,8 +164,6 @@ export async function getMessages(username: string) {
         return null;
     }
 
-    console.log(user.username, username);
-
     // TODO: combine these two API calls into one
 
     // get messages where user is sender and username is receiver
