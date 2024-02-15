@@ -34,6 +34,10 @@ export default {
     });
     io.on('connection', function (socket) {
       console.log('user connected with ID:' + socket.id)
+      socket.on('message', (message: Message) => {
+        console.log(`message received from ${socket.id}`, message);
+        socket.broadcast.emit('message', message);
+      });
     })
   }
 };

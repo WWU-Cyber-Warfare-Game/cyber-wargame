@@ -27,6 +27,11 @@ export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
         });
     }, [receiver]);
 
+    socket.on("message", (message: MessageInterface) => {
+        message.date = new Date(message.date);
+        setMessages([...messages, message]);
+    });
+
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         setMessageInput(event.target.value);
     }
@@ -45,6 +50,9 @@ export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
 
             // Clear message input
             setMessageInput("");
+
+            // Send message to the server
+            socket.emit("message", newMessage);
         }
     }
     
