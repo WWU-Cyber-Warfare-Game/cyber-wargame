@@ -182,7 +182,7 @@ export async function getMessages(username: string) {
 
     const data1 = await res1.json();
 
-    // get messages where user is sender and username is receiver
+    // get messages where username is sender and user is receiver
     const res2 = await fetch(`${STRAPI_URL}/api/messages?populate=*&filters[sender][$eq]=${username}&filters[receiver][$eq]=${user.username}`, {
         headers: {
             Authorization: `Bearer ${STRAPI_API_TOKEN}`
