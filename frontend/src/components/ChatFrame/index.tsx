@@ -61,7 +61,7 @@ export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
             setMessageInput("");
 
             // Send message to the server
-            socket.emit("message", newMessage);
+            socket.emit("message", newMessage, [sender, receiver]);
         }
     }
     
