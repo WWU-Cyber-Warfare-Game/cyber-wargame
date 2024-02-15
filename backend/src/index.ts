@@ -36,6 +36,8 @@ export default {
         methods: ['GET', 'POST'],
       },
     });
+
+    // TODO: add authentication
     io.on('connection', (socket) => { // TODO: figure out why like 10 users connect at once
       console.log('user connected with ID:' + socket.id);
 
