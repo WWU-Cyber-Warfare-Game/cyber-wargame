@@ -38,7 +38,7 @@ export default {
     });
 
     // TODO: add authentication
-    io.on('connection', (socket) => { // TODO: figure out why like 10 users connect at once
+    io.of('/socket/chat').on('connection', (socket) => { // TODO: figure out why like 10 users connect at once
       console.log('user connected with ID:' + socket.id);
 
       // listen for messages, add to strapi, and emit to room
