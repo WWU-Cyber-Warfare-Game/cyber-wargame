@@ -5,20 +5,31 @@ import { useEffect, useState, useRef } from "react";
 import { Message as MessageInterface } from "@/types";
 import Message from "@/components/ChatFrame/Message";
 import styles from "./ChatFrame.module.css";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
-const socket = io(`${STRAPI_URL}/socket/chat`);
 
 interface ChatFrameProps {
     sender: string;
     receiver: string;
+    jwt: string;
 }
 
-export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
+export default function ChatFrame({ sender, receiver, jwt }: ChatFrameProps) {
     const [messages, setMessages] = useState<MessageInterface[]>([]);
     const [messageInput, setMessageInput] = useState("");
+    const [socket, setSocket] = useState<Socket | null>(null);
     const endOfListRef = useRef<HTMLDivElement>(null);
+
+    // connect to socket server
+    useEffect(() => {
+        const newSocket = io(`${STRAPI_URL}/socket/chat`, {
+            auth: {
+                token: jwt
+            }
+        });
+        setSocket(newSocket);
+    }, []);
 
     // scroll to the end of the message list when new messages are added
     useEffect(() => {
@@ -29,9 +40,9 @@ export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
 
     // join corresponding room when component mounts
     useEffect(() => {
-        socket.emit("join-room", [sender, receiver]);
-    }, [sender, receiver]);
-    
+        if (socket) socket.emit("join-room", [sender, receiver]);
+    }, [sender, receiver, socket]);
+
     // get messages from the server when component mounts
     useEffect(() => {
         getMessages(receiver).then((messages) => {
@@ -43,7 +54,7 @@ export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
     }, [receiver]);
 
     // listen for new messages from the server
-    socket.on("message", (message: MessageInterface) => {
+    if (socket) socket.on("message", (message: MessageInterface) => {
         message.date = new Date(message.date);
         setMessages([...messages, message]);
     });
@@ -70,11 +81,11 @@ export default function ChatFrame({ sender, receiver }: ChatFrameProps) {
             setMessageInput("");
 
             // Send message to the server
-            socket.emit("message", newMessage, [sender, receiver]);
+            if (socket) socket.emit("message", newMessage, [sender, receiver]);
         }
     }
-    
-    return(
+
+    return (
         <div id={styles.chatFrame}>
             <ul id={styles.messageList}>
                 {messages.map((message, index) => (

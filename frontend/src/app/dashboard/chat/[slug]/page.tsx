@@ -1,10 +1,12 @@
 import ChatFrame from "@/components/ChatFrame";
 import { getUser, validateUser } from "@/actions";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export default async function UserChatPage({ params }: { params: { slug: string } }) {
     const user = await validateUser();
-    if (!user) {
+    const jwt = cookies().get("jwt")?.value
+    if (!user || !jwt) {
         redirect("/login");
     }
 
@@ -16,7 +18,7 @@ export default async function UserChatPage({ params }: { params: { slug: string 
     return(
         <div>
             <p>Chatting with {params.slug}</p>
-            <ChatFrame sender={user.username} receiver={params.slug} />
+            <ChatFrame sender={user.username} receiver={params.slug} jwt={jwt} />
         </div>
     );
   }

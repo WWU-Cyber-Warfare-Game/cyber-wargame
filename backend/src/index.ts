@@ -13,6 +13,18 @@ function getRoomName(sender: string, receiver: string) {
   return [sender, receiver].sort().join('&');
 }
 
+async function checkToken(jwt: string) {
+  if (!jwt) {
+    return false;
+  }
+  try {
+    await strapi.plugins['users-permissions'].services.jwt.verify(jwt);
+    return true
+  } catch (error) {
+    return false;
+  }
+}
+
 export default {
   /**
    * An asynchronous register function that runs before
@@ -39,7 +51,14 @@ export default {
 
     // TODO: add authentication
     io.of('/socket/chat').on('connection', (socket) => { // TODO: figure out why like 10 users connect at once
-      console.log('user connected with ID:' + socket.id);
+      // check user jwt
+      if (!socket.handshake.auth.token || !checkToken(socket.handshake.auth.token)) {
+        console.error('user connected without valid token, disconnecting...');
+        socket.disconnect();
+        return;
+      }
+      
+      console.log('user connected with ID ' + socket.id + ' at ' + new Date().toISOString());
 
       // listen for messages, add to strapi, and emit to room
       socket.on('message', async (message: Message) => {
