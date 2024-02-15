@@ -9,20 +9,44 @@ interface Message {
   receiver: string;
 }
 
+// returns the user room string
+// room string is both usernames in alphabetical order, separated by an ampersand
+// e.g. 'user1&user2'
 function getRoomName(sender: string, receiver: string) {
   return [sender, receiver].sort().join('&');
 }
 
+// checks the user's token
+// returns the user's ID if the token is valid, otherwise returns null
 async function checkToken(jwt: string) {
   if (!jwt) {
-    return false;
+    return null;
   }
   try {
-    await strapi.plugins['users-permissions'].services.jwt.verify(jwt);
-    return true
+    const res = await strapi.plugins['users-permissions'].services.jwt.verify(jwt);
+    return res.id as number;
   } catch (error) {
-    return false;
+    return null;
   }
+}
+
+// checks if the receiver is valid (i.e. exists and is on the same team as the sender)
+async function checkReceiver(userId: number, receiver: string) {
+  const res = await strapi.entityService.findOne('plugin::users-permissions.user', userId, {
+    populate: ['team']
+  });
+  const teamName = res.team.name;
+  const teammates = await strapi.entityService.findMany('plugin::users-permissions.user', {
+    fields: ['username'],
+    populate: ['team'],
+    filters: {
+      username: receiver,
+      team: {
+        name: teamName
+      }
+    }
+  });
+  return teammates.length > 0;
 }
 
 export default {
@@ -49,12 +73,13 @@ export default {
       },
     });
 
-    // TODO: add authentication
-    io.of('/socket/chat').on('connection', (socket) => { // TODO: figure out why like 10 users connect at once
+    // NOTE: could probably have one namespace for everything
+    io.of('/socket/chat').on('connection', async (socket) => { // TODO: figure out why like 10 users connect at once
       // check user jwt
-      if (!socket.handshake.auth.token || !checkToken(socket.handshake.auth.token)) {
+      const userId = await checkToken(socket.handshake.auth.token);
+      if (!socket.handshake.auth.token || !userId) {
         console.error('user connected without valid token, disconnecting...');
-        socket.disconnect();
+        socket.disconnect(); // TODO: emit error to user instead of disconnecting
         return;
       }
       
@@ -62,8 +87,16 @@ export default {
 
       // listen for messages, add to strapi, and emit to room
       socket.on('message', async (message: Message) => {
+        const validReceiver = await checkReceiver(userId, message.receiver);
+        if (!validReceiver) {
+          console.error('user ' + userId + ' attempted to send message to invalid receiver ' + message.receiver);
+          socket.disconnect(); // TODO: emit error to user instead of disconnecting
+          return;
+        }
+        console.log('message received');
         socket.to(getRoomName(message.sender, message.receiver)).emit('message', message);
-        await strapi.entityService.create('api::message.message', {
+        console.log('message emitted');
+        const res = await strapi.entityService.create('api::message.message', {
           data: {
             message: message.message,
             date: message.date,
@@ -71,10 +104,19 @@ export default {
             receiver: message.receiver,
           }
         });
+        console.log(res);
+        console.log('message added to strapi');
       });
 
       // join room when user connects
-      socket.on('join-room', (users: string[]) => {
+      socket.on('join-room', async (users: string[]) => {
+        const validReceiver = await checkReceiver(userId, users[1]);
+        if (!validReceiver) {
+          console.error('user ' + userId + ' attempted to join room with invalid receiver ' + users[1]);
+          socket.disconnect(); // TODO: emit error to user instead of disconnecting
+          return;
+        }
+        console.log('room join')
         socket.join(getRoomName(users[0], users[1]));
       });
     });
