@@ -1,3 +1,7 @@
+import { Server } from 'socket.io';
+
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
 export default {
   /**
    * An asynchronous register function that runs before
@@ -15,9 +19,9 @@ export default {
    * run jobs, or perform some special logic.
    */
   bootstrap(/*{ strapi }*/) {
-    var io  = require('socket.io')(strapi.server.httpServer, {
+    const io = new Server(strapi.server.httpServer, {
       cors: {
-        origin: ['http://localhost:3000/dashboard', 'http://localhost:3000/chat'], //dashboard, can add other origins
+        origin: [`${FRONTEND_URL}/dashboard`], //dashboard, can add other origins
         methods: ['GET', 'POST'],
       },
     });
