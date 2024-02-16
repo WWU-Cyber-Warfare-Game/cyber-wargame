@@ -141,8 +141,6 @@ export async function getUser(username: string) {
 }
 
 export async function getMessages(username: string) {
-    // TODO: check if Strapi pagination returns first or last results, could possibly not be returning most recent messages
-    // TODO: message may come in out of order, need to account for this
     // also this is really ugly and not good TypeScript code but Strapi is being a pain in the ass
 
     function parseResponseData(data: any) {
@@ -150,9 +148,9 @@ export async function getMessages(username: string) {
         data.forEach(function (m: any) {
             const newMessage: Message = {
                 message: m.attributes.message,
-                date: new Date(Date.parse(m.attributes.createdAt)),
-                sender: m.attributes.sender.data.attributes.username,
-                receiver: m.attributes.receiver.data.attributes.username
+                date: new Date(Date.parse(m.attributes.date)),
+                sender: m.attributes.sender,
+                receiver: m.attributes.receiver
             }
             messages.push(newMessage);
         });
@@ -165,8 +163,15 @@ export async function getMessages(username: string) {
         return null;
     }
 
+    /**
+     * FIXME: Due to pagination and the messages being retreived using two API calls, if one user has many more messages
+     * than the other, some of their messages will be missing.
+     * Messages should be retreived using one API call to avoid this, but I can't figure out how to combine them.
+     * If I can't figure out how to do this, just increase the maxLimit in api.ts to something really high.
+     */
+
     // get messages where user is sender and username is receiver
-    const res1 = await fetch(`${STRAPI_URL}/api/messages?populate=*&filters[sender][username][$eq]=${user.username}&filters[receiver][username]=${username}`, {
+    const res1 = await fetch(`${STRAPI_URL}/api/messages?pagination[limit]=100&sort[0]=date:desc&populate=*&filters[sender][$eq]=${user.username}&filters[receiver][$eq]=${username}`, {
         headers: {
             Authorization: `Bearer ${STRAPI_API_TOKEN}`
         }
@@ -179,15 +184,15 @@ export async function getMessages(username: string) {
 
     const data1 = await res1.json();
 
-    // get messages where user is receiver and username is sender
-    const res2 = await fetch(`${STRAPI_URL}/api/messages?populate=*&filters[sender][username][$eq]=${username}&filters[receiver][username]=${user.username}`, {
+    // get messages where username is sender and user is receiver
+    const res2 = await fetch(`${STRAPI_URL}/api/messages?pagination[limit]=100&sort[0]=date:desc&populate=*&filters[sender][$eq]=${username}&filters[receiver][$eq]=${user.username}`, {
         headers: {
             Authorization: `Bearer ${STRAPI_API_TOKEN}`
         }
     });
 
     if (!res2.ok) {
-        console.error(res1);
+        console.error(res2);
         return null;
     }
 

@@ -414,23 +414,15 @@ export interface ApiMessageMessage extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
-    sender: Attribute.Relation<
-      'api::message.message',
-      'oneToOne',
-      'plugin::users-permissions.user'
-    >;
-    receiver: Attribute.Relation<
-      'api::message.message',
-      'oneToOne',
-      'plugin::users-permissions.user'
-    >;
     message: Attribute.Text & Attribute.Required;
+    date: Attribute.DateTime & Attribute.Required;
+    sender: Attribute.String & Attribute.Required;
+    receiver: Attribute.String & Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::message.message',
       'oneToOne',
