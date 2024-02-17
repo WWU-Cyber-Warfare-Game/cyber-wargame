@@ -15,8 +15,15 @@ interface ChatFrameProps {
     jwt: string;
 }
 
-// TODO: add connection error handling
+/**
+ * A component for displaying a chat between two users and sending messages
+ * @param sender The username of the user sending the messages
+ * @param receiver The username of the user receiving the messages
+ * @param jwt The JSON Web Token of the user sending the messages 
+ * @returns 
+ */
 export default function ChatFrame({ sender, receiver, jwt }: ChatFrameProps) {
+    // TODO: add connection error handling
     const [messages, setMessages] = useState<MessageInterface[]>([]);
     const [messageInput, setMessageInput] = useState("");
     const [socket, setSocket] = useState<Socket | null>(null);

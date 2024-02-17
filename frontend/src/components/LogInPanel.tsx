@@ -12,6 +12,11 @@ interface LogInPanelProps {
     signup?: boolean;
 }
 
+/**
+ * A form for logging in or signing up
+ * @param signup Whether the form should be for signing up or logging in 
+ * @returns 
+ */
 export default function LogInPanel({ signup }: Readonly<LogInPanelProps>) {
     const formAction = signup ? signUp : logIn;
     const [serverError, dispatch] = useFormState(formAction, null);
@@ -23,6 +28,7 @@ export default function LogInPanel({ signup }: Readonly<LogInPanelProps>) {
     return (
         <div>
             {signup ?
+                /* Sign up form */
                 <form id={styles.form} onSubmit={() => setError("")} action={dispatch}>
                     <label htmlFor="email">Email</label>
                     <input
@@ -63,6 +69,7 @@ export default function LogInPanel({ signup }: Readonly<LogInPanelProps>) {
                     <button type="submit">Sign Up</button>
                 </form>
                 :
+                /* Log in form */
                 <form id={styles.form} action={dispatch}>
                     <label htmlFor="email">Email</label>
                     <input type="email" id="email" className={styles.input} name="email" required />
@@ -71,6 +78,7 @@ export default function LogInPanel({ signup }: Readonly<LogInPanelProps>) {
                     <button type="submit">Log In</button>
                 </form>
             }
+            {/* Error message returned from server */}
             <p id={styles.error}>{error}</p>
         </div>
     );

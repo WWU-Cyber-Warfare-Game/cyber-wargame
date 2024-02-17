@@ -10,6 +10,11 @@ import { User, Message } from "./types";
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 
+/**
+ * Parses the user data retreived from Strapi.
+ * @param data The data retreived from the Strapi API
+ * @returns The parsed user data
+ */
 function parseUser(data: any): User {
     return {
         username: data.username,
@@ -19,6 +24,12 @@ function parseUser(data: any): User {
     }
 }
 
+/**
+ * Takes information from a form and sends it to the Strapi API to log in, then sets the JWT cookie.
+ * @param prevState Return value from the previous call to this function
+ * @param formData Data from the login form
+ * @returns null if there is no error, or an error message
+ */
 export async function logIn(prevState: string | null, formData: FormData) {
     const formSchema = z.object({
         identifier: z.string(),
@@ -50,6 +61,12 @@ export async function logIn(prevState: string | null, formData: FormData) {
     redirect("/dashboard");
 }
 
+/**
+ * Takes information from a form and sends it to the Strapi API to sign up, then sets the jwt cookie.
+ * @param prevState Return value from the previous call to this function
+ * @param formData Data from the signup form
+ * @returns null if there is no error, or an error message
+ */
 export async function signUp(prevState: string | null, formData: FormData) {
     const formSchema = z.object({
         email: z.string().regex(emailRegex),
@@ -71,7 +88,6 @@ export async function signUp(prevState: string | null, formData: FormData) {
         if (res.data.jwt) {
             cookies().set("jwt", res.data.jwt);
         }
-        // return null;
     } catch (error) {
         console.error(error);
         if (axios.isAxiosError(error) && error.response) {
@@ -85,11 +101,18 @@ export async function signUp(prevState: string | null, formData: FormData) {
     redirect("/dashboard");
 }
 
+/**
+ * Logs the user out by deleting the JWT cookie, then redirects back to the home page.
+ */
 export async function logOut() {
     cookies().delete("jwt");
     redirect("/");
 }
 
+/**
+ * Sends the user's jwt to the Strapi API to validate it.
+ * @returns A User object if the user is validated, or null if they are not.
+ */
 export async function validateUser() {
     let jwt = cookies().get("jwt")?.value;
     if (!jwt) return null;
@@ -108,6 +131,11 @@ export async function validateUser() {
     }
 }
 
+/**
+ * Gets all the users in a specific team.
+ * @param team The name of the team
+ * @returns An array of User objects
+ */
 export async function getTeamUsers(team: string) {
     const res = await fetch(`${STRAPI_URL}/api/users?populate=*&filters[team][name][$eq]=${team}`, {
         headers: {
@@ -123,6 +151,11 @@ export async function getTeamUsers(team: string) {
     return [] as User[];
 }
 
+/**
+ * Gets a specific user by their username.
+ * @param username The username of the user
+ * @returns A User object if the user exists, or null if they do not.
+ */
 export async function getUser(username: string) {
     const res = await fetch(`${STRAPI_URL}/api/users?populate=*&filters[username][$eq]=${username}`, {
         headers: {
@@ -140,9 +173,14 @@ export async function getUser(username: string) {
     return null;
 }
 
+/**
+ * Gets all the messages between the current user and another user.
+ * @param username The username of the other user
+ * @returns An array of Message objects, or null if there is an error
+ */
 export async function getMessages(username: string) {
-    // also this is really ugly and not good TypeScript code but Strapi is being a pain in the ass
-
+    
+    // parses the data retreived from the Strapi API and returns an array of Message objects
     function parseResponseData(data: any) {
         let messages: Message[] = [];
         data.forEach(function (m: any) {
@@ -198,5 +236,6 @@ export async function getMessages(username: string) {
 
     const data2 = await res2.json();
 
+    // combine the two arrays of messages and sort them by date
     return [...parseResponseData(data1.data), ...parseResponseData(data2.data)].sort((a, b) => a.date.valueOf() - b.date.valueOf());
 }
