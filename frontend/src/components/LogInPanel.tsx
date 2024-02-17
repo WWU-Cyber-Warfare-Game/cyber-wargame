@@ -2,8 +2,6 @@
 
 import styles from './LogInPanel.module.css';
 import { useEffect, useState } from "react";
-import axios, { AxiosError, isAxiosError } from "axios";
-import { useRouter } from "next/navigation";
 import { emailRegex, passwordRegex, usernameRegex } from '@/regex';
 import { logIn, signUp } from '@/actions';
 import { useFormState } from 'react-dom';

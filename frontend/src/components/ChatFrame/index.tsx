@@ -55,7 +55,6 @@ export default function ChatFrame({ sender, receiver, jwt }: ChatFrameProps) {
     useEffect(() => {
         getMessages(receiver).then((messages) => {
             if (messages) {
-                console.log(messages);
                 setMessages(messages);
             }
         });
