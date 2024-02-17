@@ -93,9 +93,7 @@ export default {
           socket.disconnect(); // TODO: emit error to user instead of disconnecting
           return;
         }
-        console.log('message received');
         socket.to(getRoomName(message.sender, message.receiver)).emit('message', message);
-        console.log('message emitted');
         const res = await strapi.entityService.create('api::message.message', {
           data: {
             message: message.message,
@@ -104,8 +102,6 @@ export default {
             receiver: message.receiver,
           }
         });
-        console.log(res);
-        console.log('message added to strapi');
       });
 
       // join room when user connects
@@ -116,7 +112,6 @@ export default {
           socket.disconnect(); // TODO: emit error to user instead of disconnecting
           return;
         }
-        console.log('room join')
         socket.join(getRoomName(users[0], users[1]));
       });
     });
