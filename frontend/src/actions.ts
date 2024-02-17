@@ -15,13 +15,17 @@ const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
  * @param data The data retreived from the Strapi API
  * @returns The parsed user data
  */
-function parseUser(data: any): User {
+function parseUser(data: any) {
+    let team;
+    if (!data.team) team = null;
+    else team = data.team.name;
+
     return {
         username: data.username,
         email: data.email,
         teamRole: data.teamRole,
-        team: data.team.name
-    }
+        team: team
+    } as User;
 }
 
 /**
@@ -49,11 +53,12 @@ export async function logIn(prevState: string | null, formData: FormData) {
             cookies().set("jwt", res.data.jwt);
         }
     } catch (error) {
-        console.error(error);
         if (axios.isAxiosError(error) && error.response) {
             return error.response.data.error.message;
-        } else if (isAxiosError(error)) {
+        } else if (isAxiosError(error) && error.message) {
             return error.message;
+        } else if (isAxiosError(error) && error.code == "ECONNREFUSED") {
+            return "Connection refused. Is the Strapi server running?";
         } else {
             return "An unknown error occurred";
         }
@@ -89,11 +94,12 @@ export async function signUp(prevState: string | null, formData: FormData) {
             cookies().set("jwt", res.data.jwt);
         }
     } catch (error) {
-        console.error(error);
         if (axios.isAxiosError(error) && error.response) {
             return error.response.data.error.message;
-        } else if (isAxiosError(error)) {
+        } else if (isAxiosError(error) && error.message) {
             return error.message;
+        } else if (isAxiosError(error) && error.code == "ECONNREFUSED") {
+            return "Connection refused. Is the Strapi server running?";
         } else {
             return "An unknown error occurred";
         }
@@ -114,19 +120,23 @@ export async function logOut() {
  * @returns A User object if the user is validated, or null if they are not.
  */
 export async function validateUser() {
-    let jwt = cookies().get("jwt")?.value;
-    if (!jwt) return null;
+    try {
+        let jwt = cookies().get("jwt")?.value;
+        if (!jwt) return null;
 
-    const res = await fetch(`${STRAPI_URL}/api/users/me?populate=*`, {
-        headers: {
-            Authorization: `Bearer ${jwt}`
+        const res = await fetch(`${STRAPI_URL}/api/users/me?populate=*`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`
+            }
+        });
+
+        if (res.ok) {
+            const unparsedData = await res.json();
+            return parseUser(unparsedData);
         }
-    });
-
-    if (res.ok) {
-        const unparsedData = await res.json();
-        return parseUser(unparsedData);
-    } else {
+        return null;
+    } catch (error) {
+        console.error(error);
         return null;
     }
 }
@@ -179,7 +189,7 @@ export async function getUser(username: string) {
  * @returns An array of Message objects, or null if there is an error
  */
 export async function getMessages(username: string) {
-    
+
     // parses the data retreived from the Strapi API and returns an array of Message objects
     function parseResponseData(data: any) {
         let messages: Message[] = [];
