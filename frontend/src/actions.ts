@@ -216,6 +216,7 @@ export async function getMessages(username: string) {
      * than the other, some of their messages will be missing.
      * Messages should be retreived using one API call to avoid this, but I can't figure out how to combine them.
      * If I can't figure out how to do this, just increase the maxLimit in api.ts to something really high.
+     * Person on Strapi Discord said to use qs library, look into that.
      */
 
     // get messages where user is sender and username is receiver
