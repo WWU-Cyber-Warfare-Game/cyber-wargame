@@ -39,17 +39,17 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
         setSocket(newSocket);
     }, []);
 
+    // join corresponding room when socket connects
+    useEffect(() => {
+        if (socket) socket.emit("join-room", [sender, receiver]);
+    }, [socket]);
+
     // scroll to the end of the message list when new messages are added
     useEffect(() => {
         if (endOfListRef.current) {
             endOfListRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
-
-    // join corresponding room when component mounts
-    useEffect(() => {
-        if (socket) socket.emit("join-room", [sender, receiver]);
-    }, [sender, receiver, socket]);
 
     // get messages from the server when component mounts
     useEffect(() => {
