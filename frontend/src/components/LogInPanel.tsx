@@ -7,7 +7,7 @@ import { logIn, signUp } from '@/actions';
 import { useFormState } from 'react-dom';
 
 interface LogInPanelProps {
-    signup?: boolean;
+    readonly signup?: boolean;
 }
 
 /**

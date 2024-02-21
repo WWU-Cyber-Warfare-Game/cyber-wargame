@@ -1,9 +1,9 @@
 import styles from "./Message.module.css";
 
 interface MessageProps {
-    message: string;
-    sender: string;
-    date: Date;
+    readonly message: string;
+    readonly sender: string;
+    readonly date: Date;
 }
 
 /**

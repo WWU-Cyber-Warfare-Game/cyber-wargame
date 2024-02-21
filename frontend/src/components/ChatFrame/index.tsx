@@ -10,9 +10,9 @@ import { io, Socket } from "socket.io-client";
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
 interface ChatFrameProps {
-    sender: string;
-    receiver: string;
-    jwt: string;
+    readonly sender: string;
+    readonly receiver: string;
+    readonly jwt: string;
 }
 
 /**
