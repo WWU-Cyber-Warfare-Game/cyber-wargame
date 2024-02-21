@@ -30,7 +30,7 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
     const [error, setError] = useState("");
     const endOfListRef = useRef<HTMLDivElement>(null);
 
-    // connect to socket server
+    // connect to socket server and get messages from the server when component mounts
     useEffect(() => {
         const newSocket = io(`${STRAPI_URL}/socket/chat`, {
             auth: {
@@ -38,6 +38,14 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
             }
         });
         setSocket(newSocket);
+
+        getMessages(receiver).then((messages) => {
+            if (messages) {
+                setMessages(messages);
+            } else {
+                setError("Error fetching messages");
+            }
+        });
 
         return () => {
             newSocket.disconnect();
@@ -55,15 +63,6 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
             endOfListRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
-
-    // get messages from the server when component mounts
-    useEffect(() => {
-        getMessages(receiver).then((messages) => {
-            if (messages) {
-                setMessages(messages);
-            }
-        });
-    }, [receiver]);
 
     // listen for new messages from the server
     if (socket) socket.on("message", (message: MessageInterface) => {
