@@ -42,12 +42,12 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
         return () => {
             newSocket.disconnect();
         };
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // join corresponding room when socket connects
     useEffect(() => {
         if (socket) socket.emit("join-room", [sender, receiver]);
-    }, [socket]);
+    }, [socket]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // scroll to the end of the message list when new messages are added
     useEffect(() => {
