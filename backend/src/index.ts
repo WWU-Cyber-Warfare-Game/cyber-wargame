@@ -79,7 +79,8 @@ export default {
       const userId = await checkToken(socket.handshake.auth.token);
       if (!socket.handshake.auth.token || !userId) {
         console.error('user connected without valid token, disconnecting...');
-        socket.disconnect(); // TODO: emit error to user instead of disconnecting
+        socket.emit('error', 'Invalid token');
+        socket.disconnect();
         return;
       }
       
@@ -90,7 +91,8 @@ export default {
         const validReceiver = await checkReceiver(userId, message.receiver);
         if (!validReceiver) {
           console.error('user ' + userId + ' attempted to send message to invalid receiver ' + message.receiver);
-          socket.disconnect(); // TODO: emit error to user instead of disconnecting
+          socket.emit('error', 'Invalid receiver');
+          socket.disconnect();
           return;
         }
         socket.to(getRoomName(message.sender, message.receiver)).emit('message', message);
@@ -109,7 +111,8 @@ export default {
         const validReceiver = await checkReceiver(userId, users[1]);
         if (!validReceiver) {
           console.error('user ' + userId + ' attempted to join room with invalid receiver ' + users[1]);
-          socket.disconnect(); // TODO: emit error to user instead of disconnecting
+          socket.emit('error', 'Invalid receiver');
+          socket.disconnect();
           return;
         }
         socket.join(getRoomName(users[0], users[1]));

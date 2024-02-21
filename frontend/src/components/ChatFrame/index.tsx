@@ -27,6 +27,7 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
     const [messages, setMessages] = useState<MessageInterface[]>([]);
     const [messageInput, setMessageInput] = useState("");
     const [socket, setSocket] = useState<Socket | null>(null);
+    const [error, setError] = useState("");
     const endOfListRef = useRef<HTMLDivElement>(null);
 
     // connect to socket server
@@ -64,6 +65,11 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
     if (socket) socket.on("message", (message: MessageInterface) => {
         message.date = new Date(message.date);
         setMessages([...messages, message]);
+    });
+
+    // listen for errors from the server
+    if (socket) socket.on("error", (error: string) => {
+        setError(error);
     });
 
     // update message input state when user types
@@ -113,6 +119,7 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
                     }}
                 />
                 <button id={styles.sendButton} onClick={handleSendClick}>Send</button>
+                {error && <p id={styles.error}>{error}</p>}
             </div>
         </div>
     );
