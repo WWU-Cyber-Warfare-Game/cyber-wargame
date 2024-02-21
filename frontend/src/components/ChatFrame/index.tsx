@@ -38,6 +38,10 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
             }
         });
         setSocket(newSocket);
+
+        return () => {
+            newSocket.disconnect();
+        };
     }, []);
 
     // join corresponding room when socket connects
