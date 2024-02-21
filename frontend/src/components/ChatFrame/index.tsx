@@ -28,6 +28,7 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
     const [messageInput, setMessageInput] = useState("");
     const [socket, setSocket] = useState<Socket | null>(null);
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(true);
     const endOfListRef = useRef<HTMLDivElement>(null);
 
     // connect to socket server and get messages from the server when component mounts
@@ -42,6 +43,7 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
         getMessages(receiver).then((messages) => {
             if (messages) {
                 setMessages(messages);
+                setLoading(false);
             } else {
                 setError("Error fetching messages");
             }
@@ -103,14 +105,16 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
 
     return (
         <div id={styles.chatFrame}>
-            <ul id={styles.messageList}>
-                {messages.map((message, index) => (
-                    <li key={index}>
-                        <Message message={message.message} sender={message.sender} date={message.date} />
-                    </li>
-                ))}
-                <div ref={endOfListRef} />
-            </ul>
+            {loading ? <p>Loading messages...</p> :
+                <ul id={styles.messageList}>
+                    {messages.map((message, index) => (
+                        <li key={index}>
+                            <Message message={message.message} sender={message.sender} date={message.date} />
+                        </li>
+                    ))}
+                    <div ref={endOfListRef} />
+                </ul>
+            }
             <div id={styles.inputContainer}>
                 <input
                     type="text"
@@ -120,8 +124,9 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
                     onKeyDown={(e) => {
                         if (e.key === "Enter") handleSendClick();
                     }}
+                    disabled={loading}
                 />
-                <button id={styles.sendButton} onClick={handleSendClick}>Send</button>
+                <button id={styles.sendButton} onClick={handleSendClick} disabled={loading}>Send</button>
                 {error && <p id={styles.error}>{error}</p>}
             </div>
         </div>
