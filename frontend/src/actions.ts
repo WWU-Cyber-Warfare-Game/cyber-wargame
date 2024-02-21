@@ -6,6 +6,7 @@ import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { User, Message } from "./types";
+import qs from "qs";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
@@ -211,42 +212,37 @@ export async function getMessages(username: string) {
         return null;
     }
 
-    /**
-     * FIXME: Due to pagination and the messages being retreived using two API calls, if one user has many more messages
-     * than the other, some of their messages will be missing.
-     * Messages should be retreived using one API call to avoid this, but I can't figure out how to combine them.
-     * If I can't figure out how to do this, just increase the maxLimit in api.ts to something really high.
-     * Person on Strapi Discord said to use qs library, look into that.
-     */
+    const query = qs.stringify({
+        pagination: {
+            limit: 100
+        },
+        sort: "date:asc",
+        populate: "*",
+        filters: {
+            $or: [
+                {
+                    sender: user.username,
+                    receiver: username
+                },
+                {
+                    sender: username,
+                    receiver: user.username
+                }
+            ]
+        }
+    });
 
-    // get messages where user is sender and username is receiver
-    const res1 = await fetch(`${STRAPI_URL}/api/messages?pagination[limit]=100&sort[0]=date:desc&populate=*&filters[sender][$eq]=${user.username}&filters[receiver][$eq]=${username}`, {
+    const res = await fetch(`${STRAPI_URL}/api/messages?${query}`, {
         headers: {
             Authorization: `Bearer ${STRAPI_API_TOKEN}`
         }
     });
 
-    if (!res1.ok) {
-        console.error(res1);
+    if (!res.ok) {
+        console.error(res);
         return null;
     }
 
-    const data1 = await res1.json();
-
-    // get messages where username is sender and user is receiver
-    const res2 = await fetch(`${STRAPI_URL}/api/messages?pagination[limit]=100&sort[0]=date:desc&populate=*&filters[sender][$eq]=${username}&filters[receiver][$eq]=${user.username}`, {
-        headers: {
-            Authorization: `Bearer ${STRAPI_API_TOKEN}`
-        }
-    });
-
-    if (!res2.ok) {
-        console.error(res2);
-        return null;
-    }
-
-    const data2 = await res2.json();
-
-    // combine the two arrays of messages and sort them by date
-    return [...parseResponseData(data1.data), ...parseResponseData(data2.data)].sort((a, b) => a.date.valueOf() - b.date.valueOf());
+    const data = await res.json();
+    return parseResponseData(data.data);
 }
