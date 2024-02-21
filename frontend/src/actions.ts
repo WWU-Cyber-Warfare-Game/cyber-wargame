@@ -212,6 +212,7 @@ export async function getMessages(username: string) {
         return null;
     }
 
+    // creates a query that get the last 100 messages between the current user and the other user
     const query = qs.stringify({
         pagination: {
             limit: 100
