@@ -22,7 +22,7 @@ interface ChatFrameProps {
  * @param jwt The JSON Web Token of the user sending the messages 
  * @returns 
  */
-export default function ChatFrame({ sender, receiver, jwt }: ChatFrameProps) {
+export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameProps>) {
     // TODO: add connection error handling
     const [messages, setMessages] = useState<MessageInterface[]>([]);
     const [messageInput, setMessageInput] = useState("");

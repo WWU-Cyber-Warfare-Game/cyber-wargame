@@ -13,7 +13,7 @@ interface MessageProps {
  * @param date The date and time the message was sent
  * @returns 
  */
-export default function Message({ message, sender, date }: MessageProps) {
+export default function Message({ message, sender, date }: Readonly<MessageProps>) {
     return(
         <div id={styles.message}>
             <div id={styles.senderMessage}>

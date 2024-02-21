@@ -8,7 +8,7 @@ import { cookies } from "next/headers";
  * @param params The parameters for the page. Contains the slug of the user to chat with. 
  * @returns 
  */
-export default async function UserChatPage({ params }: { params: { slug: string } }) {
+export default async function UserChatPage({ params }: { readonly params: { readonly slug: string } }) {
     const user = await validateUser();
     const jwt = cookies().get("jwt")?.value
     
