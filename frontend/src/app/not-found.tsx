@@ -1,3 +1,4 @@
+/** Global 404 page */
 export default async function NotFoundPage() {
     return (
         <div>

@@ -1,5 +1,9 @@
 import SignUpPanel from "@/components/LogInPanel";
 
+/**
+ * The sign up page.
+ * @returns 
+ */
 export default function SignUp() {
     return (
         <main>

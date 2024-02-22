@@ -4,6 +4,10 @@ import { validateUser } from "@/actions";
 import { cookies } from "next/headers";
 import { redirect } from 'next/navigation'
 
+/**
+ * The home page for the application. Only displays if the user is not logged in, otherwise redirects to the dashboard.
+ * @returns 
+ */
 export default async function Home() {
   const user = await validateUser();
 

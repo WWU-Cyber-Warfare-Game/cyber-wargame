@@ -1,8 +1,9 @@
-import {io} from 'socket.io-client';
 import Link from "next/link";
 
-const socket = io('http://localhost:1337');
-
+/**
+ * The dashboard page for the application. Displays a welcome message and a link to the chat page.
+ * @returns 
+ */
 export default function Dashboard() {
     return (
         <div>

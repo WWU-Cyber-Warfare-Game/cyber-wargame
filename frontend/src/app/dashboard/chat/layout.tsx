@@ -1,5 +1,10 @@
 import Link from "next/link";
 
+/**
+ * The layout for the chat page. Displays a header and a link back to the dashboard.
+ * @param children 
+ * @returns 
+ */
 export default async function ChatLayout({
     children,
   }: Readonly<{
