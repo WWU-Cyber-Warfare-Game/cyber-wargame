@@ -5,7 +5,7 @@ import { emailRegex, usernameRegex, passwordRegex } from "./regex";
 import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { User, Message } from "./types";
+import { User, Message, ActionLog} from "./types";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
@@ -16,6 +16,15 @@ function parseUser(data: any): User {
         email: data.email,
         teamRole: data.teamRole,
         team: data.team.name
+    }
+}
+
+function parseActionLog(data: any): ActionLog {
+    return {
+        name: data.actionName,
+        duration: data.duration,
+        description: data.description,
+        role: data.role
     }
 }
 
@@ -199,4 +208,25 @@ export async function getMessages(username: string) {
     const data2 = await res2.json();
 
     return [...parseResponseData(data1.data), ...parseResponseData(data2.data)].sort((a, b) => a.date.valueOf() - b.date.valueOf());
+}
+
+export async function getActionLog() {
+  try {  
+    const res = await fetch(`${STRAPI_URL}/api/action`, {
+        headers: {
+            Authorization: `Bearer ${STRAPI_API_TOKEN}`
+        }
+    });
+
+    if (res.ok) {
+        const data = await res.json();
+        return data.map((action: any) => parseActionLog(action));
+      } else {
+        console.error('Failed to fetch action log:', res.status, res.statusText);
+        return [] as ActionLog[];
+      }
+    } catch (error) {
+      console.error('Error fetching action log:', error);
+      return [] as ActionLog[];
+  }
 }

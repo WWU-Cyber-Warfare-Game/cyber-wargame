@@ -371,7 +371,7 @@ export interface ApiActionAction extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
@@ -389,7 +389,6 @@ export interface ApiActionAction extends Schema.CollectionType {
       Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::action.action',
       'oneToOne',
