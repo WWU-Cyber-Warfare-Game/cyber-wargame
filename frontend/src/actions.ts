@@ -217,7 +217,7 @@ export async function getMessages(username: string) {
         pagination: {
             limit: 100
         },
-        sort: "date:asc",
+        sort: "date:desc",
         populate: "*",
         filters: {
             $or: [
@@ -245,5 +245,5 @@ export async function getMessages(username: string) {
     }
 
     const data = await res.json();
-    return parseResponseData(data.data);
+    return parseResponseData(data.data).sort((a, b) => a.date.getTime() - b.date.getTime());
 }
