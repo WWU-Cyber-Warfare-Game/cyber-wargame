@@ -88,6 +88,7 @@ export default function LogInPanel({ signup }: Readonly<LogInPanelProps>) {
                         id="email"
                         className={styles.input}
                         name="email"
+                        pattern={emailRegex.source}
                         required
                         disabled={loading}
                     />
