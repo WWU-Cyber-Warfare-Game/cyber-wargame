@@ -38,7 +38,12 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
                 token: jwt
             }
         });
-        setSocket(newSocket);
+        newSocket.on("connect", () => {
+            setSocket(newSocket);
+        });
+        newSocket.on("connect_error", () => {
+            setError("Error connecting to socket server");
+        });
 
         getMessages(receiver).then((messages) => {
             if (messages) {
@@ -115,20 +120,21 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
                     <div ref={endOfListRef} />
                 </ul>
             }
-            <div id={styles.inputContainer}>
-                <input
-                    type="text"
-                    id={styles.messageInput}
-                    value={messageInput}
-                    onChange={handleInputChange}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") handleSendClick();
-                    }}
-                    disabled={loading}
-                />
-                <button id={styles.sendButton} onClick={handleSendClick} disabled={loading}>Send</button>
-                {error && <p id={styles.error}>{error}</p>}
-            </div>
+            {error !== "" ? <p id={styles.error}>{error}</p> :
+                <div id={styles.inputContainer}>
+                    <input
+                        type="text"
+                        id={styles.messageInput}
+                        value={messageInput}
+                        onChange={handleInputChange}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") handleSendClick();
+                        }}
+                        disabled={loading}
+                    />
+                    <button id={styles.sendButton} onClick={handleSendClick} disabled={loading}>Send</button>
+                </div>
+            }
         </div>
     );
 }
