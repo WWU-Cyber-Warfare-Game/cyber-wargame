@@ -20,16 +20,9 @@ export interface Message {
     receiver: string;
 }
 
-export enum ActionRole {
-    Authenticated = "authenticated",
-    Public = "public",
-    TestRole ="test role"
-
-}
-
 export interface ActionLog {
     name: string;
     duration: number;
     description: string;
-    role: ActionRole;
+    teamRole: TeamRole;
 }

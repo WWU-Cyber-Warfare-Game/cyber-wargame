@@ -20,11 +20,12 @@ function parseUser(data: any): User {
 }
 
 function parseActionLog(data: any): ActionLog {
+    console.log (data);
     return {
-        name: data.actionName,
+        name: data.name,
         duration: data.duration,
         description: data.description,
-        role: data.role
+        teamRole: data.teamRole
     }
 }
 
@@ -212,7 +213,7 @@ export async function getMessages(username: string) {
 
 export async function getActionLog() {
   try {  
-    const res = await fetch(`${STRAPI_URL}/api/action`, {
+    const res = await fetch(`${STRAPI_URL}/api/actions?populate=*`, {
         headers: {
             Authorization: `Bearer ${STRAPI_API_TOKEN}`
         }
@@ -220,7 +221,8 @@ export async function getActionLog() {
 
     if (res.ok) {
         const data = await res.json();
-        return data.map((action: any) => parseActionLog(action));
+        console.log (data.data[0].attributes);
+        return data.data.map((action: any) => parseActionLog(action.attributes));;
       } else {
         console.error('Failed to fetch action log:', res.status, res.statusText);
         return [] as ActionLog[];

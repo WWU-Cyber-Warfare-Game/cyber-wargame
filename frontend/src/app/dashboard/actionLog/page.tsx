@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { getActionLog } from "@/actions";
 import { ActionLog } from "@/types";
 
-export default function logGeneration() {
+export default function ActionLogPage() {
   const [actionLogData, setActionLogData] = useState<ActionLog[]>([]);
 
   useEffect(() => {
@@ -29,15 +29,15 @@ export default function logGeneration() {
       <br />
       <Link href="/dashboard">Go to Dashboard</Link>
       
-      <div>
+      <div>      
         <h3>Actions:</h3>
         <ul>
           {actionLogData.map((action) => (
-            <li key={action.id}>
+            <li>
             Action Name: {action.name}, 
             Duration: {action.duration}, 
             Description: {action.description}, 
-            Role: {action.role}
+            Role: {action.teamRole}
           </li>
           ))}
         </ul>

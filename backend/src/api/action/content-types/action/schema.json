@@ -24,11 +24,15 @@
       "min": 1,
       "required": true
     },
-    "role": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "plugin::users-permissions.role",
-      "required": true
+    "teamRole": {
+      "type": "enumeration",
+      "enum": [
+        "leader",
+        "intelligence",
+        "military",
+        "media",
+        "diplomat"
+      ]
     }
   }
 }
