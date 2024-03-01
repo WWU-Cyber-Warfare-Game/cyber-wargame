@@ -1,5 +1,9 @@
 import LogInPanel from "@/components/LogInPanel";
 
+/**
+ * The log in page.
+ * @returns 
+ */
 export default function LogIn() {
     return (
         <main>

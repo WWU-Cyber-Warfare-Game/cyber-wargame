@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateUser, logOut } from "./actions";
-import { headers } from "next/headers";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 

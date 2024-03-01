@@ -2,6 +2,10 @@
 
 import { logOut } from "@/actions";
 
+/**
+ * Page that logs the user out.
+ * @returns 
+ */
 export default function LogOut() {
     logOut();
 

@@ -1,12 +1,19 @@
 import styles from "./Message.module.css";
 
 interface MessageProps {
-    message: string;
-    sender: string;
-    date: Date;
+    readonly message: string;
+    readonly sender: string;
+    readonly date: Date;
 }
 
-export default function Message({ message, sender, date }: MessageProps) {
+/**
+ * A component for displaying a message
+ * @param message The message to display
+ * @param sender The sender of the message
+ * @param date The date and time the message was sent
+ * @returns 
+ */
+export default function Message({ message, sender, date }: Readonly<MessageProps>) {
     return(
         <div id={styles.message}>
             <div id={styles.senderMessage}>
