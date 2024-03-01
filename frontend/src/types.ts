@@ -20,9 +20,15 @@ export interface Message {
     receiver: string;
 }
 
-export interface ActionLog {
+export interface Action {
     name: string;
     duration: number;
     description: string;
     teamRole: TeamRole;
+}
+
+export interface ActionLog {
+    action: Action;
+    team: string;
+    time: Date;
 }

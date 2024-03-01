@@ -25,12 +25,13 @@ export default function ActionLogPage() {
     <div>      
         <h3>Actions:</h3>
         <ul>
-          {actionLogData.map((action) => (
-            <li>
-            Action Name: {action.name}, 
-            Duration: {action.duration}, 
-            Description: {action.description}, 
-            Role: {action.teamRole}
+          {actionLogData.map((actionLog, index) => (
+            <li key={index}>
+            Time: {actionLog.time.toLocaleString()},
+            Action Name: {actionLog.action.name}, 
+            Duration: {actionLog.action.duration}, 
+            Description: {actionLog.action.description}, 
+            Role: {actionLog.action.teamRole}
             </li>
           ))}
         </ul>

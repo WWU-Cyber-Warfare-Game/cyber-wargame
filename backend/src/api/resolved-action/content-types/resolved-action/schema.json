@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "resolved_actions",
+  "info": {
+    "singularName": "resolved-action",
+    "pluralName": "resolved-actions",
+    "displayName": "Resolved Action",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "action": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::action.action"
+    },
+    "team": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::team.team"
+    }
+  }
+}

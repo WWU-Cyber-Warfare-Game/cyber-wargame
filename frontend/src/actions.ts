@@ -5,7 +5,7 @@ import { emailRegex, usernameRegex, passwordRegex } from "./regex";
 import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { User, Message, ActionLog} from "./types";
+import { User, Message, Action, ActionLog} from "./types";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
@@ -22,10 +22,9 @@ function parseUser(data: any): User {
 function parseActionLog(data: any): ActionLog {
     console.log (data);
     return {
-        name: data.name,
-        duration: data.duration,
-        description: data.description,
-        teamRole: data.teamRole
+        action: data.attributes.action.data.attributes,
+        team: data.attributes.team.data.attributes.name,
+        time: new Date(Date.parse(data.attributes.createdAt))
     }
 }
 
@@ -211,9 +210,14 @@ export async function getMessages(username: string) {
     return [...parseResponseData(data1.data), ...parseResponseData(data2.data)].sort((a, b) => a.date.valueOf() - b.date.valueOf());
 }
 
-export async function getActionLog() {
-  try {  
-    const res = await fetch(`${STRAPI_URL}/api/actions?populate=*`, {
+export async function getActionLog() {  
+    const user= await validateUser();
+    if (!user) {
+        console.error("User not validated.");
+        return null;
+    }
+    try {  
+    const res = await fetch(`${STRAPI_URL}/api/resolved-actions?populate=*&filters[team][name][$eq]=${user.team}`, {
         headers: {
             Authorization: `Bearer ${STRAPI_API_TOKEN}`
         }
@@ -221,8 +225,12 @@ export async function getActionLog() {
 
     if (res.ok) {
         const data = await res.json();
-        console.log (data.data[0].attributes);
-        return data.data.map((action: any) => parseActionLog(action.attributes));;
+       // console.log (data.data[0].attributes);
+        console.log (data);
+            return data.data.map((action: any) => {
+                console.log(parseActionLog(action));
+                return  parseActionLog(action);
+            });
       } else {
         console.error('Failed to fetch action log:', res.status, res.statusText);
         return [] as ActionLog[];
