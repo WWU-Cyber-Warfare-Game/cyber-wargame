@@ -19,3 +19,16 @@ export interface Message {
     sender: string;
     receiver: string;
 }
+
+export interface Action {
+    name: string;
+    duration: number;
+    description: string;
+    teamRole: TeamRole;
+}
+
+export interface ActionLog {
+    action: Action;
+    team: string;
+    time: Date;
+}

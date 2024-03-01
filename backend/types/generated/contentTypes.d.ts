@@ -371,7 +371,7 @@ export interface ApiActionAction extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
@@ -381,15 +381,11 @@ export interface ApiActionAction extends Schema.CollectionType {
       Attribute.SetMinMax<{
         min: 1;
       }>;
-    role: Attribute.Relation<
-      'api::action.action',
-      'manyToOne',
-      'plugin::users-permissions.role'
-    > &
-      Attribute.Required;
+    teamRole: Attribute.Enumeration<
+      ['leader', 'intelligence', 'military', 'media', 'diplomat']
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::action.action',
       'oneToOne',
@@ -431,6 +427,45 @@ export interface ApiMessageMessage extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::message.message',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiResolvedActionResolvedAction extends Schema.CollectionType {
+  collectionName: 'resolved_actions';
+  info: {
+    singularName: 'resolved-action';
+    pluralName: 'resolved-actions';
+    displayName: 'Resolved Action';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    action: Attribute.Relation<
+      'api::resolved-action.resolved-action',
+      'oneToOne',
+      'api::action.action'
+    >;
+    team: Attribute.Relation<
+      'api::resolved-action.resolved-action',
+      'oneToOne',
+      'api::team.team'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::resolved-action.resolved-action',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::resolved-action.resolved-action',
       'oneToOne',
       'admin::user'
     > &
@@ -886,6 +921,7 @@ declare module '@strapi/types' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'api::action.action': ApiActionAction;
       'api::message.message': ApiMessageMessage;
+      'api::resolved-action.resolved-action': ApiResolvedActionResolvedAction;
       'api::team.team': ApiTeamTeam;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
