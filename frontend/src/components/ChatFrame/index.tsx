@@ -23,7 +23,6 @@ interface ChatFrameProps {
  * @returns 
  */
 export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameProps>) {
-    // TODO: add connection error handling
     const [messages, setMessages] = useState<MessageInterface[]>([]);
     const [messageInput, setMessageInput] = useState("");
     const [socket, setSocket] = useState<Socket | null>(null);
