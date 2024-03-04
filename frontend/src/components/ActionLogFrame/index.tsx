@@ -6,7 +6,7 @@ import { ActionLog } from "@/types";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
-export default function ActionLogPage() {
+export default function ActionLogFrame() {
   const [actionLogData, setActionLogData] = useState<ActionLog[]>([]);
 
   useEffect(() => {
