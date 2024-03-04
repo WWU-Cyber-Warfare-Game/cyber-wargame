@@ -5,7 +5,7 @@ import { emailRegex, usernameRegex, passwordRegex } from "./regex";
 import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { User, Message, Action, ActionLog} from "./types";
+import { User, Message, Action, ActionLog } from "./types";
 import qs from "qs";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
@@ -27,15 +27,6 @@ function parseUser(data: any) {
         teamRole: data.teamRole,
         team: team
     } as User;
-}
-
-function parseActionLog(data: any): ActionLog {
-    console.log (data);
-    return {
-        action: data.attributes.action.data.attributes,
-        team: data.attributes.team.data.attributes.name,
-        time: new Date(Date.parse(data.attributes.createdAt))
-    }
 }
 
 /**
@@ -256,33 +247,36 @@ export async function getMessages(username: string) {
     return parseResponseData(data.data).sort((a, b) => a.date.getTime() - b.date.getTime());
 }
 
-export async function getActionLog() {  
-    const user= await validateUser();
+export async function getActionLog() {
+    function parseActionLog(data: any): ActionLog {
+        return {
+            action: data.attributes.action.data.attributes,
+            team: data.attributes.team.data.attributes.name,
+            time: new Date(Date.parse(data.attributes.createdAt))
+        }
+    }
+    
+    const user = await validateUser();
     if (!user) {
         console.error("User not validated.");
         return null;
     }
-    try {  
-    const res = await fetch(`${STRAPI_URL}/api/resolved-actions?populate=*&filters[team][name][$eq]=${user.team}`, {
-        headers: {
-            Authorization: `Bearer ${STRAPI_API_TOKEN}`
-        }
-    });
+    try {
+        const res = await fetch(`${STRAPI_URL}/api/resolved-actions?populate=*&filters[team][name][$eq]=${user.team}`, {
+            headers: {
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+            }
+        });
 
-    if (res.ok) {
-        const data = await res.json();
-       // console.log (data.data[0].attributes);
-        console.log (data);
-            return data.data.map((action: any) => {
-                console.log(parseActionLog(action));
-                return  parseActionLog(action);
-            });
-      } else {
-        console.error('Failed to fetch action log:', res.status, res.statusText);
-        return [] as ActionLog[];
-      }
+        if (res.ok) {
+            const data = await res.json();
+            return data.data.map((action: any) => parseActionLog(action));
+        } else {
+            console.error('Failed to fetch action log:', res.status, res.statusText);
+            return [] as ActionLog[];
+        }
     } catch (error) {
-      console.error('Error fetching action log:', error);
-      return [] as ActionLog[];
-  }
+        console.error('Error fetching action log:', error);
+        return [] as ActionLog[];
+    }
 }
