@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { getActionLog } from "@/actions";
 import { ActionLog } from "@/types";
+import Entry from "./Entry";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
@@ -27,11 +28,7 @@ export default function ActionLogFrame() {
         <ul>
           {actionLogData.map((actionLog, index) => (
             <li key={index}>
-            Time: {actionLog.time.toLocaleString()},
-            Action Name: {actionLog.action.name}, 
-            Duration: {actionLog.action.duration}, 
-            Description: {actionLog.action.description}, 
-            Role: {actionLog.action.teamRole}
+              <Entry entry={actionLog} />
             </li>
           ))}
         </ul>
