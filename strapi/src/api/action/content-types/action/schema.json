@@ -12,27 +12,10 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "name": {
-      "type": "string",
-      "required": true
-    },
-    "description": {
-      "type": "text"
-    },
-    "duration": {
-      "type": "integer",
-      "min": 1,
-      "required": true
-    },
-    "teamRole": {
-      "type": "enumeration",
-      "enum": [
-        "leader",
-        "intelligence",
-        "military",
-        "media",
-        "diplomat"
-      ]
+    "Action": {
+      "type": "component",
+      "repeatable": true,
+      "component": "actions.placeholder-action"
     }
   }
 }

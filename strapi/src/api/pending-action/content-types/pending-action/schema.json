@@ -1,14 +1,14 @@
 {
   "kind": "collectionType",
-  "collectionName": "resolved_actions",
+  "collectionName": "pending_actions",
   "info": {
-    "singularName": "resolved-action",
-    "pluralName": "resolved-actions",
-    "displayName": "Resolved-Action",
+    "singularName": "pending-action",
+    "pluralName": "pending-actions",
+    "displayName": "Pending-Action",
     "description": ""
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
