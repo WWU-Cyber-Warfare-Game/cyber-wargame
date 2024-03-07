@@ -1,5 +1,5 @@
-import { Server } from 'socket.io';
-import { spawn } from 'node:child_process';
+import { Server, Socket } from 'socket.io';
+import { PendingAction, Action, TeamRole} from './types';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -9,6 +9,9 @@ interface Message {
   sender: string;
   receiver: string;
 }
+
+//converts minutes to milliseconds
+const minToMs = (min: number) => min * 60 * 1000;
 
 // returns the user room string
 // room string is both usernames in alphabetical order, separated by an ampersand
@@ -124,6 +127,34 @@ export default {
           return;
         }
         socket.join(getRoomName(users[0], users[1]));
+      });
+
+      //pending action queue logic
+
+      //let fooAction: Action = { name: 'testAction', duration: 10, teamRole: TeamRole.Leader, description: 'this is a test'};
+
+      //TODO: change the type of submittedAction to pendingAction/resolvedAction
+
+      // listens for actions, adds to pending queue
+      socket.on('action', async (submittedAction: Action) => {
+        const res = await strapi.entityService.create('api::pending-action.pending-action', {
+          data: {
+            User: 'aa',
+            Date: new Date(Date.now() + minToMs(submittedAction.duration)),
+            Action: new Array(submittedAction),
+          }
+        });
+      });
+
+      //listens for pending actions that need to be added to the resolved queue
+      socket.on('finalizedAction', async (pendingAction: Action) => {
+        const res = await strapi.entityService.create('api::resolved-action.resolved-action', {
+          data: {
+            User: 'aa',
+            Date: Date.now(),
+            Action: new Array(pendingAction),
+          }
+        });
       });
     });
   }
