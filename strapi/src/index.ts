@@ -1,5 +1,5 @@
-import { Server, Socket } from 'socket.io';
-import { PendingAction, Action, TeamRole} from './types';
+import { Server } from 'socket.io';
+import { spawn } from 'node:child_process';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -16,9 +16,6 @@ interface Message {
 function getRoomName(sender: string, receiver: string) {
   return [sender, receiver].sort().join('&');
 }
-
-//converts minutes to milliseconds
-const minToMs = (min: number) => min * 60 * 1000;
 
 // checks the user's token
 // returns the user's ID if the token is valid, otherwise returns null
@@ -77,8 +74,14 @@ export default {
       },
     });
 
-    // NOTE: could probably have one namespace for everything
-    io.of('/socket/chat').on('connection', async (socket) => { // TODO: figure out why like 10 users connect at once
+    // game logic process socket
+    // TODO: probably not secure, make sure this is not accessible from outside localhost (use a secret key maybe?)
+    const gameLogicSocket = io.of('/game-logic');
+    gameLogicSocket.on('connection', () => {
+      console.log('game-logic connected');
+    });
+
+    io.on('connection', async (socket) => {
       // check user jwt
       const userId = await checkToken(socket.handshake.auth.token);
       if (!socket.handshake.auth.token || !userId) {
@@ -108,6 +111,7 @@ export default {
             receiver: message.receiver,
           }
         });
+        gameLogicSocket.emit('message', message.message);
       });
 
       // join room when user connects
@@ -120,34 +124,6 @@ export default {
           return;
         }
         socket.join(getRoomName(users[0], users[1]));
-      });
-
-      //pending action queue logic
-
-      //let fooAction: Action = { name: 'testAction', duration: 10, teamRole: TeamRole.Leader, description: 'this is a test'};
-
-      //TODO: change the type of submittedAction to pendingAction/resolvedAction
-
-      // listens for actions, adds to pending queue
-      socket.on('action', async (submittedAction: Action) => {
-        const res = await strapi.entityService.create('api::pending-action.pending-action', {
-          data: {
-            User: 'aa',
-            Date: new Date(Date.now() + minToMs(submittedAction.duration)),
-            Action: new Array(submittedAction),
-          }
-        });
-      });
-
-      //listens for pending actions that need to be added to the resolved queue
-      socket.on('finalizedAction', async (pendingAction: Action) => {
-        const res = await strapi.entityService.create('api::resolved-action.resolved-action', {
-          data: {
-            User: 'aa',
-            Date: Date.now(),
-            Action: new Array(pendingAction),
-          }
-        });
       });
     });
   }
