@@ -787,16 +787,7 @@ export interface ApiActionAction extends Schema.CollectionType {
     draftAndPublish: false;
   };
   attributes: {
-    name: Attribute.String & Attribute.Required;
-    description: Attribute.Text;
-    duration: Attribute.Integer &
-      Attribute.Required &
-      Attribute.SetMinMax<{
-        min: 1;
-      }>;
-    teamRole: Attribute.Enumeration<
-      ['leader', 'intelligence', 'military', 'media', 'diplomat']
-    >;
+    Action: Attribute.Component<'actions.placeholder-action', true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -847,28 +838,54 @@ export interface ApiMessageMessage extends Schema.CollectionType {
   };
 }
 
+export interface ApiPendingActionPendingAction extends Schema.CollectionType {
+  collectionName: 'pending_actions';
+  info: {
+    singularName: 'pending-action';
+    pluralName: 'pending-actions';
+    displayName: 'pending-Action';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    User: Attribute.String;
+    Date: Attribute.DateTime;
+    Action: Attribute.Component<'actions.placeholder-action', true>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::pending-action.pending-action',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::pending-action.pending-action',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiResolvedActionResolvedAction extends Schema.CollectionType {
   collectionName: 'resolved_actions';
   info: {
     singularName: 'resolved-action';
     pluralName: 'resolved-actions';
-    displayName: 'Resolved Action';
+    displayName: 'Resolved-Action';
     description: '';
   };
   options: {
     draftAndPublish: false;
   };
   attributes: {
-    action: Attribute.Relation<
-      'api::resolved-action.resolved-action',
-      'oneToOne',
-      'api::action.action'
-    >;
-    team: Attribute.Relation<
-      'api::resolved-action.resolved-action',
-      'oneToOne',
-      'api::team.team'
-    >;
+    User: Attribute.String;
+    Date: Attribute.DateTime;
+    Action: Attribute.Component<'actions.placeholder-action', true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -929,6 +946,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'api::action.action': ApiActionAction;
       'api::message.message': ApiMessageMessage;
+      'api::pending-action.pending-action': ApiPendingActionPendingAction;
       'api::resolved-action.resolved-action': ApiResolvedActionResolvedAction;
       'api::team.team': ApiTeamTeam;
     }
