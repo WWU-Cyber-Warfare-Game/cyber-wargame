@@ -7,16 +7,16 @@
   },
   "options": {},
   "attributes": {
-    "Name": {
+    "name": {
       "type": "string"
     },
-    "Description": {
+    "description": {
       "type": "string"
     },
-    "Duration": {
+    "duration": {
       "type": "integer"
     },
-    "TeamRole": {
+    "teamRole": {
       "type": "enumeration",
       "enum": [
         "leader",

@@ -843,15 +843,15 @@ export interface ApiPendingActionPendingAction extends Schema.CollectionType {
   info: {
     singularName: 'pending-action';
     pluralName: 'pending-actions';
-    displayName: 'pending-Action';
+    displayName: 'Pending-Action';
     description: '';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
-    User: Attribute.String;
-    Date: Attribute.DateTime;
+    user: Attribute.String;
+    date: Attribute.DateTime;
     Action: Attribute.Component<'actions.placeholder-action', true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -883,8 +883,8 @@ export interface ApiResolvedActionResolvedAction extends Schema.CollectionType {
     draftAndPublish: false;
   };
   attributes: {
-    User: Attribute.String;
-    Date: Attribute.DateTime;
+    user: Attribute.String;
+    date: Attribute.DateTime;
     Action: Attribute.Component<'actions.placeholder-action', true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

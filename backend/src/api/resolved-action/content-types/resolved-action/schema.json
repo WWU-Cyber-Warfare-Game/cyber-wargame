@@ -12,10 +12,10 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "User": {
+    "user": {
       "type": "string"
     },
-    "Date": {
+    "date": {
       "type": "datetime"
     },
     "Action": {

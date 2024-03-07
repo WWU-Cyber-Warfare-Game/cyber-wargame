@@ -4,7 +4,7 @@
   "info": {
     "singularName": "pending-action",
     "pluralName": "pending-actions",
-    "displayName": "pending-Action",
+    "displayName": "Pending-Action",
     "description": ""
   },
   "options": {
@@ -12,10 +12,10 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "User": {
+    "user": {
       "type": "string"
     },
-    "Date": {
+    "date": {
       "type": "datetime"
     },
     "Action": {
