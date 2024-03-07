@@ -81,15 +81,6 @@ export default {
       console.log('game-logic connected');
     });
 
-    // start game-logic process
-    const gameLogic = spawn('node', ['dist/src/game-logic/index.js']); // is working directory different in production?
-    gameLogic.stdout.on('data', (data) => {
-      console.log(`[game-logic] ${data}`);
-    });
-    gameLogic.stderr.on('data', (data) => {
-      console.error(`[game-logic]: ${data}`);
-    });
-
     io.on('connection', async (socket) => {
       // check user jwt
       const userId = await checkToken(socket.handshake.auth.token);
