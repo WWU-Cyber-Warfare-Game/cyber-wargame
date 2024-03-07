@@ -12,5 +12,5 @@ socket.on("connect", () => {
 });
 
 socket.on("message", (message: string) => {
-    console.log(message);
+    console.log("Message:", message);
 });
