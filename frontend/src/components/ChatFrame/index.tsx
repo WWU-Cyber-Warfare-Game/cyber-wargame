@@ -32,7 +32,7 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
 
     // connect to socket server and get messages from the server when component mounts
     useEffect(() => {
-        const newSocket = io(`${STRAPI_URL}/socket/chat`, {
+        const newSocket = io(`${STRAPI_URL}`, {
             auth: {
                 token: jwt
             }
