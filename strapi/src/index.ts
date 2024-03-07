@@ -1,4 +1,5 @@
 import { Server } from 'socket.io';
+import { spawn } from 'node:child_process';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -73,8 +74,14 @@ export default {
       },
     });
 
-    // NOTE: could probably have one namespace for everything
-    io.of('/socket/chat').on('connection', async (socket) => { // TODO: figure out why like 10 users connect at once
+    // game logic process socket
+    // TODO: probably not secure, make sure this is not accessible from outside localhost (use a secret key maybe?)
+    const gameLogicSocket = io.of('/game-logic');
+    gameLogicSocket.on('connection', () => {
+      console.log('game-logic connected');
+    });
+
+    io.on('connection', async (socket) => {
       // check user jwt
       const userId = await checkToken(socket.handshake.auth.token);
       if (!socket.handshake.auth.token || !userId) {
@@ -104,6 +111,7 @@ export default {
             receiver: message.receiver,
           }
         });
+        gameLogicSocket.emit('message', message.message);
       });
 
       // join room when user connects

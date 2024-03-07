@@ -1,5 +1,5 @@
 {
-  "name": "cyber-wargame-backend",
+  "name": "cyber-wargame-strapi",
   "private": true,
   "version": "0.1.0",
   "description": "A Strapi application",
@@ -19,6 +19,7 @@
     "react-dom": "^18.0.0",
     "react-router-dom": "5.3.4",
     "socket.io": "^4.7.4",
+    "socket.io-client": "^4.7.4",
     "strapi-plugin-schemas-to-ts": "^1.1.21",
     "styled-components": "5.3.3"
   },
