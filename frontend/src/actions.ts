@@ -301,7 +301,7 @@ export async function getActions() {
     }
 
     try {
-        const res = await fetch(`${STRAPI_URL}/api/actions?populate=*&filters[teamRole][$eq]=${user.teamRole}`, {
+        const res = await fetch(`${STRAPI_URL}/api/actions?populate=*&filters[action][teamRole][$eq]=${user.teamRole}`, {
             headers: {
                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
             }
