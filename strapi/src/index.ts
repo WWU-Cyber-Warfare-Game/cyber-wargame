@@ -139,9 +139,9 @@ export default {
       socket.on('action', async (submittedAction: Action) => {
         const res = await strapi.entityService.create('api::pending-action.pending-action', {
           data: {
-            User: 'aa',
-            Date: new Date(Date.now() + minToMs(submittedAction.duration)),
-            Action: submittedAction,
+            user: 'aa',
+            date: new Date(Date.now() + minToMs(submittedAction.duration)),
+            action: submittedAction,
           }
         });
       });
@@ -150,9 +150,9 @@ export default {
       socket.on('finalizedAction', async (pendingAction: Action) => {
         const res = await strapi.entityService.create('api::resolved-action.resolved-action', {
           data: {
-            User: 'aa',
-            Date: Date.now(),
-            Action: pendingAction,
+            user: 'aa',
+            date: Date.now(),
+            action: pendingAction,
           }
         });
       });

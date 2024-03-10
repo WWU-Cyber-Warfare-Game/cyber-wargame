@@ -12,7 +12,7 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "Action": {
+    "action": {
       "type": "component",
       "repeatable": false,
       "component": "actions.placeholder-action"
