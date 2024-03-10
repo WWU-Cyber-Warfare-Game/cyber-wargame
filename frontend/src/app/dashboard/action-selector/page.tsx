@@ -1,6 +1,6 @@
 
 import Link from "next/link";
-import { ActionSelectorFrame } from "@/components/ActionSelectorFrame/indes";
+import { ActionSelectorFrame } from "@/components/ActionSelectorFrame";
 
 export default function ActionSelectorPage() {
   
@@ -12,7 +12,7 @@ export default function ActionSelectorPage() {
       <Link href="/dashboard">Go to Dashboard</Link>
       <br />
       <Link href="/dashboard/action-log">Go to Action Log</Link>
-      <ActionSelectorFrame>
+      <ActionSelectorFrame />
    </div>   
   );
 }
