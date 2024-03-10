@@ -1,20 +1,33 @@
 "use client";
 import { io, Socket } from "socket.io-client";
 import { useState, useEffect } from "react";
-import { getActionLog } from "@/actions";
-import { ActionLog } from "@/types";
 import { Action } from "@/types";
-import { User } from "@/types";
+import ActionButton from "@/components/ActionSelectorFrame/ActionButton";
+import { getActions } from "@/actions";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
 export async function ActionSelectorFrame() {
+    // TODO: better error handling
     const [socket, setSocket] = useState<Socket | null>(null);
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [actions, setActions] = useState<Action[]>([]);
 
     useEffect(() => {
         // Establish a connection to the websocket server
         const newSocket = io(STRAPI_URL);
         setSocket(newSocket);
+
+        // Get the list of actions from the server
+        getActions().then((actions) => {
+            if (actions) {
+                setActions(actions);
+                setLoading(false);
+            } else {
+                setError("Error fetching actions");
+            }
+        });
 
         // Clean up the socket connection on component unmount
         return () => {
@@ -22,43 +35,14 @@ export async function ActionSelectorFrame() {
         };
     }, []);
 
-    function getAction(data: any): Action {
-        return {
-            name: data.attributes.name,
-            duration: data.attributes.duration,
-            description: data.attributes.description,
-            teamRole: data.attributes.teamRole
-        };
-    }
-
-    function getUser(data: any): User {
-        return {
-            username: data.username,
-            email: data.email,
-            teamRole: data.teamRole,
-            team: data.team
-        };
-    }
-
-    async function clickHandler() {
-        try {
-            // Fetch action data from your backend API
-            const response = await fetch(`${STRAPI_URL}/api/actions?populate=*&`);
-            
-            if (!response.ok) {
-                throw new Error("Failed to fetch action data");
-            }
-            const actionData = await response.json();
-            const action = getAction(actionData);
-            const eventName = "sendAction";
-
-            if (socket) {
-                socket.emit(eventName, action);
-            }
-        } catch (error) {
-            console.error("Error fetching or sending action data:", error);
-        }
-    }
-
-    return <button onClick={clickHandler}>Action 1</button>;
+    return (
+        <div>
+            <h3>Actions</h3>
+            {loading && <p>Loading...</p>}
+            {error && <p>{error}</p>}
+            {actions.map((action, index) => (
+                <ActionButton key={index} action={action} />
+            ))}
+        </div>
+    );
 }
