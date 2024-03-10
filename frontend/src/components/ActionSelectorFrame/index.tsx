@@ -44,7 +44,7 @@ export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameP
         return () => {
             newSocket.disconnect();
         };
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     function handleActionClick(action: Action) {
         console.log("Action clicked:", action);
