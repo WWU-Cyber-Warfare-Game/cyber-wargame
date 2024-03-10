@@ -3,6 +3,10 @@
 import Link from "next/link";
 import ActionLogFrame from "@/components/ActionLogFrame";
 
+/**
+ * The action log page for the application. Displays all of the actions that have been performed in the game.
+ * @returns 
+ */
 export default function ActionLogPage() {
   
   return (

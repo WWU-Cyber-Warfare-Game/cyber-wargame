@@ -784,12 +784,13 @@ export interface ApiActionAction extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   attributes: {
-    Action: Attribute.Component<'actions.placeholder-action', true>;
+    action: Attribute.Component<'actions.placeholder-action'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::action.action',
       'oneToOne',
@@ -847,15 +848,14 @@ export interface ApiPendingActionPendingAction extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     user: Attribute.String;
     date: Attribute.DateTime;
-    Action: Attribute.Component<'actions.placeholder-action', true>;
+    action: Attribute.Component<'actions.placeholder-action'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::pending-action.pending-action',
       'oneToOne',
@@ -885,7 +885,7 @@ export interface ApiResolvedActionResolvedAction extends Schema.CollectionType {
   attributes: {
     user: Attribute.String;
     date: Attribute.DateTime;
-    Action: Attribute.Component<'actions.placeholder-action', true>;
+    action: Attribute.Component<'actions.placeholder-action'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -912,13 +912,12 @@ export interface ApiTeamTeam extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::team.team', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::team.team', 'oneToOne', 'admin::user'> &

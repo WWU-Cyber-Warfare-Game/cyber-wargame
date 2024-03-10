@@ -8,12 +8,13 @@ export interface ActionsPlaceholderAction extends Schema.Component {
     description: '';
   };
   attributes: {
-    name: Attribute.String;
+    name: Attribute.String & Attribute.Required;
     description: Attribute.String;
-    duration: Attribute.Integer;
+    duration: Attribute.Integer & Attribute.Required;
     teamRole: Attribute.Enumeration<
       ['leader', 'intelligence', 'military', 'media', 'diplomat']
-    >;
+    > &
+      Attribute.Required;
   };
 }
 

@@ -8,13 +8,13 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
-    "Action": {
+    "action": {
       "type": "component",
-      "repeatable": true,
+      "repeatable": false,
       "component": "actions.placeholder-action"
     }
   }

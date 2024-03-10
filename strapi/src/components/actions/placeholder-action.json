@@ -8,13 +8,15 @@
   "options": {},
   "attributes": {
     "name": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "description": {
       "type": "string"
     },
     "duration": {
-      "type": "integer"
+      "type": "integer",
+      "required": true
     },
     "teamRole": {
       "type": "enumeration",
@@ -24,7 +26,8 @@
         "military",
         "media",
         "diplomat"
-      ]
+      ],
+      "required": true
     }
   }
 }

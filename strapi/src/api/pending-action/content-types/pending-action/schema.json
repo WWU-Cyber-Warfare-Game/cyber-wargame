@@ -8,7 +8,7 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
@@ -18,9 +18,9 @@
     "date": {
       "type": "datetime"
     },
-    "Action": {
+    "action": {
       "type": "component",
-      "repeatable": true,
+      "repeatable": false,
       "component": "actions.placeholder-action"
     }
   }
