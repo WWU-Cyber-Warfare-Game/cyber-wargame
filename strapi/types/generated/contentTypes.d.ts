@@ -787,7 +787,7 @@ export interface ApiActionAction extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
-    Action: Attribute.Component<'actions.placeholder-action', true>;
+    Action: Attribute.Component<'actions.placeholder-action'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -853,7 +853,7 @@ export interface ApiPendingActionPendingAction extends Schema.CollectionType {
   attributes: {
     user: Attribute.String;
     date: Attribute.DateTime;
-    Action: Attribute.Component<'actions.placeholder-action', true>;
+    Action: Attribute.Component<'actions.placeholder-action'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -885,7 +885,7 @@ export interface ApiResolvedActionResolvedAction extends Schema.CollectionType {
   attributes: {
     user: Attribute.String;
     date: Attribute.DateTime;
-    Action: Attribute.Component<'actions.placeholder-action', true>;
+    Action: Attribute.Component<'actions.placeholder-action'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

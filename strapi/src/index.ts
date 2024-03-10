@@ -141,18 +141,18 @@ export default {
           data: {
             User: 'aa',
             Date: new Date(Date.now() + minToMs(submittedAction.duration)),
-            Action: new Array(submittedAction),
+            Action: submittedAction,
           }
         });
       });
 
-      //listens for pending actions that need to be added to the resolved queue
+      // listens for pending actions that need to be added to the resolved queue
       socket.on('finalizedAction', async (pendingAction: Action) => {
         const res = await strapi.entityService.create('api::resolved-action.resolved-action', {
           data: {
             User: 'aa',
             Date: Date.now(),
-            Action: new Array(pendingAction),
+            Action: pendingAction,
           }
         });
       });

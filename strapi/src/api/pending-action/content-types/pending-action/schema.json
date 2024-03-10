@@ -20,7 +20,7 @@
     },
     "Action": {
       "type": "component",
-      "repeatable": true,
+      "repeatable": false,
       "component": "actions.placeholder-action"
     }
   }
