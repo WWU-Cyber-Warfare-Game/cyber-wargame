@@ -17,7 +17,7 @@ interface ActionSelectorFrameProps {
 export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameProps>) {
     // TODO: better error handling
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [error, setError] = useState("");
+    const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [actions, setActions] = useState<Action[]>([]);
 

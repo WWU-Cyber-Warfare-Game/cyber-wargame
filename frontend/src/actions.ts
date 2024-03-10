@@ -277,11 +277,11 @@ export async function getActionLog() {
             return data.data.map((action: any) => parseActionLog(action));
         } else {
             console.error('Failed to fetch action log:', res.status, res.statusText);
-            return [] as ActionLog[];
+            return null;
         }
     } catch (error) {
         console.error('Error fetching action log:', error);
-        return [] as ActionLog[];
+        return null;
     }
 }
 

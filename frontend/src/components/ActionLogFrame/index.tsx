@@ -9,22 +9,24 @@ const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
 export default function ActionLogFrame() {
   const [actionLogData, setActionLogData] = useState<ActionLog[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getActionLog();
-        setActionLogData(data);
-      } catch (error) {
-        console.error('Error fetching action log data:', error);
+    getActionLog().then((actionLogData) => {
+      if (actionLogData) {
+        setActionLogData(actionLogData);
+        setLoading(false);
+      } else {
+        setError("Error fetching action log");
       }
-    };
-
-    fetchData();
+    });
   }, []);
   return (
     <div>      
         <h3>Actions:</h3>
+        {loading && <p>Loading...</p>}
+        {error && <p>{error}</p>}
         <ul>
           {actionLogData.map((actionLog, index) => (
             <li key={index}>
