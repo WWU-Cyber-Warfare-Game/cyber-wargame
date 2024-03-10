@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io-client';
 
-export const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
+const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
 export function initSocketListeners(socket: Socket) {
     console.log(`Connecting to Strapi server at ${STRAPI_URL}`);
