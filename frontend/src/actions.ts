@@ -284,3 +284,38 @@ export async function getActionLog() {
         return [] as ActionLog[];
     }
 }
+
+/**
+ * Gets all the actions that can be performed.
+ * @returns An array of Action objects, or null if there is an error
+ */
+export async function getActions() {
+    function parseAction(data: any): Action {
+        return data.attributes.action;
+    }
+    
+    const user = await validateUser();
+    if (!user) {
+        console.error("User not validated.");
+        return null;
+    }
+
+    try {
+        const res = await fetch(`${STRAPI_URL}/api/actions?populate=*&filters[teamRole][$eq]=${user.teamRole}`, {
+            headers: {
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+            }
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            return data.data.map((action: any) => parseAction(action));
+        } else {
+            console.error('Failed to fetch actions:', res.status, res.statusText);
+            return [] as Action[];
+        }
+    } catch (error) {
+        console.error('Error fetching actions:', error);
+        return [] as Action[];
+    }
+}
