@@ -247,6 +247,10 @@ export async function getMessages(username: string) {
     return parseResponseData(data.data).sort((a, b) => a.date.getTime() - b.date.getTime());
 }
 
+/**
+ * Gets all the actions that have been performed.
+ * @returns An array of ActionLog objects, or null if there is an error
+ */
 export async function getActionLog() {
     function parseActionLog(data: any): ActionLog {
         return {
