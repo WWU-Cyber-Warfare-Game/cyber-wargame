@@ -254,9 +254,8 @@ export async function getMessages(username: string) {
 export async function getActionLog() {
     function parseActionLog(data: any): ActionLog {
         return {
-            action: data.attributes.action.data.attributes,
-            team: data.attributes.team.data.attributes.name,
-            time: new Date(Date.parse(data.attributes.createdAt))
+            action: data.attributes.action,
+            time: new Date(Date.parse(data.attributes.date))
         }
     }
     
@@ -266,7 +265,8 @@ export async function getActionLog() {
         return null;
     }
     try {
-        const res = await fetch(`${STRAPI_URL}/api/resolved-actions?populate=*&filters[team][name][$eq]=${user.team}`, {
+        // NOTE: right now this only fetches the resolved actions for the current user, not the whole team
+        const res = await fetch(`${STRAPI_URL}/api/resolved-actions?populate=*&filters[user][$eq]=${user.username}`, {
             headers: {
                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
             }

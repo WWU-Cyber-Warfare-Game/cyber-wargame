@@ -29,6 +29,5 @@ export interface Action {
 
 export interface ActionLog {
     action: Action;
-    team: string;
     time: Date;
 }
