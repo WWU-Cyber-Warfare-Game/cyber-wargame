@@ -1,8 +1,17 @@
 
 import Link from "next/link";
 import { ActionSelectorFrame } from "@/components/ActionSelectorFrame";
+import { validateUser } from "@/actions";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers"; 
 
-export default function ActionSelectorPage() {
+export default async function ActionSelectorPage() {
+  const user = await validateUser();
+  const jwt = cookies().get("jwt")?.value;
+  if (!user || !jwt) {
+    redirect("/login");
+  }
+
   
   return (
     <div>
@@ -12,7 +21,7 @@ export default function ActionSelectorPage() {
       <Link href="/dashboard">Go to Dashboard</Link>
       <br />
       <Link href="/dashboard/action-log">Go to Action Log</Link>
-      <ActionSelectorFrame />
+      <ActionSelectorFrame user={user} jwt={jwt} />
    </div>   
   );
 }

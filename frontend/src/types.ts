@@ -31,3 +31,9 @@ export interface ActionLog {
     action: Action;
     time: Date;
 }
+
+export interface PendingAction {
+    user: string;
+    date: Date;
+    action: Action;
+}

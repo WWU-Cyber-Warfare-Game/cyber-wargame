@@ -136,24 +136,21 @@ export default {
       //TODO: change the type of submittedAction to pendingAction/resolvedAction
 
       // listens for actions, adds to pending queue
-      socket.on('action', async (submittedAction: Action) => {
-        const res = await strapi.entityService.create('api::pending-action.pending-action', {
-          data: {
-            user: 'aa',
-            date: new Date(Date.now() + minToMs(submittedAction.duration)),
-            action: submittedAction,
-          }
-        });
-      });
+      // socket.on('action', async (submittedAction: Action) => {
+      //   const res = await strapi.entityService.create('api::pending-action.pending-action', {
+      //     data: {
+      //       user: 'aa',
+      //       date: new Date(Date.now() + minToMs(submittedAction.duration)),
+      //       action: submittedAction,
+      //     }
+      //   });
+      // });
 
-      // listens for pending actions that need to be added to the resolved queue
-      socket.on('finalizedAction', async (pendingAction: Action) => {
-        const res = await strapi.entityService.create('api::resolved-action.resolved-action', {
-          data: {
-            user: 'aa',
-            date: Date.now(),
-            action: pendingAction,
-          }
+      // listens for pending actions
+      socket.on('startAction', async (pendingAction: PendingAction) => {
+        console.log('action received');
+        const res = await strapi.entityService.create('api::pending-action.pending-action', {
+          data: pendingAction
         });
       });
     });
