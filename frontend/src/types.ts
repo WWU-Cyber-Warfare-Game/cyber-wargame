@@ -21,6 +21,7 @@ export interface Message {
 }
 
 export interface Action {
+    id: number; // NOTE: this is the id or the action entry, not the action component
     name: string;
     duration: number;
     description: string;
@@ -34,6 +35,5 @@ export interface ActionLog {
 
 export interface PendingAction {
     user: string;
-    date: Date;
-    action: Action;
+    action: number;
 }

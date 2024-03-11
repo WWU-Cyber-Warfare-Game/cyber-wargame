@@ -291,7 +291,13 @@ export async function getActionLog() {
  */
 export async function getActions() {
     function parseAction(data: any): Action {
-        return data.attributes.action;
+        return {
+            id: data.id,
+            name: data.attributes.action.name,
+            duration: data.attributes.action.duration,
+            description: data.attributes.action.description,
+            teamRole: data.attributes.action.teamRole
+        } as Action;
     }
     
     const user = await validateUser();

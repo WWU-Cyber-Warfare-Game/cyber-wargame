@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { PendingAction, Action, TeamRole} from './types';
+import { PendingAction, Action, TeamRole, User, PendingActionRequest} from './types';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -51,6 +51,45 @@ async function checkReceiver(userId: number, receiver: string) {
     }
   });
   return teammates.length > 0;
+}
+
+// gets a user's info from their username
+async function getUser(username: string) {
+  const res = await strapi.entityService.findMany('plugin::users-permissions.user', {
+    filters: {
+      username: username
+    },
+    populate: '*'
+  });
+  return {
+    username: res[0].username,
+    email: res[0].email,
+    teamRole: res[0].teamRole,
+    team: res[0].team.name
+  } as User;
+}
+
+// checks if user can perform action and returns the action if they can
+async function checkAction(username: string, actionId: number) {
+  const user = await getUser(username);
+  const res = await strapi.entityService.findOne('api::action.action', actionId, {
+    populate: '*'
+  });
+  if (!res) {
+    console.error('user ' + username + ' attempted to perform action ' + actionId + ' that does not exist');
+    return null;
+  }
+  const action = {
+    name: res.action.name,
+    duration: res.action.duration,
+    description: res.action.description,
+    teamRole: res.action.teamRole
+  } as Action;
+  if (user.teamRole !== action.teamRole) {
+    console.error('user ' + username + ' attempted to perform action ' + action.name + ' that does not match their team role');
+    return null;
+  }
+  return action;
 }
 
 export default {
@@ -147,12 +186,19 @@ export default {
       // });
 
       // listens for pending actions
-      // FIXME: vulnerability where user can submit any information they want for the action
-      // could be fixed by linking action to one of the predefined actions in the database
-      socket.on('startAction', async (pendingAction: PendingAction) => {
+      socket.on('startAction', async (pendingActionReq: PendingActionRequest) => {
         console.log('action received');
+        const action = await checkAction(pendingActionReq.user, pendingActionReq.action);
+        if (!action) {
+          socket.emit('error', 'Invalid action');
+          return;
+        }
         const res = await strapi.entityService.create('api::pending-action.pending-action', {
-          data: pendingAction
+          data: {
+            user: pendingActionReq.user,
+            date: new Date(Date.now() + minToMs(action.duration)),
+            action: action,
+          }
         });
       });
     });

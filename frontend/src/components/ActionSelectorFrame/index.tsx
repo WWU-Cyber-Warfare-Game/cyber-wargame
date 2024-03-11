@@ -43,12 +43,17 @@ export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameP
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // connection error handling
+    if (socket) socket.on('connect_error', () => setError("Error connecting to socket server"));
+
+    // error handling
+    if (socket) socket.on('error', (error: string) => setError(error));
+
     function handleActionClick(action: Action) {
         console.log("Action clicked:", action);
         const pendingAction: PendingAction = {
             user: user.username,
-            date: new Date(),
-            action: action,
+            action: action.id,
         };
 
         if (socket) {
