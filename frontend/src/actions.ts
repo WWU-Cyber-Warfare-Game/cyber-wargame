@@ -247,12 +247,15 @@ export async function getMessages(username: string) {
     return parseResponseData(data.data).sort((a, b) => a.date.getTime() - b.date.getTime());
 }
 
+/**
+ * Gets all the actions that have been performed.
+ * @returns An array of ActionLog objects, or null if there is an error
+ */
 export async function getActionLog() {
     function parseActionLog(data: any): ActionLog {
         return {
-            action: data.attributes.action.data.attributes,
-            team: data.attributes.team.data.attributes.name,
-            time: new Date(Date.parse(data.attributes.createdAt))
+            action: data.attributes.action,
+            time: new Date(Date.parse(data.attributes.date))
         }
     }
     
@@ -262,7 +265,8 @@ export async function getActionLog() {
         return null;
     }
     try {
-        const res = await fetch(`${STRAPI_URL}/api/resolved-actions?populate=*&filters[team][name][$eq]=${user.team}`, {
+        // NOTE: right now this only fetches the resolved actions for the current user, not the whole team
+        const res = await fetch(`${STRAPI_URL}/api/resolved-actions?populate=*&filters[user][$eq]=${user.username}`, {
             headers: {
                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
             }
@@ -273,10 +277,51 @@ export async function getActionLog() {
             return data.data.map((action: any) => parseActionLog(action));
         } else {
             console.error('Failed to fetch action log:', res.status, res.statusText);
-            return [] as ActionLog[];
+            return null;
         }
     } catch (error) {
         console.error('Error fetching action log:', error);
-        return [] as ActionLog[];
+        return null;
+    }
+}
+
+/**
+ * Gets all the actions that can be performed.
+ * @returns An array of Action objects, or null if there is an error
+ */
+export async function getActions() {
+    function parseAction(data: any): Action {
+        return {
+            id: data.id,
+            name: data.attributes.action.name,
+            duration: data.attributes.action.duration,
+            description: data.attributes.action.description,
+            teamRole: data.attributes.action.teamRole
+        } as Action;
+    }
+    
+    const user = await validateUser();
+    if (!user) {
+        console.error("User not validated.");
+        return null;
+    }
+
+    try {
+        const res = await fetch(`${STRAPI_URL}/api/actions?populate=*&filters[action][teamRole][$eq]=${user.teamRole}`, {
+            headers: {
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+            }
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            return data.data.map((action: any) => parseAction(action));
+        } else {
+            console.error('Failed to fetch actions:', res.status, res.statusText);
+            return [] as Action[];
+        }
+    } catch (error) {
+        console.error('Error fetching actions:', error);
+        return [] as Action[];
     }
 }

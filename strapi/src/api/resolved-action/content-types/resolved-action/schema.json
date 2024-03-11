@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "resolved_actions",
+  "info": {
+    "singularName": "resolved-action",
+    "pluralName": "resolved-actions",
+    "displayName": "Resolved-Action",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "string"
+    },
+    "date": {
+      "type": "datetime"
+    },
+    "action": {
+      "type": "component",
+      "repeatable": false,
+      "component": "actions.placeholder-action"
+    }
+  }
+}

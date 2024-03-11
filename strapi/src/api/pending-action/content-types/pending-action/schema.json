@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pending_actions",
+  "info": {
+    "singularName": "pending-action",
+    "pluralName": "pending-actions",
+    "displayName": "Pending-Action",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "string"
+    },
+    "date": {
+      "type": "datetime"
+    },
+    "action": {
+      "type": "component",
+      "repeatable": false,
+      "component": "actions.placeholder-action"
+    }
+  }
+}

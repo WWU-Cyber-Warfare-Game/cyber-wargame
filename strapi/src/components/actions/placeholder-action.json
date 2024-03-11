@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_actions_placeholder_actions",
+  "info": {
+    "displayName": "placeholder-action",
+    "icon": "clock",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "duration": {
+      "type": "integer",
+      "required": true
+    },
+    "teamRole": {
+      "type": "enumeration",
+      "enum": [
+        "leader",
+        "intelligence",
+        "military",
+        "media",
+        "diplomat"
+      ],
+      "required": true
+    }
+  }
+}

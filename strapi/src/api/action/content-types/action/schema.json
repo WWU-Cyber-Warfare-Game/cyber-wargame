@@ -1,0 +1,21 @@
+{
+  "kind": "collectionType",
+  "collectionName": "actions",
+  "info": {
+    "singularName": "action",
+    "pluralName": "actions",
+    "displayName": "Action",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "action": {
+      "type": "component",
+      "repeatable": false,
+      "component": "actions.placeholder-action"
+    }
+  }
+}
