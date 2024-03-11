@@ -147,6 +147,8 @@ export default {
       // });
 
       // listens for pending actions
+      // FIXME: vulnerability where user can submit any information they want for the action
+      // could be fixed by linking action to one of the predefined actions in the database
       socket.on('startAction', async (pendingAction: PendingAction) => {
         console.log('action received');
         const res = await strapi.entityService.create('api::pending-action.pending-action', {
