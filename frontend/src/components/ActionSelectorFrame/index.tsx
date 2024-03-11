@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 import { Action, PendingAction, User } from "@/types";
 import ActionButton from "@/components/ActionSelectorFrame/ActionButton";
 import { getActions, validateUser } from "@/actions";
-import { useRouter } from "next/router";
-import { cookies } from "next/headers";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
@@ -15,7 +13,6 @@ interface ActionSelectorFrameProps {
 }
 
 export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameProps>) {
-    // TODO: better error handling
     const [socket, setSocket] = useState<Socket | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
