@@ -37,3 +37,8 @@ export interface PendingAction {
     user: string;
     action: number;
 }
+
+export interface ActionResponse {
+    actions: Action[];
+    performingActions: boolean;
+}
