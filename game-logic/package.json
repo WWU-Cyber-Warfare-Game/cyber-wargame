@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "tsc",
+    "build": "node env-copy.js && tsc",
     "start": "node dist/index.js",
-    "dev": "concurrently \"tsc -w\" \"nodemon dist/server.js\""
+    "dev": "concurrently \"tsc -w\" \"nodemon\" \"node env-watch.js\""
   },
   "keywords": [],
   "author": "",
