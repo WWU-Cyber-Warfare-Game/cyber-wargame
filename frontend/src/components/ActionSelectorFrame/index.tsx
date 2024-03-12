@@ -29,10 +29,14 @@ export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameP
         setSocket(newSocket);
 
         // Get the list of actions from the server
-        getActions().then((actions) => {
-            if (actions) {
+        getActions().then((res) => {
+            if (res) {
+                console.log(res);
+                const actions = res.actions;
+                const performingActions = res.performingActions;
                 setActions(actions);
                 setLoading(false);
+                setButtonDisabled(performingActions);
             } else {
                 setLoading(false);
                 setError("Error fetching actions");
@@ -62,10 +66,8 @@ export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameP
         };
 
         if (socket) {
-            console.log("Emitting action:", pendingAction);
-            socket.emit('startAction', pendingAction, (response: string) => {
-                console.log("Server response:", response);
-            });
+            socket.emit('startAction', pendingAction);
+            setButtonDisabled(true);
         }
     }
 
