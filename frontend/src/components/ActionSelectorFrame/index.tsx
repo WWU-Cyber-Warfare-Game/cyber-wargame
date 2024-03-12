@@ -17,6 +17,7 @@ export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameP
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [actions, setActions] = useState<Action[]>([]);
+    const [butttonDisabled, setButtonDisabled] = useState(false);
 
     useEffect(() => {
         // Establish a connection to the websocket server
@@ -33,7 +34,9 @@ export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameP
                 setActions(actions);
                 setLoading(false);
             } else {
+                setLoading(false);
                 setError("Error fetching actions");
+                setButtonDisabled(true);
             }
         });
 
@@ -72,7 +75,7 @@ export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameP
             {loading && <p>Loading...</p>}
             {error && <p>{error}</p>}
             {actions.map((action, index) => (
-                <ActionButton key={index} action={action} onClick={handleActionClick} />
+                <ActionButton key={index} action={action} onClick={handleActionClick} disabled={butttonDisabled} />
             ))}
         </div>
     );
