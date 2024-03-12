@@ -1,5 +1,7 @@
 import { io } from "socket.io-client";
 import { initSocketListeners } from "./socket";
+const dotenv = require("dotenv");
+dotenv.config();
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
