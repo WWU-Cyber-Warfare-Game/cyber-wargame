@@ -188,11 +188,26 @@ export default {
       // listens for pending actions
       socket.on('startAction', async (pendingActionReq: PendingActionRequest) => {
         console.log('action received');
+        
+        // check if action is valid
         const action = await checkAction(pendingActionReq.user, pendingActionReq.action);
         if (!action) {
           socket.emit('error', 'Invalid action');
           return;
         }
+
+        // check if user is already performing an action
+        const pendingActions = await strapi.entityService.findMany('api::pending-action.pending-action', {
+          filters: {
+            user: pendingActionReq.user
+          }
+        });
+        if (pendingActions.length > 0) {
+          socket.emit('error', 'User already performing action');
+          return;
+        }
+        
+        // add action to pending queue
         const res = await strapi.entityService.create('api::pending-action.pending-action', {
           data: {
             user: pendingActionReq.user,

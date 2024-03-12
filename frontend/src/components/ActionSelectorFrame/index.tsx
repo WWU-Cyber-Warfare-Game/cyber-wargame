@@ -77,7 +77,12 @@ export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameP
             {loading && <p>Loading...</p>}
             {error && <p>{error}</p>}
             {actions.map((action, index) => (
-                <ActionButton key={index} action={action} onClick={handleActionClick} disabled={butttonDisabled} />
+                <ActionButton
+                    key={index}
+                    action={action}
+                    onClick={butttonDisabled ? () => { } : handleActionClick}
+                    disabled={butttonDisabled}
+                />
             ))}
         </div>
     );
