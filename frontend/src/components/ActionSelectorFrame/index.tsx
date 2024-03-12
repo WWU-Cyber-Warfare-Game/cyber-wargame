@@ -1,6 +1,6 @@
 "use client";
 import { io, Socket } from "socket.io-client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { Action, PendingAction, User } from "@/types";
 import ActionButton from "@/components/ActionSelectorFrame/ActionButton";
 import { getActions, validateUser } from "@/actions";
@@ -43,11 +43,13 @@ export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameP
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // connection error handling
-    if (socket) socket.on('connect_error', () => setError("Error connecting to socket server"));
+    useEffect(() => {
+        // connection error handling
+        if (socket) socket.on('connect_error', () => setError("Error connecting to socket server"));
 
-    // error handling
-    if (socket) socket.on('error', (error: string) => setError(error));
+        // error handling
+        if (socket) socket.on('error', (error: string) => setError(error));
+    }, [socket]);
 
     function handleActionClick(action: Action) {
         console.log("Action clicked:", action);
