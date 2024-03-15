@@ -1,34 +1,56 @@
 "use client";
 
-import { getMessages } from "@/actions";
-import { useEffect, useState, useRef } from "react";
-import { Message as MessageInterface } from "@/types";
-import Message from "@/components/ChatFrame/Message";
-import styles from "./ChatFrame.module.css";
+import { getTeamUsers, validateUser } from "@/actions";
+import { User } from "@/types";
+import { useEffect, useRef, useState } from "react";
+import ChatBox from "@/components/ChatFrame/ChatBox";
 import { io, Socket } from "socket.io-client";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
 interface ChatFrameProps {
-    readonly sender: string;
-    readonly receiver: string;
+    readonly user: User;
     readonly jwt: string;
 }
 
 /**
- * A component for displaying a chat between two users and sending messages
- * @param sender The username of the user sending the messages
- * @param receiver The username of the user receiving the messages
- * @param jwt The JSON Web Token of the user sending the messages 
+ * The chat page for the application. Displays a welcome message and a list of team members to chat with.
+ * @param user The user currently logged in
+ * @param jwt The JSON web token for the user
  * @returns 
  */
-export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameProps>) {
-    const [messages, setMessages] = useState<MessageInterface[]>([]);
-    const [messageInput, setMessageInput] = useState("");
+export default function ChatFrame({ user, jwt }: Readonly<ChatFrameProps>) {
+    /**
+     * Capitalizes the first letter of a string
+     * @param s A string to capitalize
+     * @returns Capitalized string
+     */
+    function capitalize(s: string) {
+        if (s.length === 0) return s;
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    function handleSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
+        setReceiver(event.target.value);
+        console.log(receiver);
+    }
+
+    const [receiver, setReceiver] = useState<string>("");
+    const [teamUsers, setTeamUsers] = useState<User[]>([]);
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(true);
-    const endOfListRef = useRef<HTMLDivElement>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    // get the team members when the component mounts
+    useEffect(() => {
+        async function fetchTeamUsers() {
+            if (user.team) {
+                const ret = await getTeamUsers(user.team);
+                setTeamUsers(ret);
+            }
+        }
+
+        fetchTeamUsers();
+    }, [user]);
 
     // connect to socket server and get messages from the server when component mounts
     useEffect(() => {
@@ -44,96 +66,33 @@ export default function ChatFrame({ sender, receiver, jwt }: Readonly<ChatFrameP
             setError("Error connecting to socket server");
         });
 
-        getMessages(receiver).then((messages) => {
-            if (messages) {
-                setMessages(messages);
-                setLoading(false);
-            } else {
-                setError("Error fetching messages");
-            }
-        });
-
         return () => {
             newSocket.disconnect();
         };
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    // join corresponding room when socket connects
-    useEffect(() => {
-        if (socket) socket.emit("join-room", [sender, receiver]);
-    }, [socket]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    // scroll to the end of the message list when new messages are added
-    useEffect(() => {
-        if (endOfListRef.current) {
-            endOfListRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-    }, [messages]);
-
-    // listen for new messages from the server
-    if (socket) socket.on("message", (message: MessageInterface) => {
-        message.date = new Date(message.date);
-        setMessages([...messages, message]);
-    });
-
-    // listen for errors from the server
-    if (socket) socket.on("error", (error: string) => {
-        setError(error);
-    });
-
-    // update message input state when user types
-    function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-        setMessageInput(event.target.value);
-    }
-
-    // send message to the server and update messages state
-    function handleSendClick() {
-        if (messageInput.trim() !== "") {
-            const newMessage: MessageInterface = {
-                message: messageInput,
-                sender: sender,
-                receiver: receiver,
-                date: new Date(),
-            };
-
-            // Update messages state with the new message
-            setMessages([...messages, newMessage]);
-
-            // Clear message input
-            setMessageInput("");
-
-            // Send message to the server
-            if (socket) socket.emit("message", newMessage, [sender, receiver]);
-        }
-    }
+    }, [jwt]);
 
     return (
-        <div id={styles.chatFrame}>
-            {loading ? <p>Loading messages...</p> :
-                <ul id={styles.messageList}>
-                    {messages.map((message, index) => (
-                        <li key={index}>
-                            <Message message={message.message} sender={message.sender} date={message.date} />
-                        </li>
-                    ))}
-                    <div ref={endOfListRef} />
-                </ul>
-            }
-            {error !== "" ? <p id={styles.error}>{error}</p> :
-                <div id={styles.inputContainer}>
-                    <input
-                        type="text"
-                        id={styles.messageInput}
-                        value={messageInput}
-                        onChange={handleInputChange}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") handleSendClick();
-                        }}
-                        disabled={loading}
-                    />
-                    <button id={styles.sendButton} onClick={handleSendClick} disabled={loading}>Send</button>
+        <div>
+            {user.team ?
+                <div>
+                    <select onChange={handleSelectChange}>
+                        <option value="">--- Select a team member to chat with ---</option>
+                        {teamUsers
+                            .filter(teamUser => teamUser.username !== user.username)
+                            .map((teamUser) => (
+                                <option key={teamUser.username} value={teamUser.username}>{capitalize(teamUser.teamRole)} ({teamUser.username})</option>
+                            ))}
+                    </select>
                 </div>
+                :
+                <p>You are not currently on a team.</p>
             }
+            {receiver != "" && user && jwt && socket ?
+                <ChatBox user={user} receiver={receiver} socket={socket} setError={setError} />
+                :
+                <p>Select a team member to chat with.</p>
+            }
+            {error && <p>{error}</p>}
         </div>
     );
-}
+};
