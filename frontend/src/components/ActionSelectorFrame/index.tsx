@@ -12,7 +12,7 @@ interface ActionSelectorFrameProps {
     readonly jwt: string;
 }
 
-export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameProps>) {
+export default function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameProps>) {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -73,7 +73,7 @@ export function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelectorFrameP
 
     return (
         <div>
-            <h3>Actions</h3>
+            <h3>Perform Action</h3>
             {loading && <p>Loading...</p>}
             {error && <p>{error}</p>}
             {actions.map((action, index) => (

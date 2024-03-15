@@ -24,7 +24,7 @@ export default function ActionLogFrame() {
   }, []);
   return (
     <div>      
-        <h3>Actions:</h3>
+        <h3>Log</h3>
         {loading && <p>Loading...</p>}
         {error && <p>{error}</p>}
         <ul>
