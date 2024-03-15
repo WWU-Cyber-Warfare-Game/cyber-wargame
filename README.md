@@ -3,7 +3,7 @@
 ## Notes for setting up
 - Make sure you have the LTS version of Node.js installed.
 - Run `npm install` in all directories.
-- In `backend`, make a `.env` file using `.env.example`.
+- In `strapi`, make a `.env` file using `.env.example`.
 - In `frontend`, make a `.env.local` file using `.env.local.example`.
 - In `game-logic`, make a `.env` file using `.env.example`.
 - Generate an API key with full permissions in Strapi and set `STRAPI_API_KEY` in `.env.local`.
