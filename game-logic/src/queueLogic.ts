@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { PendingAction } from './types';
 import { Socket } from 'socket.io-client';
-var cron = require('node-cron');
+import cron from 'node-cron';
 
 // only needed to parse an action from a get request
 // see types.ts
