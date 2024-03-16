@@ -7,7 +7,6 @@ export enum TeamRole {
 }
 
 export interface Action {
-    id: number; // NOTE: this is the id or the action entry, not the action component
     name: string;
     duration: number;
     description: string;
@@ -18,4 +17,10 @@ export interface PendingAction {
     user: string; // change this to team
     date: Date;
     action: Action;
+}
+
+export interface PendingAction {
+    user: string; // change this to team
+    date: Date;
+    id: number;
 }

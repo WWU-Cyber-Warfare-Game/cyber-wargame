@@ -8,4 +8,4 @@ const socket = io(`${STRAPI_URL}/game-logic`);
 
 console.log("Game logic process started!");
 initSocketListeners(socket);
-queueLogic();
+queueLogic(socket);

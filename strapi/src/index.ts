@@ -193,6 +193,7 @@ export default {
           socket.emit('error', 'Invalid action');
           return;
         }
+
         const res = await strapi.entityService.create('api::pending-action.pending-action', {
           data: {
             user: pendingActionReq.user,
@@ -200,6 +201,8 @@ export default {
             action: action,
           }
         });
+        console.log("sending to gameSocket");
+        gameLogicSocket.emit("pendingAction", res); // the action isn't sent, interface needed in the future
       });
     });
   }
