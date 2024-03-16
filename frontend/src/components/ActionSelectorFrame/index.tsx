@@ -59,7 +59,6 @@ export default function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelect
     }, [socket]);
 
     function handleActionClick(action: Action) {
-        console.log("Action clicked:", action);
         const pendingAction: PendingAction = {
             user: user.username,
             action: action.id,
