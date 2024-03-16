@@ -22,6 +22,7 @@ export default function Timer({ time }: Readonly<TimerProps>) {
 
     // update the hours, minutes, and seconds
     useEffect(() => {
+        if (timeLeft <= 0) return;
         setSeconds(Math.floor((timeLeft / 1000) % 60));
         setMinutes(Math.floor((timeLeft / 1000 / 60) % 60));
         setHours(Math.floor(timeLeft / 1000 / 60 / 60));
