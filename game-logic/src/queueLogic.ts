@@ -15,9 +15,6 @@ function parseAction(data: any) {
     } as PendingAction
 }
 
-// this is needed since .env is not updating correctly
-const token =  `Bearer 7f2b1a92b39f8fe1fb1f69ece2e5c46d5940327ad0682413d4baf0e5fccbda19e9f6a4d531001ad372e68e77936d359a019513097a38dea897248e6cc723e8e2a30ce8865872e836f4be99722352ed3e9be01f7248976b4c25ae1d35c44de4a60468decd398b9471762e39fa51eb2ac7c22a66ac2c46b5a2ab3493b21720a8ef`
-
 /**
 * function dateCompare
 * @param a
@@ -99,8 +96,7 @@ async function addToActive(id: number) {
         // fetch the action from the strapi version of queue, if the socket transmits the action properly this isn't needed
         const res =  await axios.get(`${STRAPI_URL}/api/pending-actions/${id}?populate=*`, {
             headers: {
-                // Authorization: `Bearer ${STRAPI_API_TOKEN}`
-                Authorization: token
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`
             }
         });
 
@@ -114,8 +110,7 @@ async function addToActive(id: number) {
                 }
             }, {
                 headers: {
-                    // Authorization: `Bearer ${STRAPI_API_TOKEN}`
-                    Authorization: token
+                    Authorization: `Bearer ${STRAPI_API_TOKEN}`
                 },
             });
     } catch (error) {
@@ -135,8 +130,7 @@ async function removeAction(id: number) {
         console.log("removing action from pending queue\n");
         await axios.delete(`${STRAPI_URL}/api/pending-actions/${id}`, {
             headers: {
-                // Authorization: `Bearer ${STRAPI_API_TOKEN}`
-                Authorization: token
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`
             },
         });
         queue.shift();
