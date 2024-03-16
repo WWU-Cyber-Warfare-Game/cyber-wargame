@@ -3,10 +3,10 @@ const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 const STRAPI_API_TOKEN = process.env.TOKEN
 import { PendingAction } from './types';
 import { Socket } from 'socket.io-client';
-
 var cron = require('node-cron');
 
-// not needed at the moment, maybe in the future?
+// only needed to parse an action from a get request
+// see types.ts
 function parseAction(data: any) {
     return {
         user: data.user,
@@ -18,6 +18,7 @@ function parseAction(data: any) {
 // this is needed since .env is not updating correctly
 const token =  `Bearer 7f2b1a92b39f8fe1fb1f69ece2e5c46d5940327ad0682413d4baf0e5fccbda19e9f6a4d531001ad372e68e77936d359a019513097a38dea897248e6cc723e8e2a30ce8865872e836f4be99722352ed3e9be01f7248976b4c25ae1d35c44de4a60468decd398b9471762e39fa51eb2ac7c22a66ac2c46b5a2ab3493b21720a8ef`
 
+// compares two dates and sorts them by most recent date first
 function dateCompare(a: PendingAction, b: PendingAction): number {
     const dateA = new Date(a.date).getTime();
     const dateB = new Date(b.date).getTime();
@@ -31,21 +32,23 @@ function dateCompare(a: PendingAction, b: PendingAction): number {
     }
 }
 
+//the local queue
 const queue: PendingAction[] = [];
-/**
-* function queueLogic
-* constantly polls strapi for the action with the closest completion time, if the date has passed
-* the action is copied to the resolved queue and removed from the pending queue
-* 
-*/
 
 // this dictates how often the queue will be checked in seconds
 const iterator = 3;
 
+/**
+* function queueLogic
+* @param socket
+* constantly polls strapi for the action with the closest completion time, if the date has passed
+* the action is copied to the resolved queue and removed from the pending queue
+* 
+*/
 export async function queueLogic(socket: Socket) {
 
     socket.on("pendingAction", (pAction: PendingAction) => {
-        console.log("Action recieved");
+        console.log("action recieved\n");
         queue.push(pAction); // add to queue
         queue.sort(dateCompare); // sorts the actions by date in descending order
     });
@@ -53,7 +56,7 @@ export async function queueLogic(socket: Socket) {
     cron.schedule(`*/${iterator} * * * * *`, () => { // runs this code periodically
 
         if (queue.length > 0) {
-            console.log("something in the queue");
+            console.log("something in the queue\n");
 
             const topAction = queue[0];
             const endTime = new Date(topAction.date);
@@ -67,10 +70,10 @@ export async function queueLogic(socket: Socket) {
                 //removed the item from the pending queue
                 removeAction(topAction.id);
             } else {
-                console.log("Action not completed yet.");
+                console.log("action not completed yet.\n");
             }
         } else {
-            console.log("nothing in the queue");
+            console.log("nothing in the queue\n");
         }
     });
 }
@@ -83,7 +86,7 @@ export async function queueLogic(socket: Socket) {
 async function addToActive(id: number) {
     
     try {
-        console.log("Adding to resolved queue");
+        console.log("adding to resolved queue\n");
 
         const date = new Date(); // generate a new timestamp
 
@@ -111,7 +114,7 @@ async function addToActive(id: number) {
             });
     } catch (error) {
         console.log(error);
-        console.log("error in addToActive");
+        console.log("error in addToActive\n");
     }
 }
 
@@ -123,7 +126,7 @@ async function addToActive(id: number) {
 async function removeAction(id: number) {
     
     try {
-        console.log("removing action from pending queue");
+        console.log("removing action from pending queue\n");
         await axios.delete(`${STRAPI_URL}/api/pending-actions/${id}`, {
             headers: {
                 // Authorization: `Bearer ${STRAPI_API_TOKEN}`
@@ -133,6 +136,6 @@ async function removeAction(id: number) {
         queue.shift();
     } catch (error) {
         console.log(error);
-        console.log("error in removeAction");
+        console.log("error in removeAction\n");
     }
 }
