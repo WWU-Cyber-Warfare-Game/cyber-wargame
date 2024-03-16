@@ -12,8 +12,4 @@ export function initSocketListeners(socket: Socket) {
     socket.on("disconnect", () => {
         console.log("Disconnected from Strapi server");
     });
-
-    socket.on("message", (message: string) => {
-        console.log("Message:", message);
-    });
 }

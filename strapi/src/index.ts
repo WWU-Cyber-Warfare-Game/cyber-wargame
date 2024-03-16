@@ -152,7 +152,6 @@ export default {
             receiver: message.receiver,
           }
         });
-        gameLogicSocket.emit('message', message.message);
       });
 
       // join room when user connects
