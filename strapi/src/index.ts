@@ -117,6 +117,7 @@ export default {
     });
 
     // game logic process socket
+    // TODO: add token verification
     const gameLogicSocket = io.of('/game-logic');
     gameLogicSocket.on('connection', () => {
       console.log('game-logic connected');
