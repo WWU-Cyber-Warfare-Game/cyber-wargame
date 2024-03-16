@@ -40,5 +40,5 @@ export interface PendingAction {
 
 export interface ActionResponse {
     actions: Action[];
-    performingActions: boolean;
+    endTime: Date | null;
 }

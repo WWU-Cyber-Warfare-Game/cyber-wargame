@@ -290,7 +290,7 @@ export async function getActionLog() {
  * @returns An array of Action objects, or null if there is an error
  */
 export async function getActions() {
-    function parseAction(data: any): Action {
+    function parseAction(data: any) {
         return {
             id: data.id,
             name: data.attributes.action.name,
@@ -313,22 +313,27 @@ export async function getActions() {
             }
         });
 
-        const userPerformingActionsRes = await fetch(`${STRAPI_URL}/api/pending-actions?filters[user][$eq]=${user.username}`, {
+        const currentActionRes = await fetch(`${STRAPI_URL}/api/pending-actions?filters[user][$eq]=${user.username}`, {
             headers: {
                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
             }
         });
 
-        if (actionsRes.ok && userPerformingActionsRes.ok) {
-            const data = await actionsRes.json();
-            const userActions = await userPerformingActionsRes.json();
-            const userPerformingActions = userActions.data.length > 0;
+        if (actionsRes.ok && currentActionRes.ok) {
+            const actions = await actionsRes.json();
+            const currentAction = await currentActionRes.json();
+            
+            let endTime: Date | null = null;
+            if (currentAction.data.length > 0) {
+                endTime = new Date(Date.parse(currentAction.data[0].attributes.date));
+            }
+            
             return {
-                actions: data.data.map((action: any) => parseAction(action)),
-                performingActions: userPerformingActions
+                actions: actions.data.map((action: any) => parseAction(action)),
+                endTime: endTime
             } as ActionResponse;
         } else {
-            const errorRes = actionsRes.ok ? userPerformingActionsRes : actionsRes;
+            const errorRes = actionsRes.ok ? currentActionRes : actionsRes;
             console.error('Failed to fetch actions:', errorRes.status, errorRes.statusText);
             return null;
         }

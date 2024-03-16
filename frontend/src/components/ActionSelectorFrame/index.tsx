@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react";
 import { Action, PendingAction, User } from "@/types";
 import ActionButton from "@/components/ActionSelectorFrame/ActionButton";
 import { getActions, validateUser } from "@/actions";
+import Timer from "@/components/Timer";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
@@ -18,6 +19,7 @@ export default function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelect
     const [loading, setLoading] = useState(true);
     const [actions, setActions] = useState<Action[]>([]);
     const [butttonDisabled, setButtonDisabled] = useState(false);
+    const [endTime, setEndTime] = useState<Date | null>(null);
 
     useEffect(() => {
         // Establish a connection to the websocket server
@@ -31,12 +33,10 @@ export default function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelect
         // Get the list of actions from the server
         getActions().then((res) => {
             if (res) {
-                console.log(res);
-                const actions = res.actions;
-                const performingActions = res.performingActions;
-                setActions(actions);
+                setActions(res.actions);
                 setLoading(false);
-                setButtonDisabled(performingActions);
+                setButtonDisabled(res.endTime !== null);
+                if (res.endTime) setEndTime(new Date(res.endTime));
             } else {
                 setLoading(false);
                 setError("Error fetching actions");
@@ -69,6 +69,8 @@ export default function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelect
             socket.emit('startAction', pendingAction);
             setButtonDisabled(true);
         }
+
+        setEndTime(new Date(Date.now() + action.duration * 60 * 1000));
     }
 
     return (
@@ -84,6 +86,7 @@ export default function ActionSelectorFrame({ user, jwt }: Readonly<ActionSelect
                     disabled={butttonDisabled}
                 />
             ))}
+            {endTime && <Timer time={endTime} />}
         </div>
     );
 }
