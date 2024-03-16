@@ -94,15 +94,15 @@ async function addToActive(id: number) {
         const date = new Date(); // generate a new timestamp
 
         // fetch the action from the strapi version of queue, if the socket transmits the action properly this isn't needed
-        const res =  await axios.get(`${STRAPI_URL}/api/pending-actions/${id}?populate=*`, {
+        const res =  await axios.get(`${process.env.STRAPI_URL}/api/pending-actions/${id}?populate=*`, {
             headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+                Authorization: `Bearer ${process.env.TOKEN}`
             }
         });
 
         const pAction = parseAction(res.data.data.attributes);
 
-        await axios.post(`${STRAPI_URL}/api/resolved-actions`, {
+        await axios.post(`${process.env.STRAPI_URL}/api/resolved-actions`, {
                 data: {
                     user: pAction.user,
                     date: date,
@@ -110,7 +110,7 @@ async function addToActive(id: number) {
                 }
             }, {
                 headers: {
-                    Authorization: `Bearer ${STRAPI_API_TOKEN}`
+                    Authorization: `Bearer ${process.env.TOKEN}`
                 },
             });
     } catch (error) {
@@ -128,9 +128,9 @@ async function removeAction(id: number) {
     
     try {
         console.log("removing action from pending queue\n");
-        await axios.delete(`${STRAPI_URL}/api/pending-actions/${id}`, {
+        await axios.delete(`${process.env.STRAPI_URL}/api/pending-actions/${id}`, {
             headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+                Authorization: `Bearer ${process.env.TOKEN}`
             },
         });
         queue.shift();
