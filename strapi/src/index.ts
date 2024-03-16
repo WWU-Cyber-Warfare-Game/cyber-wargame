@@ -132,6 +132,10 @@ export default {
         socket.disconnect();
         return;
       }
+
+      // join user to their own room
+      const user = await strapi.entityService.findOne('plugin::users-permissions.user', userId);
+      socket.join(user.username);
       
       console.log('user connected with ID ' + socket.id + ' at ' + new Date().toISOString());
 
