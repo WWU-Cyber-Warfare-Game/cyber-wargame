@@ -10,8 +10,7 @@ export default function Dashboard() {
             <h2>Dashboard</h2>
             <p>Welcome to your dashboard.</p>
             <Link href="/dashboard/chat"><p>Go to chat</p></Link>
-            <Link href="/dashboard/action-log"><p>Go to action log</p></Link>
-            <Link href="/dashboard/action-selector"><p>Go to action selector</p></Link>
+            <Link href="/dashboard/actions"><p>Go to actions</p></Link>
         </div>
     );
 }

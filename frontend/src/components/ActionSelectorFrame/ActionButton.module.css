@@ -6,11 +6,25 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    margin: 5px;
 }
 
 .actionButton:hover {
     background-color: #f0f0f0;
     cursor: pointer;
+}
+
+.actionButtonDisabled {
+    border: solid 1px black;
+    padding: 5px;
+    width: 25%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin: 5px;
+    background-color: #f0f0f0;
+    cursor: not-allowed;
 }
 
 .actionName {
