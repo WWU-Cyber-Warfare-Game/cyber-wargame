@@ -1,6 +1,4 @@
 import axios from 'axios';
-const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
-const STRAPI_API_TOKEN = process.env.TOKEN
 import { PendingAction } from './types';
 import { Socket } from 'socket.io-client';
 var cron = require('node-cron');
