@@ -5,7 +5,7 @@ import { emailRegex, usernameRegex, passwordRegex } from "./regex";
 import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { User, Message, Action, ActionLog } from "./types";
+import { User, Message, Action, ActionLog, ActionResponse } from "./types";
 import qs from "qs";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
@@ -290,7 +290,7 @@ export async function getActionLog() {
  * @returns An array of Action objects, or null if there is an error
  */
 export async function getActions() {
-    function parseAction(data: any): Action {
+    function parseAction(data: any) {
         return {
             id: data.id,
             name: data.attributes.action.name,
@@ -307,21 +307,38 @@ export async function getActions() {
     }
 
     try {
-        const res = await fetch(`${STRAPI_URL}/api/actions?populate=*&filters[action][teamRole][$eq]=${user.teamRole}`, {
+        const actionsRes = await fetch(`${STRAPI_URL}/api/actions?populate=*&filters[action][teamRole][$eq]=${user.teamRole}`, {
             headers: {
                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
             }
         });
 
-        if (res.ok) {
-            const data = await res.json();
-            return data.data.map((action: any) => parseAction(action));
+        const currentActionRes = await fetch(`${STRAPI_URL}/api/pending-actions?filters[user][$eq]=${user.username}`, {
+            headers: {
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+            }
+        });
+
+        if (actionsRes.ok && currentActionRes.ok) {
+            const actions = await actionsRes.json();
+            const currentAction = await currentActionRes.json();
+            
+            let endTime: Date | null = null;
+            if (currentAction.data.length > 0) {
+                endTime = new Date(Date.parse(currentAction.data[0].attributes.date));
+            }
+            
+            return {
+                actions: actions.data.map((action: any) => parseAction(action)),
+                endTime: endTime
+            } as ActionResponse;
         } else {
-            console.error('Failed to fetch actions:', res.status, res.statusText);
-            return [] as Action[];
+            const errorRes = actionsRes.ok ? currentActionRes : actionsRes;
+            console.error('Failed to fetch actions:', errorRes.status, errorRes.statusText);
+            return null;
         }
     } catch (error) {
         console.error('Error fetching actions:', error);
-        return [] as Action[];
+        return null;
     }
 }
