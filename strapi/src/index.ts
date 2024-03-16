@@ -117,7 +117,6 @@ export default {
     });
 
     // game logic process socket
-    // TODO: probably not secure, make sure this is not accessible from outside localhost (use a secret key maybe?)
     const gameLogicSocket = io.of('/game-logic');
     gameLogicSocket.on('connection', () => {
       console.log('game-logic connected');
@@ -167,23 +166,6 @@ export default {
         }
         socket.join(getRoomName(users[0], users[1]));
       });
-
-      //pending action queue logic
-
-      //let fooAction: Action = { name: 'testAction', duration: 10, teamRole: TeamRole.Leader, description: 'this is a test'};
-
-      //TODO: change the type of submittedAction to pendingAction/resolvedAction
-
-      // listens for actions, adds to pending queue
-      // socket.on('action', async (submittedAction: Action) => {
-      //   const res = await strapi.entityService.create('api::pending-action.pending-action', {
-      //     data: {
-      //       user: 'aa',
-      //       date: new Date(Date.now() + minToMs(submittedAction.duration)),
-      //       action: submittedAction,
-      //     }
-      //   });
-      // });
 
       // listens for pending actions
       socket.on('startAction', async (pendingActionReq: PendingActionRequest) => {
