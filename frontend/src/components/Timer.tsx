@@ -6,6 +6,11 @@ interface TimerProps {
     readonly time: Date;
 }
 
+/**
+ * Timer that counts down to zero from a given time
+ * @param time The time to count down to
+ * @returns 
+ */
 export default function Timer({ time }: Readonly<TimerProps>) {
     const [timeLeft, setTimeLeft] = useState(0);
     const [seconds, setSeconds] = useState(0);
