@@ -215,6 +215,8 @@ export default {
             action: action,
           }
         });
+        console.log("sending to gameSocket");
+        gameLogicSocket.emit("pendingAction", res); // the action isn't sent, interface needed in the future
       });
     });
   }
