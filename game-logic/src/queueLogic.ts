@@ -18,7 +18,12 @@ function parseAction(data: any) {
 // this is needed since .env is not updating correctly
 const token =  `Bearer 7f2b1a92b39f8fe1fb1f69ece2e5c46d5940327ad0682413d4baf0e5fccbda19e9f6a4d531001ad372e68e77936d359a019513097a38dea897248e6cc723e8e2a30ce8865872e836f4be99722352ed3e9be01f7248976b4c25ae1d35c44de4a60468decd398b9471762e39fa51eb2ac7c22a66ac2c46b5a2ab3493b21720a8ef`
 
-// compares two dates and sorts them by most recent date first
+/**
+* function dateCompare
+* @param a
+* @param b 
+* compares the dates associated with the actions in descending order
+*/
 function dateCompare(a: PendingAction, b: PendingAction): number {
     const dateA = new Date(a.date).getTime();
     const dateB = new Date(b.date).getTime();
@@ -41,8 +46,9 @@ const iterator = 3;
 /**
 * function queueLogic
 * @param socket
-* constantly polls strapi for the action with the closest completion time, if the date has passed
-* the action is copied to the resolved queue and removed from the pending queue
+* Recieves pendingActions via socket connection from strapi.
+* Constantly polls the local queue for the action with the closest completion time, if the date has passed
+* the addToActive() & removeAction() helpers are called
 * 
 */
 export async function queueLogic(socket: Socket) {
@@ -80,8 +86,8 @@ export async function queueLogic(socket: Socket) {
 
 /**
 * function addToActive
-* @param action: PendingAction
-* takes a pendingAction and adds it the the strapi resolved queue
+* @param id
+* copies the pendingAction associated with the unique id to the resolved queue
 */
 async function addToActive(id: number) {
     
@@ -120,7 +126,7 @@ async function addToActive(id: number) {
 
 /**
 * function addToActive
-* @param action: PendingAction
+* @param id
 * removes the action associated with the unique id from the pending action queue
 */
 async function removeAction(id: number) {
