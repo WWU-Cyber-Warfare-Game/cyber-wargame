@@ -64,6 +64,7 @@ export async function queueLogic(socket: Socket) {
             const currentTime = new Date();
             const difference = endTime.getTime() - currentTime.getTime();
 
+            // TODO: move this stuff to the strapi process and just emit the action to the socket
             if (difference <= 0) {
                 // add the item to the resolved queue
                 addToActive(topAction.id);
