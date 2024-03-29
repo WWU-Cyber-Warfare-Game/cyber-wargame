@@ -57,7 +57,7 @@ export async function queueLogic(socket: Socket) {
     cron.schedule(`*/${iterator} * * * * *`, () => { // runs this code periodically
 
         if (queue.length > 0) {
-            console.log("something in the queue\n");
+            console.log("something in the queue");
 
             const topAction = queue[0];
             const endTime = new Date(topAction.date);
@@ -72,10 +72,10 @@ export async function queueLogic(socket: Socket) {
                 //removed the item from the pending queue
                 removeAction(topAction.id);
             } else {
-                console.log("action not completed yet.\n");
+                console.log("action not completed yet");
             }
         } else {
-            console.log("nothing in the queue\n");
+            console.log("nothing in the queue");
         }
     });
 }
