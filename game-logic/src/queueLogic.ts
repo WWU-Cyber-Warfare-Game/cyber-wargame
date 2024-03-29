@@ -49,7 +49,7 @@ const iterator = 3;
 export async function queueLogic(socket: Socket) {
 
     socket.on("pendingAction", (pAction: PendingAction) => {
-        console.log("action recieved\n");
+        console.log("action recieved");
         queue.push(pAction); // add to queue
         queue.sort(dateCompare); // sorts the actions by date in descending order
     });
@@ -88,7 +88,7 @@ export async function queueLogic(socket: Socket) {
 async function addToActive(id: number) {
     
     try {
-        console.log("adding to resolved queue\n");
+        console.log("adding to resolved queue");
 
         const date = new Date(); // generate a new timestamp
 
@@ -114,7 +114,7 @@ async function addToActive(id: number) {
             });
     } catch (error) {
         console.log(error);
-        console.log("error in addToActive\n");
+        console.log("error in addToActive");
     }
 }
 
@@ -126,7 +126,7 @@ async function addToActive(id: number) {
 async function removeAction(id: number) {
     
     try {
-        console.log("removing action from pending queue\n");
+        console.log("removing action from pending queue");
         await axios.delete(`${process.env.STRAPI_URL}/api/pending-actions/${id}`, {
             headers: {
                 Authorization: `Bearer ${process.env.TOKEN}`
@@ -135,6 +135,6 @@ async function removeAction(id: number) {
         queue.shift();
     } catch (error) {
         console.log(error);
-        console.log("error in removeAction\n");
+        console.log("error in removeAction");
     }
 }
