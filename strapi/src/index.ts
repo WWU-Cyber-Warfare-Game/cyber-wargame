@@ -116,6 +116,9 @@ export default {
       },
     });
 
+    // frontend socket
+    const frontendSocket = io;
+
     // game logic process socket
     // TODO: add token verification
     const gameLogicSocket = io.of('/game-logic');
@@ -131,7 +134,6 @@ export default {
         const pendingActionRes = await strapi.entityService.findOne('api::pending-action.pending-action', actionId, {
           populate: '*'
         });
-        console.log(pendingActionRes);
         const res = await strapi.entityService.create('api::resolved-action.resolved-action', {
           data: {
             user: pendingActionRes.user,
@@ -142,10 +144,13 @@ export default {
 
         // remove action from pending queue
         await strapi.entityService.delete('api::pending-action.pending-action', actionId);
+
+        // emit action complete to user
+        frontendSocket.emit('actionComplete');
       });
     });
 
-    io.on('connection', async (socket) => {
+    frontendSocket.on('connection', async (socket) => {
       // check user jwt
       const userId = await checkToken(socket.handshake.auth.token);
       if (!socket.handshake.auth.token || !userId) {
