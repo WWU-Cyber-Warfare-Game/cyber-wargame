@@ -3,16 +3,6 @@ import { PendingAction } from './types';
 import { Socket } from 'socket.io-client';
 import cron from 'node-cron';
 
-// only needed to parse an action from a get request
-// see types.ts
-function parseAction(data: any) {
-    return {
-        user: data.user,
-        date: data.date,
-        action: data.action
-    } as PendingAction
-}
-
 /**
 * function dateCompare
 * @param a
@@ -55,7 +45,6 @@ export async function queueLogic(socket: Socket) {
     });
 
     cron.schedule(`*/${iterator} * * * * *`, () => { // runs this code periodically
-
         if (queue.length > 0) {
             console.log("something in the queue");
 
@@ -66,11 +55,10 @@ export async function queueLogic(socket: Socket) {
 
             // TODO: move this stuff to the strapi process and just emit the action to the socket
             if (difference <= 0) {
-                // add the item to the resolved queue
-                addToActive(topAction.id);
-
-                //removed the item from the pending queue
-                removeAction(topAction.id);
+                // action is completed
+                console.log("action completed");
+                queue.shift();
+                socket.emit("actionComplete", topAction.id);
             } else {
                 console.log("action not completed yet");
             }
@@ -78,63 +66,4 @@ export async function queueLogic(socket: Socket) {
             console.log("nothing in the queue");
         }
     });
-}
-
-/**
-* function addToActive
-* @param id
-* copies the pendingAction associated with the unique id to the resolved queue
-*/
-async function addToActive(id: number) {
-    
-    try {
-        console.log("adding to resolved queue");
-
-        const date = new Date(); // generate a new timestamp
-
-        // fetch the action from the strapi version of queue, if the socket transmits the action properly this isn't needed
-        const res =  await axios.get(`${process.env.STRAPI_URL}/api/pending-actions/${id}?populate=*`, {
-            headers: {
-                Authorization: `Bearer ${process.env.TOKEN}`
-            }
-        });
-
-        const pAction = parseAction(res.data.data.attributes);
-
-        await axios.post(`${process.env.STRAPI_URL}/api/resolved-actions`, {
-                data: {
-                    user: pAction.user,
-                    date: date,
-                    action: pAction.action
-                }
-            }, {
-                headers: {
-                    Authorization: `Bearer ${process.env.TOKEN}`
-                },
-            });
-    } catch (error) {
-        console.log(error);
-        console.log("error in addToActive");
-    }
-}
-
-/**
-* function addToActive
-* @param id
-* removes the action associated with the unique id from the pending action queue
-*/
-async function removeAction(id: number) {
-    
-    try {
-        console.log("removing action from pending queue");
-        await axios.delete(`${process.env.STRAPI_URL}/api/pending-actions/${id}`, {
-            headers: {
-                Authorization: `Bearer ${process.env.TOKEN}`
-            },
-        });
-        queue.shift();
-    } catch (error) {
-        console.log(error);
-        console.log("error in removeAction");
-    }
 }
