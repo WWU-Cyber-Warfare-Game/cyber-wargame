@@ -33,7 +33,7 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
         return () => {
             newSocket.disconnect();
         };
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [jwt]);
     
     return (
         <>

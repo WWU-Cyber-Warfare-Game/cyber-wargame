@@ -26,7 +26,7 @@ function dateCompare(a: PendingAction, b: PendingAction): number {
 const queue: PendingAction[] = [];
 
 // this dictates how often the queue will be checked in seconds
-const iterator = 3;
+const iterator = 1;
 
 /**
 * function queueLogic
