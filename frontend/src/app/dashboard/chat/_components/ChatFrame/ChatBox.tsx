@@ -3,7 +3,7 @@
 import { getMessages } from "@/actions";
 import { useEffect, useState, useRef } from "react";
 import { Message as MessageInterface, User } from "@/types";
-import Message from "@/components/ChatFrame/Message";
+import Message from "./Message";
 import styles from "./ChatBox.module.css";
 import { Socket } from "socket.io-client";
 

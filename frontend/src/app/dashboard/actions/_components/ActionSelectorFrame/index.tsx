@@ -2,9 +2,9 @@
 import { io, Socket } from "socket.io-client";
 import { useState, useEffect, use } from "react";
 import { Action, PendingAction, User } from "@/types";
-import ActionButton from "@/components/ActionSelectorFrame/ActionButton";
+import ActionButton from "./ActionButton";
 import { getActions, validateUser } from "@/actions";
-import Timer from "@/components/Timer";
+import Timer from "./Timer";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 

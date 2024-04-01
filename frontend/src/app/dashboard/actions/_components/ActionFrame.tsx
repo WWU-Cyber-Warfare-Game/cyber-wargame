@@ -1,7 +1,7 @@
 "use client";
 
-import ActionLogFrame from "@/components/ActionLogFrame";
-import ActionSelectorFrame from "@/components/ActionSelectorFrame";
+import ActionLogFrame from "./ActionLogFrame";
+import ActionSelectorFrame from "./ActionSelectorFrame";
 import { User } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import io, { Socket } from "socket.io-client";

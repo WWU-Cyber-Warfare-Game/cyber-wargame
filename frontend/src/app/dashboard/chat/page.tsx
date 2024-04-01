@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import styles from "./ChatPage.module.css";
 import { User } from "@/types";
 import { useEffect, useRef, useState } from "react";
-import ChatFrame from "@/components/ChatFrame";
+import ChatFrame from "./_components/ChatFrame";
 import { cookies } from "next/headers";
 
 /**

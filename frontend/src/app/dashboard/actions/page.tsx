@@ -1,5 +1,5 @@
 import Link from "next/link";
-import ActionFrame from "./ActionFrame";
+import ActionFrame from "./_components/ActionFrame";
 import { validateUser } from "@/actions";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
