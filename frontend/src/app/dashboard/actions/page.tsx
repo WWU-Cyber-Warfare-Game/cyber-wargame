@@ -1,6 +1,5 @@
 import Link from "next/link";
-import ActionLogFrame from "@/components/ActionLogFrame";
-import ActionSelectorFrame from "@/components/ActionSelectorFrame";
+import ActionFrame from "./_components/ActionFrame";
 import { validateUser } from "@/actions";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -23,8 +22,7 @@ export default async function ActionPage() {
             <br />
             <Link href="/dashboard">Go to Dashboard</Link>
             <br />
-            <ActionSelectorFrame user={user} jwt={jwt} />
-            <ActionLogFrame />
+            <ActionFrame user={user} jwt={jwt} />
         </div>
     );
 }

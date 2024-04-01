@@ -3,7 +3,7 @@
 import { getTeamUsers, validateUser } from "@/actions";
 import { User } from "@/types";
 import { useEffect, useRef, useState } from "react";
-import ChatBox from "@/components/ChatFrame/ChatBox";
+import ChatBox from "./ChatBox";
 import { io, Socket } from "socket.io-client";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";

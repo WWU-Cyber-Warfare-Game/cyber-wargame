@@ -12,6 +12,7 @@ interface TimerProps {
  * @returns 
  */
 export default function Timer({ time }: Readonly<TimerProps>) {
+    // FIXME: timer initially starts at 0 then updates to the correct time
     const [timeLeft, setTimeLeft] = useState(0);
     const [seconds, setSeconds] = useState(0);
     const [minutes, setMinutes] = useState(0);

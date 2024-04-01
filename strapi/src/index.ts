@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { PendingAction, Action, TeamRole, User, PendingActionRequest} from './types';
+import { PendingAction, Action, TeamRole, User, PendingActionRequest } from './types';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -116,14 +116,41 @@ export default {
       },
     });
 
+    // frontend socket
+    const frontendSocket = io;
+
     // game logic process socket
-    // TODO: probably not secure, make sure this is not accessible from outside localhost (use a secret key maybe?)
+    // TODO: add token verification
     const gameLogicSocket = io.of('/game-logic');
-    gameLogicSocket.on('connection', () => {
+
+    gameLogicSocket.on('connection', (socket) => {
       console.log('game-logic connected');
+
+      // listen for action complete
+      socket.on('actionComplete', async (actionId: number) => {
+        console.log('action complete: ' + actionId);
+
+        // add action to resolved queue
+        const pendingActionRes = await strapi.entityService.findOne('api::pending-action.pending-action', actionId, {
+          populate: '*'
+        });
+        const res = await strapi.entityService.create('api::resolved-action.resolved-action', {
+          data: {
+            user: pendingActionRes.user,
+            date: new Date(),
+            action: pendingActionRes.action
+          }
+        });
+
+        // remove action from pending queue
+        await strapi.entityService.delete('api::pending-action.pending-action', actionId);
+
+        // emit action complete to user
+        frontendSocket.emit('actionComplete');
+      });
     });
 
-    io.on('connection', async (socket) => {
+    frontendSocket.on('connection', async (socket) => {
       // check user jwt
       const userId = await checkToken(socket.handshake.auth.token);
       if (!socket.handshake.auth.token || !userId) {
@@ -132,7 +159,11 @@ export default {
         socket.disconnect();
         return;
       }
-      
+
+      // join user to their own room
+      const user = await strapi.entityService.findOne('plugin::users-permissions.user', userId);
+      socket.join(user.username);
+
       console.log('user connected with ID ' + socket.id + ' at ' + new Date().toISOString());
 
       // listen for messages, add to strapi, and emit to room
@@ -153,7 +184,6 @@ export default {
             receiver: message.receiver,
           }
         });
-        gameLogicSocket.emit('message', message.message);
       });
 
       // join room when user connects
@@ -168,27 +198,10 @@ export default {
         socket.join(getRoomName(users[0], users[1]));
       });
 
-      //pending action queue logic
-
-      //let fooAction: Action = { name: 'testAction', duration: 10, teamRole: TeamRole.Leader, description: 'this is a test'};
-
-      //TODO: change the type of submittedAction to pendingAction/resolvedAction
-
-      // listens for actions, adds to pending queue
-      // socket.on('action', async (submittedAction: Action) => {
-      //   const res = await strapi.entityService.create('api::pending-action.pending-action', {
-      //     data: {
-      //       user: 'aa',
-      //       date: new Date(Date.now() + minToMs(submittedAction.duration)),
-      //       action: submittedAction,
-      //     }
-      //   });
-      // });
-
       // listens for pending actions
       socket.on('startAction', async (pendingActionReq: PendingActionRequest) => {
         console.log('action received');
-        
+
         // check if action is valid
         const action = await checkAction(pendingActionReq.user, pendingActionReq.action);
         if (!action) {
@@ -206,7 +219,7 @@ export default {
           socket.emit('error', 'User already performing action');
           return;
         }
-        
+
         // add action to pending queue
         const res = await strapi.entityService.create('api::pending-action.pending-action', {
           data: {
