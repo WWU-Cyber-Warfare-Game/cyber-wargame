@@ -26,6 +26,7 @@ export interface Message {
 }
 
 export interface Action {
+    id: number;
     name: string;
     duration: number;
     description: string;

@@ -80,6 +80,7 @@ async function checkAction(username: string, actionId: number) {
     return null;
   }
   const action = {
+    id: res.id,
     name: res.action.name,
     duration: res.action.duration,
     description: res.action.description,
