@@ -6,11 +6,17 @@ export enum TeamRole {
     Media = "media"
 }
 
+export enum ActionType {
+    Offense = "offense",
+    Defense = "defense"
+}
+
 export interface Action {
     name: string;
     duration: number;
     description: string;
     teamRole: TeamRole;
+    type: ActionType;
 }
 
 export interface PendingAction {

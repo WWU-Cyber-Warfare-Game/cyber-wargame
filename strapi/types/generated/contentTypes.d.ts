@@ -787,7 +787,15 @@ export interface ApiActionAction extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
-    action: Attribute.Component<'actions.placeholder-action'>;
+    action: Attribute.Component<'actions.placeholder-action'> &
+      Attribute.Required;
+    effects: Attribute.DynamicZone<
+      [
+        'effects.add-victory-points',
+        'effects.buff-debuff',
+        'effects.stop-offense-action'
+      ]
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

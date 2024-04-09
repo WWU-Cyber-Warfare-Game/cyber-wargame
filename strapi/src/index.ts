@@ -83,7 +83,8 @@ async function checkAction(username: string, actionId: number) {
     name: res.action.name,
     duration: res.action.duration,
     description: res.action.description,
-    teamRole: res.action.teamRole
+    teamRole: res.action.teamRole,
+    type: res.action.type
   } as Action;
   if (user.teamRole !== action.teamRole) {
     console.error('user ' + username + ' attempted to perform action ' + action.name + ' that does not match their team role');

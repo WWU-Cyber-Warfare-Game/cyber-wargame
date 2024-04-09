@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_effects_stop_offense_actions",
+  "info": {
+    "displayName": "Stop Offense Action",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "teamRole": {
+      "type": "enumeration",
+      "enum": [
+        "leader",
+        "intelligence",
+        "military",
+        "diplomat",
+        "media"
+      ],
+      "required": true
+    }
+  }
+}

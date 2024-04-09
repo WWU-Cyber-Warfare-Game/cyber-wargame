@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_effects_add_victory_points",
+  "info": {
+    "displayName": "Add Victory Points",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "points": {
+      "type": "integer",
+      "required": true
+    },
+    "myTeam": {
+      "type": "boolean",
+      "default": true,
+      "required": true
+    }
+  }
+}

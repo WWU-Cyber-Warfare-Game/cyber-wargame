@@ -28,6 +28,14 @@
         "diplomat"
       ],
       "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "offense",
+        "defense"
+      ],
+      "required": true
     }
   }
 }

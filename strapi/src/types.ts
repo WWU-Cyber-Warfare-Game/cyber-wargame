@@ -6,6 +6,11 @@ export enum TeamRole {
     Media = "media"
 }
 
+export enum ActionType {
+    Offense = "offense",
+    Defense = "defense"
+}
+
 export interface User {
     username: string;
     email: string;
@@ -25,6 +30,7 @@ export interface Action {
     duration: number;
     description: string;
     teamRole: TeamRole;
+    type: ActionType;
 }
 
 export interface ActionLog {
