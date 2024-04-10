@@ -52,8 +52,7 @@ export async function queueLogic(socket: Socket) {
             const endTime = new Date(topAction.date);
             const currentTime = new Date();
             const difference = endTime.getTime() - currentTime.getTime();
-
-            // TODO: move this stuff to the strapi process and just emit the action to the socket
+            
             if (difference <= 0) {
                 // action is completed
                 console.log("action completed");
