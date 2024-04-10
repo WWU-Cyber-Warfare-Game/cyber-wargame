@@ -21,13 +21,8 @@ export interface Action {
 }
 
 export interface PendingAction {
+    id: number;
     user: string; // change this to team
     date: Date;
     action: Action;
-}
-
-export interface PendingAction {
-    user: string; // change this to team
-    date: Date;
-    id: number;
 }

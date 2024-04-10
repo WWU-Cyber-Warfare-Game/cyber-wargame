@@ -46,6 +46,7 @@ export interface PendingActionRequest {
 }
 
 export interface PendingAction {
+    id: number;
     user: string;
     date: Date;
     action: Action;

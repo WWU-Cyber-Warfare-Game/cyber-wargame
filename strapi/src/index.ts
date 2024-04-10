@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { PendingAction, Action, TeamRole, User, PendingActionRequest } from './types';
+import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType } from './types';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -79,14 +79,14 @@ async function checkAction(username: string, actionId: number) {
     console.error('user ' + username + ' attempted to perform action ' + actionId + ' that does not exist');
     return null;
   }
-  const action = {
-    id: res.id,
+  const action: Action = {
+    id: res.id as number,
     name: res.action.name,
     duration: res.action.duration,
     description: res.action.description,
-    teamRole: res.action.teamRole,
-    type: res.action.type
-  } as Action;
+    teamRole: res.action.teamRole as TeamRole,
+    type: res.action.type as ActionType
+  };
   if (user.teamRole !== action.teamRole) {
     console.error('user ' + username + ' attempted to perform action ' + action.name + ' that does not match their team role');
     return null;
@@ -127,6 +127,11 @@ export default {
 
     gameLogicSocket.on('connection', (socket) => {
       console.log('game-logic connected');
+
+      // prints string to console, for debugging
+      socket.on('print', (str: string) => {
+        console.log(str);
+      });
 
       // listen for action complete
       socket.on('actionComplete', async (actionId: number) => {
@@ -230,8 +235,16 @@ export default {
             action: action,
           }
         });
-        console.log("sending to gameSocket");
-        gameLogicSocket.emit("pendingAction", res); // the action isn't sent, interface needed in the future
+
+        // emit action to game logic
+        console.log('sending to gameSocket');
+        const pendingAction: PendingAction = {
+          id: res.id as number,
+          user: pendingActionReq.user,
+          date: new Date(res.date),
+          action: action
+        };
+        gameLogicSocket.emit('pendingAction', pendingAction);
       });
     });
   }
