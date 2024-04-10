@@ -862,6 +862,7 @@ export interface ApiPendingActionPendingAction extends Schema.CollectionType {
     user: Attribute.String;
     date: Attribute.DateTime;
     action: Attribute.Component<'actions.placeholder-action'>;
+    actionId: Attribute.Integer;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

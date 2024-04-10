@@ -22,6 +22,9 @@
       "type": "component",
       "repeatable": false,
       "component": "actions.placeholder-action"
+    },
+    "actionId": {
+      "type": "integer"
     }
   }
 }

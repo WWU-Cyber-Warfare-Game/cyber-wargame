@@ -134,14 +134,14 @@ export default {
       });
 
       // listen for action complete
-      socket.on('actionComplete', async (actionId: number) => {
-        console.log('action complete: ' + actionId);
+      socket.on('actionComplete', async (pendingActionId: number) => {
+        console.log('action complete: ' + pendingActionId);
 
         // add action to resolved queue
-        const pendingActionRes = await strapi.entityService.findOne('api::pending-action.pending-action', actionId, {
+        const pendingActionRes = await strapi.entityService.findOne('api::pending-action.pending-action', pendingActionId, {
           populate: '*'
         });
-        const res = await strapi.entityService.create('api::resolved-action.resolved-action', {
+        await strapi.entityService.create('api::resolved-action.resolved-action', {
           data: {
             user: pendingActionRes.user,
             date: new Date(),
@@ -150,7 +150,30 @@ export default {
         });
 
         // remove action from pending queue
-        await strapi.entityService.delete('api::pending-action.pending-action', actionId);
+        await strapi.entityService.delete('api::pending-action.pending-action', pendingActionId);
+
+        // parse and apply action effects
+        const effects = (await strapi.entityService.findOne('api::action.action', pendingActionRes.actionId, {
+          populate: ['effects']
+        })).effects;
+        effects.forEach((effect) => {
+          switch (effect.__component) {
+            case 'effects.add-victory-points':
+              // TODO
+              console.log('adding victory points');
+              break;
+
+            case 'effects.buff-debuff':
+              // TODO
+              console.log('buffing/debuffing');
+              break;
+            
+            case 'effects.stop-offense-action':
+              // TODO
+              console.log('stopping offense action');
+              break;
+          }
+        });
 
         // emit action complete to user
         frontendSocket.emit('actionComplete');
@@ -233,6 +256,7 @@ export default {
             user: pendingActionReq.user,
             date: new Date(Date.now() + minToMs(action.duration)),
             action: action,
+            actionId: action.id
           }
         });
 
