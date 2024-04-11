@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PendingAction } from './types';
+import { ActionCompleteRequest, ActionEndState, PendingAction } from './types';
 import { Socket } from 'socket.io-client';
 import cron from 'node-cron';
 
@@ -28,6 +28,9 @@ const queue: PendingAction[] = [];
 // this dictates how often the queue will be checked in seconds
 const iterator = 1;
 
+// locks the queue and prevents any actions from being removed
+let lock = false;
+
 /**
 * function queueLogic
 * @param socket
@@ -38,13 +41,25 @@ const iterator = 1;
 */
 export async function queueLogic(socket: Socket) {
 
+    // recieves pending actions from strapi process
     socket.on("pendingAction", (pAction: PendingAction) => {
         console.log("action recieved");
         queue.push(pAction); // add to queue
         queue.sort(dateCompare); // sorts the actions by date in descending order
     });
 
+    // strapi locks the queue
+    socket.on("queueLock", () => lockQueue());
+
+    // strapi unlocks the queue
+    socket.on("queueUnlock", () => unlockQueue());
+
     cron.schedule(`*/${iterator} * * * * *`, () => { // runs this code periodically
+        if (lock) {
+            console.log("queue is locked, not processing");
+            return;
+        }
+
         if (queue.length > 0) {
             console.log("something in the queue");
 
@@ -57,7 +72,12 @@ export async function queueLogic(socket: Socket) {
                 // action is completed
                 console.log("action completed");
                 queue.shift();
-                socket.emit("actionComplete", topAction.id);
+                const actionCompleteRequest: ActionCompleteRequest = {
+                    pendingActionId: topAction.id,
+                    endState: ActionEndState.Success
+                };
+                socket.emit("actionComplete", actionCompleteRequest);
+                lockQueue();
             } else {
                 console.log("action not completed yet");
             }
@@ -65,4 +85,14 @@ export async function queueLogic(socket: Socket) {
             console.log("nothing in the queue");
         }
     });
+}
+
+function lockQueue() {
+    console.log("queue locked");
+    lock = true;
+}
+
+function unlockQueue() {
+    console.log("queue unlocked");
+    lock = false;
 }

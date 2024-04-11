@@ -25,5 +25,15 @@ export interface PendingAction {
     user: string; // change this to team
     date: Date;
     action: Action;
-    // actionId: number;
+}
+
+export enum ActionEndState {
+    Success = "success",
+    Fail = "fail",
+    Stopped = "stopped"
+}
+
+export interface ActionCompleteRequest {
+    pendingActionId: number;
+    endState: ActionEndState;
 }

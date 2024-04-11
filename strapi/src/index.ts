@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType } from './types';
+import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType, ActionCompleteRequest } from './types';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -134,46 +134,85 @@ export default {
       });
 
       // listen for action complete
-      socket.on('actionComplete', async (pendingActionId: number) => {
-        console.log('action complete: ' + pendingActionId);
+      socket.on('actionComplete', async (actionCompleteRequest: ActionCompleteRequest) => {
+        console.log('action complete: ' + actionCompleteRequest.pendingActionId);
 
         // add action to resolved queue
-        const pendingActionRes = await strapi.entityService.findOne('api::pending-action.pending-action', pendingActionId, {
-          populate: '*'
-        });
+        const pendingActionRes = await strapi.entityService.findOne('api::pending-action.pending-action',
+          actionCompleteRequest.pendingActionId,
+          {
+            populate: '*'
+          }
+        );
         await strapi.entityService.create('api::resolved-action.resolved-action', {
           data: {
             user: pendingActionRes.user,
             date: new Date(),
-            action: pendingActionRes.action
+            action: pendingActionRes.action,
+            endState: actionCompleteRequest.endState
           }
         });
 
         // remove action from pending queue
-        await strapi.entityService.delete('api::pending-action.pending-action', pendingActionId);
+        await strapi.entityService.delete('api::pending-action.pending-action', actionCompleteRequest.pendingActionId);
 
         // parse and apply action effects
         const effects = (await strapi.entityService.findOne('api::action.action', pendingActionRes.actionId, {
           populate: ['effects']
         })).effects;
-        effects.forEach((effect) => {
+        effects.forEach(async (effect) => {
           switch (effect.__component) {
+
+            // add victory points to user's team or opposing team
             case 'effects.add-victory-points':
-              // TODO
-              console.log('adding victory points');
+              console.log('EFFECT: adding victory points');
+              if (effect.myTeam) {
+                // add victory points to user's team
+                const user = await getUser(pendingActionRes.user);
+                const team = (await strapi.entityService.findMany('api::team.team', {
+                  filters: {
+                    name: user.team
+                  }
+                }))[0];
+                await strapi.entityService.update('api::team.team', team.id, {
+                  data: {
+                    victoryPoints: team.victoryPoints + effect.points
+                  }
+                });
+              } else {
+                // add victory points to opposing team
+                const user = await getUser(pendingActionRes.user);
+                const team = (await strapi.entityService.findMany('api::team.team', {
+                  filters: {
+                    $not: {
+                      name: user.team
+                    }
+                  }
+                }))[0];
+                await strapi.entityService.update('api::team.team', team.id, {
+                  data: {
+                    victoryPoints: team.victoryPoints + effect.points
+                  }
+                });
+              }
               break;
 
+            // add a buff or debuff to user
             case 'effects.buff-debuff':
               // TODO
-              console.log('buffing/debuffing');
+              console.log('EFFECT: buffing/debuffing');
               break;
-            
+
+            // stop an offense action
             case 'effects.stop-offense-action':
               // TODO
-              console.log('stopping offense action');
+              console.log('EFFECT: stopping offense action');
               break;
           }
         });
+
+        // unlock queue
+        gameLogicSocket.emit('queueUnlock');
 
         // emit action complete to user
         frontendSocket.emit('actionComplete');

@@ -895,6 +895,8 @@ export interface ApiResolvedActionResolvedAction extends Schema.CollectionType {
     user: Attribute.String;
     date: Attribute.DateTime;
     action: Attribute.Component<'actions.placeholder-action'>;
+    endState: Attribute.Enumeration<['success', 'fail', 'stopped']> &
+      Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -925,6 +927,9 @@ export interface ApiTeamTeam extends Schema.CollectionType {
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
+    victoryPoints: Attribute.Integer &
+      Attribute.Required &
+      Attribute.DefaultTo<0>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::team.team', 'oneToOne', 'admin::user'> &
