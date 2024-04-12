@@ -54,6 +54,15 @@ export async function queueLogic(socket: Socket) {
     // strapi unlocks the queue
     socket.on("queueUnlock", () => unlockQueue());
 
+    // delete an action from the queue
+    socket.on("deleteAction", (id: number) => {
+        console.log("action deleted");
+        const deleted = queue.splice(queue.findIndex((action) => action.id === id), 1);
+        if (deleted.length === 0) {
+            console.error("action not found, queues are out of sync");
+        }
+    });
+
     cron.schedule(`*/${iterator} * * * * *`, () => { // runs this code periodically
         if (lock) {
             console.log("queue is locked, not processing");

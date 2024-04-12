@@ -160,6 +160,23 @@ export default {
         const effects = (await strapi.entityService.findOne('api::action.action', pendingActionRes.actionId, {
           populate: ['effects']
         })).effects;
+
+        const user = await getUser(pendingActionRes.user);
+
+        const playerTeam = (await strapi.entityService.findMany('api::team.team', {
+          filters: {
+            name: user.team
+          }
+        }))[0];
+
+        const otherTeam = (await strapi.entityService.findMany('api::team.team', {
+          filters: {
+            $not: {
+              name: user.team
+            }
+          }
+        }))[0];
+
         effects.forEach(async (effect) => {
           switch (effect.__component) {
 
@@ -168,30 +185,16 @@ export default {
               console.log('EFFECT: adding victory points');
               if (effect.myTeam) {
                 // add victory points to user's team
-                const user = await getUser(pendingActionRes.user);
-                const team = (await strapi.entityService.findMany('api::team.team', {
-                  filters: {
-                    name: user.team
-                  }
-                }))[0];
-                await strapi.entityService.update('api::team.team', team.id, {
+                await strapi.entityService.update('api::team.team', playerTeam.id, {
                   data: {
-                    victoryPoints: team.victoryPoints + effect.points
+                    victoryPoints: playerTeam.victoryPoints + effect.points
                   }
                 });
               } else {
                 // add victory points to opposing team
-                const user = await getUser(pendingActionRes.user);
-                const team = (await strapi.entityService.findMany('api::team.team', {
-                  filters: {
-                    $not: {
-                      name: user.team
-                    }
-                  }
-                }))[0];
-                await strapi.entityService.update('api::team.team', team.id, {
+                await strapi.entityService.update('api::team.team', otherTeam.id, {
                   data: {
-                    victoryPoints: team.victoryPoints + effect.points
+                    victoryPoints: otherTeam.victoryPoints + effect.points
                   }
                 });
               }
@@ -205,8 +208,32 @@ export default {
 
             // stop an offense action
             case 'effects.stop-offense-action':
-              // TODO
               console.log('EFFECT: stopping offense action');
+              const res = await strapi.entityService.findMany('api::pending-action.pending-action', {
+                filters: {
+                  action: {
+                    type: 'offense',
+                    teamRole: effect.teamRole
+                  }
+                },
+                populate: '*'
+              });
+              const offenseAction = res.filter(async (action) => {
+                const actionUser = await getUser(action.user);
+                return actionUser.team !== user.team;
+              })[0];
+              if (offenseAction) {
+                await strapi.entityService.create('api::resolved-action.resolved-action', {
+                  data: {
+                    user: offenseAction.user,
+                    date: new Date(),
+                    action: offenseAction.action,
+                    endState: 'stopped'
+                  }
+                });
+                await strapi.entityService.delete('api::pending-action.pending-action', offenseAction.id);
+                gameLogicSocket.emit('deleteAction', offenseAction.id);
+              }
               break;
           }
         });
