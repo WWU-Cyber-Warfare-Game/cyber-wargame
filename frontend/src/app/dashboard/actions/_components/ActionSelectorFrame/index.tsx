@@ -46,10 +46,23 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
         if (socket) socket.on('actionComplete', () => refreshActions());
 
         // connection error handling
-        if (socket) socket.on('connect_error', () => setError("Error connecting to socket server"));
+        if (socket) socket.on('connect_error', () => {
+            setError("Error connecting to socket server");
+            setButtonDisabled(true);
+        });
 
         // error handling
-        if (socket) socket.on('error', (error: string) => setError(error));
+        if (socket) socket.on('error', (error: string) => {
+            setError(error);
+            setButtonDisabled(true);
+        });
+
+        // get rid of the error message when the connection is re-established
+        if (socket) socket.on('connect', () => {
+            setError(null);
+            setButtonDisabled(false);
+            refreshActions();
+        });
     }, [socket]);
 
     function handleActionClick(action: Action) {

@@ -38,6 +38,7 @@ export default function ActionLogFrame({ socket }: Readonly<ActionLogFrameProps>
 
   useEffect(() => {
     if (socket) socket.on('actionComplete', () => refreshActionLog());
+    if (socket) socket.on('connect', () => refreshActionLog());
   }, [socket])
 
   return (
