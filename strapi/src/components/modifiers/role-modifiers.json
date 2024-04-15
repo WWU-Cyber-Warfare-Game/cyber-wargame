@@ -16,22 +16,26 @@
     "intelligence": {
       "type": "component",
       "repeatable": false,
-      "component": "modifiers.role-modifier"
+      "component": "modifiers.role-modifier",
+      "required": true
     },
     "military": {
       "type": "component",
       "repeatable": false,
-      "component": "modifiers.role-modifier"
+      "component": "modifiers.role-modifier",
+      "required": true
     },
     "diplomat": {
       "type": "component",
       "repeatable": false,
-      "component": "modifiers.role-modifier"
+      "component": "modifiers.role-modifier",
+      "required": true
     },
     "media": {
       "type": "component",
       "repeatable": false,
-      "component": "modifiers.role-modifier"
+      "component": "modifiers.role-modifier",
+      "required": true
     }
   }
 }

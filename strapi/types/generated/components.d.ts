@@ -80,10 +80,13 @@ export interface ModifiersRoleModifiers extends Schema.Component {
   };
   attributes: {
     leader: Attribute.Component<'modifiers.role-modifier'> & Attribute.Required;
-    intelligence: Attribute.Component<'modifiers.role-modifier'>;
-    military: Attribute.Component<'modifiers.role-modifier'>;
-    diplomat: Attribute.Component<'modifiers.role-modifier'>;
-    media: Attribute.Component<'modifiers.role-modifier'>;
+    intelligence: Attribute.Component<'modifiers.role-modifier'> &
+      Attribute.Required;
+    military: Attribute.Component<'modifiers.role-modifier'> &
+      Attribute.Required;
+    diplomat: Attribute.Component<'modifiers.role-modifier'> &
+      Attribute.Required;
+    media: Attribute.Component<'modifiers.role-modifier'> & Attribute.Required;
   };
 }
 
