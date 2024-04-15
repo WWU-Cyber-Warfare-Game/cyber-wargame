@@ -930,6 +930,8 @@ export interface ApiTeamTeam extends Schema.CollectionType {
     victoryPoints: Attribute.Integer &
       Attribute.Required &
       Attribute.DefaultTo<0>;
+    modifiers: Attribute.Component<'modifiers.role-modifiers'> &
+      Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::team.team', 'oneToOne', 'admin::user'> &

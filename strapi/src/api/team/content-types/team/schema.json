@@ -20,6 +20,12 @@
       "type": "integer",
       "required": true,
       "default": 0
+    },
+    "modifiers": {
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.role-modifiers",
+      "required": true
     }
   }
 }

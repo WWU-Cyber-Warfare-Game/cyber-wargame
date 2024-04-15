@@ -1,0 +1,37 @@
+{
+  "collectionName": "components_modifiers_role_modifiers",
+  "info": {
+    "displayName": "Role Modifiers",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "leader": {
+      "displayName": "Role Modifier",
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.role-modifier",
+      "required": true
+    },
+    "intelligence": {
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.role-modifier"
+    },
+    "military": {
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.role-modifier"
+    },
+    "diplomat": {
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.role-modifier"
+    },
+    "media": {
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.role-modifier"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_modifiers_role_modifier",
+  "info": {
+    "displayName": "Role Modifier"
+  },
+  "options": {},
+  "attributes": {
+    "offense": {
+      "type": "integer",
+      "default": 0,
+      "required": true
+    },
+    "defense": {
+      "type": "integer",
+      "required": true,
+      "default": 0
+    }
+  }
+}

@@ -61,6 +61,32 @@ export interface EffectsStopOffenseAction extends Schema.Component {
   };
 }
 
+export interface ModifiersRoleModifier extends Schema.Component {
+  collectionName: 'components_modifiers_role_modifier';
+  info: {
+    displayName: 'Role Modifier';
+  };
+  attributes: {
+    offense: Attribute.Integer & Attribute.Required & Attribute.DefaultTo<0>;
+    defense: Attribute.Integer & Attribute.Required & Attribute.DefaultTo<0>;
+  };
+}
+
+export interface ModifiersRoleModifiers extends Schema.Component {
+  collectionName: 'components_modifiers_role_modifiers';
+  info: {
+    displayName: 'Role Modifiers';
+    description: '';
+  };
+  attributes: {
+    leader: Attribute.Component<'modifiers.role-modifier'> & Attribute.Required;
+    intelligence: Attribute.Component<'modifiers.role-modifier'>;
+    military: Attribute.Component<'modifiers.role-modifier'>;
+    diplomat: Attribute.Component<'modifiers.role-modifier'>;
+    media: Attribute.Component<'modifiers.role-modifier'>;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface Components {
@@ -68,6 +94,8 @@ declare module '@strapi/types' {
       'effects.add-victory-points': EffectsAddVictoryPoints;
       'effects.buff-debuff': EffectsBuffDebuff;
       'effects.stop-offense-action': EffectsStopOffenseAction;
+      'modifiers.role-modifier': ModifiersRoleModifier;
+      'modifiers.role-modifiers': ModifiersRoleModifiers;
     }
   }
 }
