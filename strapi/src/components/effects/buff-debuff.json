@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_effects_buff_debuffs",
+  "info": {
+    "displayName": "Add Buff/Debuff",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "teamRole": {
+      "type": "enumeration",
+      "enum": [
+        "leader",
+        "intelligence",
+        "military",
+        "diplomat",
+        "media"
+      ],
+      "required": true
+    },
+    "buff": {
+      "type": "integer",
+      "required": true
+    },
+    "myTeam": {
+      "type": "boolean",
+      "required": true,
+      "default": true
+    }
+  }
+}

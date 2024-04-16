@@ -28,9 +28,16 @@ export interface Action {
     teamRole: TeamRole;
 }
 
+export enum ActionEndState {
+    Success = "success",
+    Fail = "fail",
+    Stopped = "stopped"
+}
+
 export interface ActionLog {
     action: Action;
     time: Date;
+    endState: ActionEndState;
 }
 
 export interface PendingAction {

@@ -16,7 +16,7 @@ const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
  * @param data The data retreived from the Strapi API
  * @returns The parsed user data
  */
-function parseUser(data: any) {
+function parseUser(data: any): User {
     let team;
     if (!data.team) team = null;
     else team = data.team.name;
@@ -26,7 +26,7 @@ function parseUser(data: any) {
         email: data.email,
         teamRole: data.teamRole,
         team: team
-    } as User;
+    };
 }
 
 /**
@@ -255,7 +255,8 @@ export async function getActionLog() {
     function parseActionLog(data: any): ActionLog {
         return {
             action: data.attributes.action,
-            time: new Date(Date.parse(data.attributes.date))
+            time: new Date(Date.parse(data.attributes.date)),
+            endState: data.attributes.endState
         }
     }
     
@@ -290,14 +291,14 @@ export async function getActionLog() {
  * @returns An array of Action objects, or null if there is an error
  */
 export async function getActions() {
-    function parseAction(data: any) {
+    function parseAction(data: any): Action {
         return {
             id: data.id,
             name: data.attributes.action.name,
             duration: data.attributes.action.duration,
             description: data.attributes.action.description,
             teamRole: data.attributes.action.teamRole
-        } as Action;
+        };
     }
     
     const user = await validateUser();

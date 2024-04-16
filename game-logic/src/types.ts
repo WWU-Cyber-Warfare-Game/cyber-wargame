@@ -6,21 +6,34 @@ export enum TeamRole {
     Media = "media"
 }
 
+export enum ActionType {
+    Offense = "offense",
+    Defense = "defense"
+}
+
 export interface Action {
+    id: number;
     name: string;
     duration: number;
     description: string;
     teamRole: TeamRole;
+    type: ActionType;
 }
 
 export interface PendingAction {
+    id: number;
     user: string; // change this to team
     date: Date;
     action: Action;
 }
 
-export interface PendingAction {
-    user: string; // change this to team
-    date: Date;
-    id: number;
+export enum ActionEndState {
+    Success = "success",
+    Fail = "fail",
+    Stopped = "stopped"
+}
+
+export interface ActionCompleteRequest {
+    pendingActionId: number;
+    endState: ActionEndState;
 }

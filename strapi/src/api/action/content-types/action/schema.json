@@ -15,7 +15,16 @@
     "action": {
       "type": "component",
       "repeatable": false,
-      "component": "actions.placeholder-action"
+      "component": "actions.placeholder-action",
+      "required": true
+    },
+    "effects": {
+      "type": "dynamiczone",
+      "components": [
+        "effects.add-victory-points",
+        "effects.buff-debuff",
+        "effects.stop-offense-action"
+      ]
     }
   }
 }

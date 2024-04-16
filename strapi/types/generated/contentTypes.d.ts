@@ -787,7 +787,15 @@ export interface ApiActionAction extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
-    action: Attribute.Component<'actions.placeholder-action'>;
+    action: Attribute.Component<'actions.placeholder-action'> &
+      Attribute.Required;
+    effects: Attribute.DynamicZone<
+      [
+        'effects.add-victory-points',
+        'effects.buff-debuff',
+        'effects.stop-offense-action'
+      ]
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -854,6 +862,7 @@ export interface ApiPendingActionPendingAction extends Schema.CollectionType {
     user: Attribute.String;
     date: Attribute.DateTime;
     action: Attribute.Component<'actions.placeholder-action'>;
+    actionId: Attribute.Integer;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -886,6 +895,8 @@ export interface ApiResolvedActionResolvedAction extends Schema.CollectionType {
     user: Attribute.String;
     date: Attribute.DateTime;
     action: Attribute.Component<'actions.placeholder-action'>;
+    endState: Attribute.Enumeration<['success', 'fail', 'stopped']> &
+      Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -916,6 +927,18 @@ export interface ApiTeamTeam extends Schema.CollectionType {
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
+    victoryPoints: Attribute.Integer &
+      Attribute.Required &
+      Attribute.DefaultTo<0>;
+    leaderModifiers: Attribute.Component<'modifiers.modifiers'> &
+      Attribute.Required;
+    intelligenceModifiers: Attribute.Component<'modifiers.modifiers'> &
+      Attribute.Required;
+    militaryModifiers: Attribute.Component<'modifiers.modifiers'> &
+      Attribute.Required;
+    mediaModifiers: Attribute.Component<'modifiers.modifiers'> &
+      Attribute.Required;
+    diplomatModifiers: Attribute.Component<'modifiers.modifiers'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::team.team', 'oneToOne', 'admin::user'> &

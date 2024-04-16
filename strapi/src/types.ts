@@ -6,6 +6,11 @@ export enum TeamRole {
     Media = "media"
 }
 
+export enum ActionType {
+    Offense = "offense",
+    Defense = "defense"
+}
+
 export interface User {
     username: string;
     email: string;
@@ -21,10 +26,12 @@ export interface Message {
 }
 
 export interface Action {
+    id: number;
     name: string;
     duration: number;
     description: string;
     teamRole: TeamRole;
+    type: ActionType;
 }
 
 export interface ActionLog {
@@ -39,7 +46,19 @@ export interface PendingActionRequest {
 }
 
 export interface PendingAction {
+    id: number;
     user: string;
     date: Date;
     action: Action;
+}
+
+export enum ActionEndState {
+    Success = "success",
+    Fail = "fail",
+    Stopped = "stopped"
+}
+
+export interface ActionCompleteRequest {
+    pendingActionId: number;
+    endState: ActionEndState;
 }

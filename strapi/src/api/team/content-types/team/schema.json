@@ -15,6 +15,41 @@
     "name": {
       "type": "string",
       "required": true
+    },
+    "victoryPoints": {
+      "type": "integer",
+      "required": true,
+      "default": 0
+    },
+    "leaderModifiers": {
+      "displayName": "Modifiers",
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.modifiers",
+      "required": true
+    },
+    "intelligenceModifiers": {
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.modifiers",
+      "required": true
+    },
+    "militaryModifiers": {
+      "type": "component",
+      "repeatable": false,
+      "required": true,
+      "component": "modifiers.modifiers"
+    },
+    "mediaModifiers": {
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.modifiers",
+      "required": true
+    },
+    "diplomatModifiers": {
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.modifiers"
     }
   }
 }

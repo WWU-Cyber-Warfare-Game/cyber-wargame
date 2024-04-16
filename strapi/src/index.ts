@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { PendingAction, Action, TeamRole, User, PendingActionRequest } from './types';
+import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType, ActionCompleteRequest } from './types';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -79,12 +79,14 @@ async function checkAction(username: string, actionId: number) {
     console.error('user ' + username + ' attempted to perform action ' + actionId + ' that does not exist');
     return null;
   }
-  const action = {
+  const action: Action = {
+    id: res.id as number,
     name: res.action.name,
     duration: res.action.duration,
     description: res.action.description,
-    teamRole: res.action.teamRole
-  } as Action;
+    teamRole: res.action.teamRole as TeamRole,
+    type: res.action.type as ActionType
+  };
   if (user.teamRole !== action.teamRole) {
     console.error('user ' + username + ' attempted to perform action ' + action.name + ' that does not match their team role');
     return null;
@@ -126,24 +128,179 @@ export default {
     gameLogicSocket.on('connection', (socket) => {
       console.log('game-logic connected');
 
+      // prints string to console, for debugging
+      socket.on('print', (str: string) => {
+        console.log(str);
+      });
+
       // listen for action complete
-      socket.on('actionComplete', async (actionId: number) => {
-        console.log('action complete: ' + actionId);
+      socket.on('actionComplete', async (actionCompleteRequest: ActionCompleteRequest) => {
+        console.log('action complete: ' + actionCompleteRequest.pendingActionId);
 
         // add action to resolved queue
-        const pendingActionRes = await strapi.entityService.findOne('api::pending-action.pending-action', actionId, {
-          populate: '*'
-        });
-        const res = await strapi.entityService.create('api::resolved-action.resolved-action', {
+        const pendingActionRes = await strapi.entityService.findOne('api::pending-action.pending-action',
+          actionCompleteRequest.pendingActionId,
+          {
+            populate: '*'
+          }
+        );
+        await strapi.entityService.create('api::resolved-action.resolved-action', {
           data: {
             user: pendingActionRes.user,
             date: new Date(),
-            action: pendingActionRes.action
+            action: pendingActionRes.action,
+            endState: actionCompleteRequest.endState
           }
         });
 
         // remove action from pending queue
-        await strapi.entityService.delete('api::pending-action.pending-action', actionId);
+        await strapi.entityService.delete('api::pending-action.pending-action', actionCompleteRequest.pendingActionId);
+
+        // parse and apply action effects
+        const effects = (await strapi.entityService.findOne('api::action.action', pendingActionRes.actionId, {
+          populate: ['effects']
+        })).effects;
+
+        const user = await getUser(pendingActionRes.user);
+
+        const playerTeam = (await strapi.entityService.findMany('api::team.team', {
+          filters: {
+            name: user.team
+          },
+          populate: '*'
+        }))[0];
+
+        const otherTeam = (await strapi.entityService.findMany('api::team.team', {
+          filters: {
+            $not: {
+              name: user.team
+            }
+          },
+          populate: '*'
+        }))[0];
+
+        effects.forEach(async (effect) => {
+          switch (effect.__component) {
+
+            // add victory points to user's team or opposing team
+            case 'effects.add-victory-points':
+              console.log('EFFECT: adding victory points');
+              if (effect.myTeam) {
+                // add victory points to user's team
+                await strapi.entityService.update('api::team.team', playerTeam.id, {
+                  data: {
+                    victoryPoints: playerTeam.victoryPoints + effect.points
+                  }
+                });
+              } else {
+                // add victory points to opposing team
+                await strapi.entityService.update('api::team.team', otherTeam.id, {
+                  data: {
+                    victoryPoints: otherTeam.victoryPoints + effect.points
+                  }
+                });
+              }
+              break;
+
+            // add a buff or debuff to user
+            case 'effects.buff-debuff':
+              console.log('EFFECT: buffing/debuffing');
+              const id = effect.myTeam ? playerTeam.id : otherTeam.id;
+              
+              // probably a better way to do this
+              switch (effect.teamRole) {
+                case 'leader':
+                  await strapi.entityService.update('api::team.team', id, {
+                    data: {
+                      leaderModifiers: {
+                        offense: playerTeam.leaderModifiers.offense,
+                        defense: playerTeam.leaderModifiers.defense,
+                        buff: playerTeam.leaderModifiers.buff + effect.buff
+                      }
+                    }
+                  });
+                  break;
+                case 'intelligence':
+                  await strapi.entityService.update('api::team.team', id, {
+                    data: {
+                      intelligenceModifiers: {
+                        offense: playerTeam.intelligenceModifiers.offense,
+                        defense: playerTeam.intelligenceModifiers.defense,
+                        buff: playerTeam.intelligenceModifiers.buff + effect.buff
+                      }
+                    }
+                  });
+                  break;
+                case 'military':
+                  await strapi.entityService.update('api::team.team', id, {
+                    data: {
+                      militaryModifiers: {
+                        offense: playerTeam.militaryModifiers.offense,
+                        defense: playerTeam.militaryModifiers.defense,
+                        buff: playerTeam.militaryModifiers.buff + effect.buff
+                      }
+                    }
+                  });
+                  break;
+                case 'diplomat':
+                  await strapi.entityService.update('api::team.team', id, {
+                    data: {
+                      diplomatModifiers: {
+                        offense: playerTeam.diplomatModifiers.offense,
+                        defense: playerTeam.diplomatModifiers.defense,
+                        buff: playerTeam.diplomatModifiers.buff + effect.buff
+                      }
+                    }
+                  });
+                  break;
+                case 'media':
+                  await strapi.entityService.update('api::team.team', id, {
+                    data: {
+                      mediaModifiers: {
+                        offense: playerTeam.mediaModifiers.offense,
+                        defense: playerTeam.mediaModifiers.defense,
+                        buff: playerTeam.mediaModifiers.buff + effect.buff
+                      }
+                    }
+                  });
+                  break;
+              }
+              break;
+
+            // stop an offense action
+            case 'effects.stop-offense-action':
+              console.log('EFFECT: stopping offense action');
+              const res = await strapi.entityService.findMany('api::pending-action.pending-action', {
+                filters: {
+                  action: {
+                    type: 'offense',
+                    teamRole: effect.teamRole
+                  }
+                },
+                populate: '*'
+              });
+              const offenseAction = res.filter(async (action) => {
+                const actionUser = await getUser(action.user);
+                return actionUser.team !== user.team;
+              })[0];
+              if (offenseAction) {
+                await strapi.entityService.create('api::resolved-action.resolved-action', {
+                  data: {
+                    user: offenseAction.user,
+                    date: new Date(),
+                    action: offenseAction.action,
+                    endState: 'stopped'
+                  }
+                });
+                await strapi.entityService.delete('api::pending-action.pending-action', offenseAction.id);
+                gameLogicSocket.emit('deleteAction', offenseAction.id);
+              }
+              break;
+          }
+        });
+
+        // unlock queue
+        gameLogicSocket.emit('queueUnlock');
 
         // emit action complete to user
         frontendSocket.emit('actionComplete');
@@ -226,10 +383,19 @@ export default {
             user: pendingActionReq.user,
             date: new Date(Date.now() + minToMs(action.duration)),
             action: action,
+            actionId: action.id
           }
         });
-        console.log("sending to gameSocket");
-        gameLogicSocket.emit("pendingAction", res); // the action isn't sent, interface needed in the future
+
+        // emit action to game logic
+        console.log('sending to gameSocket');
+        const pendingAction: PendingAction = {
+          id: res.id as number,
+          user: pendingActionReq.user,
+          date: new Date(res.date),
+          action: action
+        };
+        gameLogicSocket.emit('pendingAction', pendingAction);
       });
     });
   }
