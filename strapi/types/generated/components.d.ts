@@ -61,32 +61,15 @@ export interface EffectsStopOffenseAction extends Schema.Component {
   };
 }
 
-export interface ModifiersRoleModifier extends Schema.Component {
-  collectionName: 'components_modifiers_role_modifier';
+export interface ModifiersModifiers extends Schema.Component {
+  collectionName: 'components_modifiers_modifiers';
   info: {
-    displayName: 'Role Modifier';
+    displayName: 'Modifiers';
   };
   attributes: {
     offense: Attribute.Integer & Attribute.Required & Attribute.DefaultTo<0>;
     defense: Attribute.Integer & Attribute.Required & Attribute.DefaultTo<0>;
-  };
-}
-
-export interface ModifiersRoleModifiers extends Schema.Component {
-  collectionName: 'components_modifiers_role_modifiers';
-  info: {
-    displayName: 'Role Modifiers';
-    description: '';
-  };
-  attributes: {
-    leader: Attribute.Component<'modifiers.role-modifier'> & Attribute.Required;
-    intelligence: Attribute.Component<'modifiers.role-modifier'> &
-      Attribute.Required;
-    military: Attribute.Component<'modifiers.role-modifier'> &
-      Attribute.Required;
-    diplomat: Attribute.Component<'modifiers.role-modifier'> &
-      Attribute.Required;
-    media: Attribute.Component<'modifiers.role-modifier'> & Attribute.Required;
+    buff: Attribute.Integer & Attribute.Required & Attribute.DefaultTo<0>;
   };
 }
 
@@ -97,8 +80,7 @@ declare module '@strapi/types' {
       'effects.add-victory-points': EffectsAddVictoryPoints;
       'effects.buff-debuff': EffectsBuffDebuff;
       'effects.stop-offense-action': EffectsStopOffenseAction;
-      'modifiers.role-modifier': ModifiersRoleModifier;
-      'modifiers.role-modifiers': ModifiersRoleModifiers;
+      'modifiers.modifiers': ModifiersModifiers;
     }
   }
 }

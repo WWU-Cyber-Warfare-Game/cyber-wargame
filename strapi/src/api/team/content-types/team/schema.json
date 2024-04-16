@@ -21,11 +21,35 @@
       "required": true,
       "default": 0
     },
-    "modifiers": {
+    "leaderModifiers": {
+      "displayName": "Modifiers",
       "type": "component",
       "repeatable": false,
-      "component": "modifiers.role-modifiers",
+      "component": "modifiers.modifiers",
       "required": true
+    },
+    "intelligenceModifiers": {
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.modifiers",
+      "required": true
+    },
+    "militaryModifiers": {
+      "type": "component",
+      "repeatable": false,
+      "required": true,
+      "component": "modifiers.modifiers"
+    },
+    "mediaModifiers": {
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.modifiers",
+      "required": true
+    },
+    "diplomatModifiers": {
+      "type": "component",
+      "repeatable": false,
+      "component": "modifiers.modifiers"
     }
   }
 }

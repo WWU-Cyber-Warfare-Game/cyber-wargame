@@ -1,16 +1,21 @@
 {
-  "collectionName": "components_modifiers_role_modifier",
+  "collectionName": "components_modifiers_modifiers",
   "info": {
-    "displayName": "Role Modifier"
+    "displayName": "Modifiers"
   },
   "options": {},
   "attributes": {
     "offense": {
       "type": "integer",
+      "required": true,
+      "default": 0
+    },
+    "defense": {
+      "type": "integer",
       "default": 0,
       "required": true
     },
-    "defense": {
+    "buff": {
       "type": "integer",
       "required": true,
       "default": 0

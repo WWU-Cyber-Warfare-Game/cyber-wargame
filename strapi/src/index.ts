@@ -166,7 +166,8 @@ export default {
         const playerTeam = (await strapi.entityService.findMany('api::team.team', {
           filters: {
             name: user.team
-          }
+          },
+          populate: '*'
         }))[0];
 
         const otherTeam = (await strapi.entityService.findMany('api::team.team', {
@@ -174,7 +175,8 @@ export default {
             $not: {
               name: user.team
             }
-          }
+          },
+          populate: '*'
         }))[0];
 
         effects.forEach(async (effect) => {
@@ -202,8 +204,67 @@ export default {
 
             // add a buff or debuff to user
             case 'effects.buff-debuff':
-              // TODO
               console.log('EFFECT: buffing/debuffing');
+              const id = effect.myTeam ? playerTeam.id : otherTeam.id;
+              
+              // probably a better way to do this
+              switch (effect.teamRole) {
+                case 'leader':
+                  await strapi.entityService.update('api::team.team', id, {
+                    data: {
+                      leaderModifiers: {
+                        offense: playerTeam.leaderModifiers.offense,
+                        defense: playerTeam.leaderModifiers.defense,
+                        buff: playerTeam.leaderModifiers.buff + effect.buff
+                      }
+                    }
+                  });
+                  break;
+                case 'intelligence':
+                  await strapi.entityService.update('api::team.team', id, {
+                    data: {
+                      intelligenceModifiers: {
+                        offense: playerTeam.intelligenceModifiers.offense,
+                        defense: playerTeam.intelligenceModifiers.defense,
+                        buff: playerTeam.intelligenceModifiers.buff + effect.buff
+                      }
+                    }
+                  });
+                  break;
+                case 'military':
+                  await strapi.entityService.update('api::team.team', id, {
+                    data: {
+                      militaryModifiers: {
+                        offense: playerTeam.militaryModifiers.offense,
+                        defense: playerTeam.militaryModifiers.defense,
+                        buff: playerTeam.militaryModifiers.buff + effect.buff
+                      }
+                    }
+                  });
+                  break;
+                case 'diplomat':
+                  await strapi.entityService.update('api::team.team', id, {
+                    data: {
+                      diplomatModifiers: {
+                        offense: playerTeam.diplomatModifiers.offense,
+                        defense: playerTeam.diplomatModifiers.defense,
+                        buff: playerTeam.diplomatModifiers.buff + effect.buff
+                      }
+                    }
+                  });
+                  break;
+                case 'media':
+                  await strapi.entityService.update('api::team.team', id, {
+                    data: {
+                      mediaModifiers: {
+                        offense: playerTeam.mediaModifiers.offense,
+                        defense: playerTeam.mediaModifiers.defense,
+                        buff: playerTeam.mediaModifiers.buff + effect.buff
+                      }
+                    }
+                  });
+                  break;
+              }
               break;
 
             // stop an offense action
