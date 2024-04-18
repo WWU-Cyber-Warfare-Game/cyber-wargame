@@ -1,27 +1,32 @@
 import { Server, Socket } from 'socket.io';
-import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType, ActionCompleteRequest } from './types';
+import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType, ActionCompleteRequest, Message } from './types';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
-interface Message {
-  message: string;
-  date: Date;
-  sender: string;
-  receiver: string;
-}
-
-//converts minutes to milliseconds
+/**
+ * Converts minutes to milliseconds
+ * @param min Time in minutes
+ * @returns Time in milliseconds
+ */
 const minToMs = (min: number) => min * 60 * 1000;
 
-// returns the user room string
-// room string is both usernames in alphabetical order, separated by an ampersand
-// e.g. 'user1&user2'
+/**
+ * Returns the user room string (both usernames in alphabetical order, separated by an ampersand)
+ * 
+ * e.g. `user1&user2`
+ * @param sender Sender's username
+ * @param receiver Receiver's username
+ * @returns Room name
+ */
 function getRoomName(sender: string, receiver: string) {
   return [sender, receiver].sort().join('&');
 }
 
-// checks the user's token
-// returns the user's ID if the token is valid, otherwise returns null
+/**
+ * Checks the user's token
+ * @param jwt User's JWT
+ * @returns User ID if the token is valid, otherwise `null`
+ */
 async function checkToken(jwt: string) {
   if (!jwt) {
     return null;
@@ -34,7 +39,12 @@ async function checkToken(jwt: string) {
   }
 }
 
-// checks if the receiver is valid (i.e. exists and is on the same team as the sender)
+/**
+ * Checks if the receiver is valid (i.e. exists and is on the same team as the sender)
+ * @param userId The sender's user ID
+ * @param receiver The receiver's username
+ * @returns `true` if the receiver is valid, otherwise `false`
+ */
 async function checkReceiver(userId: number, receiver: string) {
   const res = await strapi.entityService.findOne('plugin::users-permissions.user', userId, {
     populate: ['team']
@@ -53,7 +63,11 @@ async function checkReceiver(userId: number, receiver: string) {
   return teammates.length > 0;
 }
 
-// gets a user's info from their username
+/**
+ * Gets a user's info from their username
+ * @param username The user's username
+ * @returns The user's info if they exist, otherwise `null`
+ */
 async function getUser(username: string) {
   const res = await strapi.entityService.findMany('plugin::users-permissions.user', {
     filters: {
@@ -61,15 +75,25 @@ async function getUser(username: string) {
     },
     populate: '*'
   });
-  return {
+  if (res.length === 0) {
+    console.error('user ' + username + ' does not exist');
+    return null;
+  }
+  const user: User = {
     username: res[0].username,
     email: res[0].email,
-    teamRole: res[0].teamRole,
+    teamRole: res[0].teamRole as TeamRole,
     team: res[0].team.name
-  } as User;
+  };
+  return user;
 }
 
-// checks if user can perform action and returns the action if they can
+/**
+ * Checks if user can perform action and returns the action if they can
+ * @param username The user's username
+ * @param actionId The ID of the action to check
+ * @returns The action if the user can perform it, otherwise `null`
+ */
 async function checkAction(username: string, actionId: number) {
   const user = await getUser(username);
   const res = await strapi.entityService.findOne('api::action.action', actionId, {
