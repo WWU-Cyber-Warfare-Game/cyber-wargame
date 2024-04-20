@@ -1,9 +1,9 @@
 "use client";
 import { io, Socket } from "socket.io-client";
 import { useState, useEffect, use } from "react";
-import { Action, PendingAction, User } from "@/types";
+import { Action, PendingAction, User, Modifiers } from "@/types";
 import ActionButton from "./ActionButton";
-import { getActions, validateUser } from "@/actions";
+import { getActions, getModifiers } from "@/actions";
 import Timer from "./Timer";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
@@ -19,13 +19,11 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
     const [actions, setActions] = useState<Action[]>([]);
     const [butttonDisabled, setButtonDisabled] = useState(false);
     const [endTime, setEndTime] = useState<Date | null>(null);
+    const [modifiers, setModifiers] = useState<Modifiers>({ offense: 0, defense: 0, buff: 0 });
 
-    function refreshActions() {
+    function refresh() {
         // Get the list of actions from the server
         getActions().then((res) => {
-            setLoading(false);
-            setEndTime(null);
-
             if (res) {
                 setActions(res.actions);
                 setButtonDisabled(res.endTime !== null);
@@ -35,15 +33,25 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
                 setButtonDisabled(true);
             }
         });
+        // Get modifiers from the server
+        getModifiers().then((res) => {
+            if (res) {
+                setModifiers(res);
+            } else {
+                setError("Error fetching modifiers");
+            }
+        });
+        setLoading(false);
+        setEndTime(null);
     }
 
     useEffect(() => {
-        refreshActions();
+        refresh();
     }, []);
 
     useEffect(() => {
         // re-enable buttons when action is complete
-        if (socket) socket.on('actionComplete', () => refreshActions());
+        if (socket) socket.on('actionComplete', () => refresh());
 
         // connection error handling
         if (socket) socket.on('connect_error', () => {
@@ -61,7 +69,7 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
         if (socket) socket.on('connect', () => {
             setError(null);
             setButtonDisabled(false);
-            refreshActions();
+            refresh();
         });
     }, [socket]);
 
@@ -90,6 +98,7 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
                     action={action}
                     onClick={butttonDisabled ? () => { } : handleActionClick}
                     disabled={butttonDisabled}
+                    buff={modifiers.buff}
                 />
             ))}
             {endTime && <Timer time={endTime} />}

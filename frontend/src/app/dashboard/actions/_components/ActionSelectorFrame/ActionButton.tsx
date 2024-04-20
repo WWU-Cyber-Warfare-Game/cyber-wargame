@@ -6,9 +6,10 @@ interface ActionButtonProps {
     readonly action: Action;
     readonly onClick: (action: Action) => void;
     readonly disabled?: boolean;
+    readonly buff: number;
 }
 
-export default function ActionButton({ action, onClick, disabled }: Readonly<ActionButtonProps>) {
+export default function ActionButton({ action, onClick, disabled, buff }: Readonly<ActionButtonProps>) {
     return (
         <div
             className={disabled ? styles.actionButtonDisabled : styles.actionButton}
@@ -18,7 +19,7 @@ export default function ActionButton({ action, onClick, disabled }: Readonly<Act
             <p className={styles.actionButtonLine}>{action.description}</p>
             <p className={styles.actionButtonLine}>Type: {action.type}</p>
             <p className={styles.actionButtonLine}>{action.duration} minutes</p>
-            <p className={styles.actionButtonLine}>Success Rate: {action.successRate}%</p>
+            <p className={styles.actionButtonLine}>Success Rate: {action.successRate}% (+{buff * 10}% buff)</p>
         </div>
     );
 }

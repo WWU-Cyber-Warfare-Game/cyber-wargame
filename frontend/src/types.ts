@@ -56,3 +56,9 @@ export interface ActionResponse {
     actions: Action[];
     endTime: Date | null;
 }
+
+export interface Modifiers {
+    offense: number;
+    defense: number;
+    buff: number;
+}

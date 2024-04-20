@@ -49,7 +49,6 @@ async function getSuccess(successRate: number, username: string) {
       break;
   }
   const rand = Math.floor(Math.random() * 101) + (buff * 10);
-  console.log(`rand: ${rand} + ${buff * 10}, successRate: ${successRate}`);
   return rand <= successRate;
 }
 
@@ -170,7 +169,7 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
     }
   );
   const successRate = pendingActionRes.action.successRate;
-  const endState = getSuccess(successRate, pendingActionRes.user) ? 'success' : 'fail';
+  const endState = await getSuccess(successRate, pendingActionRes.user) ? 'success' : 'fail';
   await strapi.entityService.create('api::resolved-action.resolved-action', {
     data: {
       user: pendingActionRes.user,
