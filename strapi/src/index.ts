@@ -15,6 +15,16 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const minToMs = (min: number) => min * 60 * 1000;
 
 /**
+ * Returns a random boolean based on the success rate
+ * @param successRate The percentage chance of success (0-100)
+ * @returns `true` if successful, otherwise `false`
+ */
+function getSuccess(successRate: number) {
+  const rand = Math.floor(Math.random() * 101);
+  return rand <= successRate;
+}
+
+/**
  * Returns the user room string (both usernames in alphabetical order, separated by an ampersand)
  * 
  * e.g. `user1&user2`
@@ -88,7 +98,8 @@ async function checkAction(username: string, actionId: number) {
     duration: res.action.duration,
     description: res.action.description,
     teamRole: res.action.teamRole as TeamRole,
-    type: res.action.type as ActionType
+    type: res.action.type as ActionType,
+    successRate: res.action.successRate
   };
   if (user.teamRole !== action.teamRole) {
     console.error('user ' + username + ' attempted to perform action ' + action.name + ' that does not match their team role');
@@ -129,12 +140,14 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
       populate: '*'
     }
   );
+  const successRate = pendingActionRes.action.successRate;
+  const endState = getSuccess(successRate) ? 'success' : 'fail';
   await strapi.entityService.create('api::resolved-action.resolved-action', {
     data: {
       user: pendingActionRes.user,
       date: new Date(),
       action: pendingActionRes.action,
-      endState: actionCompleteRequest.endState
+      endState: endState
     }
   });
 
@@ -142,8 +155,10 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
   await strapi.entityService.delete('api::pending-action.pending-action', actionCompleteRequest.pendingActionId);
 
   // parse and apply action effects
-  const user = await getUser(pendingActionRes.user);
-  await applyEffects(pendingActionRes.actionId, user, gameLogic);
+  if (endState === 'success') {
+    const user = await getUser(pendingActionRes.user);
+    await applyEffects(pendingActionRes.actionId, user, gameLogic);
+  }
 
   // unlock queue
   gameLogic.emit('queueUnlock');

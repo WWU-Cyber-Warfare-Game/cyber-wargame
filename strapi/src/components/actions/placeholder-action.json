@@ -36,6 +36,13 @@
         "defense"
       ],
       "required": true
+    },
+    "successRate": {
+      "type": "integer",
+      "required": true,
+      "max": 100,
+      "min": 0,
+      "default": 50
     }
   }
 }

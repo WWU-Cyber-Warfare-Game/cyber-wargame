@@ -18,6 +18,7 @@ export interface Action {
     description: string;
     teamRole: TeamRole;
     type: ActionType;
+    successRate: number;
 }
 
 export interface PendingAction {
@@ -35,5 +36,4 @@ export enum ActionEndState {
 
 export interface ActionCompleteRequest {
     pendingActionId: number;
-    endState: ActionEndState;
 }

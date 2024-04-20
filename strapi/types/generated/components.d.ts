@@ -16,6 +16,13 @@ export interface ActionsPlaceholderAction extends Schema.Component {
     > &
       Attribute.Required;
     type: Attribute.Enumeration<['offense', 'defense']> & Attribute.Required;
+    successRate: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<{
+        min: 0;
+        max: 100;
+      }> &
+      Attribute.DefaultTo<50>;
   };
 }
 

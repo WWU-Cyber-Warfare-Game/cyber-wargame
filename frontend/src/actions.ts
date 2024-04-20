@@ -297,7 +297,9 @@ export async function getActions() {
             name: data.attributes.action.name,
             duration: data.attributes.action.duration,
             description: data.attributes.action.description,
-            teamRole: data.attributes.action.teamRole
+            teamRole: data.attributes.action.teamRole,
+            type: data.attributes.action.type,
+            successRate: data.attributes.action.successRate
         };
     }
     

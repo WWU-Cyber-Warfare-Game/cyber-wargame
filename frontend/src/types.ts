@@ -20,12 +20,19 @@ export interface Message {
     receiver: string;
 }
 
+export enum ActionType {
+    Offense = "offense",
+    Defense = "defense"
+}
+
 export interface Action {
     id: number; // NOTE: this is the id or the action entry, not the action component
     name: string;
     duration: number;
     description: string;
     teamRole: TeamRole;
+    type: ActionType;
+    successRate: number;
 }
 
 export enum ActionEndState {

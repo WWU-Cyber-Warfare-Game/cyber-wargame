@@ -1,5 +1,6 @@
 import { Action } from "@/types";
 import styles from "./ActionButton.module.css";
+import classNames from "classnames";
 
 interface ActionButtonProps {
     readonly action: Action;
@@ -13,9 +14,11 @@ export default function ActionButton({ action, onClick, disabled }: Readonly<Act
             className={disabled ? styles.actionButtonDisabled : styles.actionButton}
             onClick={() => onClick(action)}
         >
-            <p className={styles.actionName}>{action.name}</p>
-            <p>{action.description}</p>
-            <p>{action.duration} minutes</p>
+            <p className={classNames(styles.actionName, styles.actionButtonLine)}>{action.name}</p>
+            <p className={styles.actionButtonLine}>{action.description}</p>
+            <p className={styles.actionButtonLine}>Type: {action.type}</p>
+            <p className={styles.actionButtonLine}>{action.duration} minutes</p>
+            <p className={styles.actionButtonLine}>Success Rate: {action.successRate}%</p>
         </div>
     );
 }

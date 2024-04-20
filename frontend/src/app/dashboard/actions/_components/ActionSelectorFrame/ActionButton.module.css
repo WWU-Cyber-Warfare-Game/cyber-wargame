@@ -30,3 +30,7 @@
 .actionName {
     font-weight: bold;
 }
+
+.actionButtonLine {
+    margin: 5px;
+}
