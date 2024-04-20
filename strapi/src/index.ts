@@ -17,10 +17,39 @@ const minToMs = (min: number) => min * 60 * 1000;
 /**
  * Returns a random boolean based on the success rate
  * @param successRate The percentage chance of success (0-100)
+ * @param username The username of the user performing the action
  * @returns `true` if successful, otherwise `false`
  */
-function getSuccess(successRate: number) {
-  const rand = Math.floor(Math.random() * 101);
+async function getSuccess(successRate: number, username: string) {
+  const user = await strapi.entityService.findMany('plugin::users-permissions.user', {
+    filters: {
+      username: username
+    },
+    populate: ['team']
+  });
+  const res = await strapi.entityService.findOne('api::team.team', user[0].team.id, {
+    populate: '*'
+  });
+  let buff: number;
+  switch (user[0].teamRole) {
+    case 'leader':
+      buff = res.leaderModifiers.buff;
+      break;
+    case 'intelligence':
+      buff = res.intelligenceModifiers.buff;
+      break;
+    case 'military':
+      buff = res.militaryModifiers.buff;
+      break;
+    case 'diplomat':
+      buff = res.diplomatModifiers.buff;
+      break;
+    case 'media':
+      buff = res.mediaModifiers.buff;
+      break;
+  }
+  const rand = Math.floor(Math.random() * 101) + (buff * 10);
+  console.log(`rand: ${rand} + ${buff * 10}, successRate: ${successRate}`);
   return rand <= successRate;
 }
 
@@ -141,7 +170,7 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
     }
   );
   const successRate = pendingActionRes.action.successRate;
-  const endState = getSuccess(successRate) ? 'success' : 'fail';
+  const endState = getSuccess(successRate, pendingActionRes.user) ? 'success' : 'fail';
   await strapi.entityService.create('api::resolved-action.resolved-action', {
     data: {
       user: pendingActionRes.user,
