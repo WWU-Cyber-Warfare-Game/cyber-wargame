@@ -19,7 +19,7 @@ export default function ActionButton({ action, onClick, disabled, buff }: Readon
             <p className={styles.actionButtonLine}>{action.description}</p>
             <p className={styles.actionButtonLine}>Type: {action.type}</p>
             <p className={styles.actionButtonLine}>{action.duration} minutes</p>
-            <p className={styles.actionButtonLine}>Success Rate: {action.successRate}% (+{buff * 10}% buff)</p>
+            <p className={styles.actionButtonLine}>Success Rate: {action.successRate}%{(buff > 0) ? ` (+${buff * 10}% buff)` : ``}</p>
         </div>
     );
 }
