@@ -814,6 +814,29 @@ export interface ApiActionAction extends Schema.CollectionType {
   };
 }
 
+export interface ApiEdgeEdge extends Schema.CollectionType {
+  collectionName: 'edges';
+  info: {
+    singularName: 'edge';
+    pluralName: 'edges';
+    displayName: 'Edge';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    connection: Attribute.Component<'positioning.connections', true>;
+    edgeID: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::edge.edge', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::edge.edge', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
 export interface ApiMessageMessage extends Schema.CollectionType {
   collectionName: 'messages';
   info: {
@@ -864,7 +887,6 @@ export interface ApiNodeNode extends Schema.CollectionType {
     defense: Attribute.Integer;
     isCoreNode: Attribute.Boolean;
     Position: Attribute.Component<'positioning.position'>;
-    Connections: Attribute.Component<'positioning.connections'>;
     nodeID: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -997,6 +1019,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'api::action.action': ApiActionAction;
+      'api::edge.edge': ApiEdgeEdge;
       'api::message.message': ApiMessageMessage;
       'api::node.node': ApiNodeNode;
       'api::pending-action.pending-action': ApiPendingActionPendingAction;

@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "edges",
+  "info": {
+    "singularName": "edge",
+    "pluralName": "edges",
+    "displayName": "Edge"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "connection": {
+      "type": "component",
+      "repeatable": true,
+      "component": "positioning.connections"
+    },
+    "edgeID": {
+      "type": "string"
+    }
+  }
+}

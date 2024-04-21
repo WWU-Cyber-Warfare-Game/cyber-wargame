@@ -32,11 +32,6 @@
       "repeatable": false,
       "component": "positioning.position"
     },
-    "Connections": {
-      "type": "component",
-      "repeatable": false,
-      "component": "positioning.connections"
-    },
     "nodeID": {
       "type": "string"
     }
