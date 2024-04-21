@@ -847,6 +847,32 @@ export interface ApiMessageMessage extends Schema.CollectionType {
   };
 }
 
+export interface ApiNodeNode extends Schema.CollectionType {
+  collectionName: 'nodes';
+  info: {
+    singularName: 'node';
+    pluralName: 'nodes';
+    displayName: 'Node';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    node: Attribute.Relation<'api::node.node', 'manyToOne', 'api::team.team'>;
+    defense: Attribute.Integer;
+    isCoreNode: Attribute.Boolean;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
 export interface ApiPendingActionPendingAction extends Schema.CollectionType {
   collectionName: 'pending_actions';
   info: {
@@ -939,6 +965,7 @@ export interface ApiTeamTeam extends Schema.CollectionType {
     mediaModifiers: Attribute.Component<'modifiers.modifiers'> &
       Attribute.Required;
     diplomatModifiers: Attribute.Component<'modifiers.modifiers'>;
+    team: Attribute.Relation<'api::team.team', 'oneToMany', 'api::node.node'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::team.team', 'oneToOne', 'admin::user'> &
@@ -968,6 +995,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'api::action.action': ApiActionAction;
       'api::message.message': ApiMessageMessage;
+      'api::node.node': ApiNodeNode;
       'api::pending-action.pending-action': ApiPendingActionPendingAction;
       'api::resolved-action.resolved-action': ApiResolvedActionResolvedAction;
       'api::team.team': ApiTeamTeam;
