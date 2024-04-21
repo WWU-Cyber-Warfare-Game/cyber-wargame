@@ -860,7 +860,7 @@ export interface ApiNodeNode extends Schema.CollectionType {
   };
   attributes: {
     name: Attribute.String;
-    node: Attribute.Relation<'api::node.node', 'manyToOne', 'api::team.team'>;
+    team: Attribute.Relation<'api::node.node', 'manyToOne', 'api::team.team'>;
     defense: Attribute.Integer;
     isCoreNode: Attribute.Boolean;
     Position: Attribute.Component<'positioning.position'>;
