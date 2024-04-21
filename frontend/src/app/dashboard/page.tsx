@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NetworkFrame from "./network/NetworkFrame";
 
 /**
  * The dashboard page for the application. Displays a welcome message and a link to the chat page.
@@ -11,6 +12,7 @@ export default function Dashboard() {
             <p>Welcome to your dashboard.</p>
             <Link href="/dashboard/chat"><p>Go to chat</p></Link>
             <Link href="/dashboard/actions"><p>Go to actions</p></Link>
+            <NetworkFrame></NetworkFrame>
         </div>
     );
 }
