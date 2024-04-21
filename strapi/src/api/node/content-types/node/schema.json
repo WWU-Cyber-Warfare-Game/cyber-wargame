@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "nodes",
+  "info": {
+    "singularName": "node",
+    "pluralName": "nodes",
+    "displayName": "Node",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "node": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::team.team",
+      "inversedBy": "team"
+    },
+    "defense": {
+      "type": "integer"
+    },
+    "isCoreNode": {
+      "type": "boolean"
+    }
+  }
+}
