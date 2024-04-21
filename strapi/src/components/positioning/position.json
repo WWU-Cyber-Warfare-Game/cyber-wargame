@@ -1,14 +1,15 @@
 {
   "collectionName": "components_positioning_positions",
   "info": {
-    "displayName": "Position"
+    "displayName": "Position",
+    "description": ""
   },
   "options": {},
   "attributes": {
-    "Xpos": {
+    "xPosition": {
       "type": "integer"
     },
-    "Ypos": {
+    "yPosition": {
       "type": "integer"
     }
   }

@@ -89,10 +89,11 @@ export interface PositioningPosition extends Schema.Component {
   collectionName: 'components_positioning_positions';
   info: {
     displayName: 'Position';
+    description: '';
   };
   attributes: {
-    Xpos: Attribute.Integer;
-    Ypos: Attribute.Integer;
+    xPosition: Attribute.Integer;
+    yPosition: Attribute.Integer;
   };
 }
 
