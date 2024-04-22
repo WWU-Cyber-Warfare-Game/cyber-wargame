@@ -82,8 +82,7 @@ export async function queueLogic(socket: Socket) {
                 console.log("action completed");
                 queue.shift();
                 const actionCompleteRequest: ActionCompleteRequest = {
-                    pendingActionId: topAction.id,
-                    endState: ActionEndState.Success
+                    pendingActionId: topAction.id
                 };
                 socket.emit("actionComplete", actionCompleteRequest);
                 lockQueue();

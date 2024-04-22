@@ -3,6 +3,7 @@ import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { getUser } from './utilities';
 import applyEffects from './effects';
+import { MODIFIER_RATE } from './consts';
 type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> | Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -13,6 +14,56 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
  * @returns Time in milliseconds
  */
 const minToMs = (min: number) => min * 60 * 1000;
+
+/**
+ * Returns a random boolean based on the success rate
+ * @param successRate The percentage chance of success (0-100)
+ * @param username The username of the user performing the action
+ * @returns `true` if successful, otherwise `false`
+ */
+async function getSuccess(successRate: number, username: string, actionType: ActionType) {
+  const user = await strapi.entityService.findMany('plugin::users-permissions.user', {
+    filters: {
+      username: username
+    },
+    populate: ['team']
+  });
+  const res = await strapi.entityService.findOne('api::team.team', user[0].team.id, {
+    populate: '*'
+  });
+  let buff: number, modifier: number;
+  switch (user[0].teamRole) {
+    case 'leader':
+      if (actionType === ActionType.Offense) modifier = res.leaderModifiers.offense;
+      else modifier = res.leaderModifiers.defense;
+      buff = res.leaderModifiers.buff;
+      break;
+    case 'intelligence':
+      if (actionType === ActionType.Offense) modifier = res.intelligenceModifiers.offense;
+      else modifier = res.intelligenceModifiers.defense;
+      buff = res.intelligenceModifiers.buff;
+      break;
+    case 'military':
+      if (actionType === ActionType.Offense) modifier = res.militaryModifiers.offense;
+      else modifier = res.militaryModifiers.defense;
+      buff = res.militaryModifiers.buff;
+      break;
+    case 'diplomat':
+      if (actionType === ActionType.Offense) modifier = res.diplomatModifiers.offense;
+      else modifier = res.diplomatModifiers.defense;
+      buff = res.diplomatModifiers.buff;
+      break;
+    case 'media':
+      if (actionType === ActionType.Offense) modifier = res.mediaModifiers.offense;
+      else modifier = res.mediaModifiers.defense;
+      buff = res.mediaModifiers.buff;
+      break;
+  }
+  const rand = Math.floor(Math.random() * 101) + ((modifier + buff) * MODIFIER_RATE);
+  const success = rand >= 100 - successRate;
+  console.log('success rate: ' + successRate + ', rand: ' + rand, ', success: ' + success);
+  return success;
+}
 
 /**
  * Returns the user room string (both usernames in alphabetical order, separated by an ampersand)
@@ -88,7 +139,8 @@ async function checkAction(username: string, actionId: number) {
     duration: res.action.duration,
     description: res.action.description,
     teamRole: res.action.teamRole as TeamRole,
-    type: res.action.type as ActionType
+    type: res.action.type as ActionType,
+    successRate: res.action.successRate
   };
   if (user.teamRole !== action.teamRole) {
     console.error('user ' + username + ' attempted to perform action ' + action.name + ' that does not match their team role');
@@ -129,12 +181,15 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
       populate: '*'
     }
   );
+  const successRate = pendingActionRes.action.successRate;
+  const endState = await getSuccess(successRate, pendingActionRes.user, pendingActionRes.action.type as ActionType) ? 'success' : 'fail';
+  console.log('end state: ' + endState);
   await strapi.entityService.create('api::resolved-action.resolved-action', {
     data: {
       user: pendingActionRes.user,
       date: new Date(),
       action: pendingActionRes.action,
-      endState: actionCompleteRequest.endState
+      endState: endState
     }
   });
 
@@ -142,8 +197,10 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
   await strapi.entityService.delete('api::pending-action.pending-action', actionCompleteRequest.pendingActionId);
 
   // parse and apply action effects
-  const user = await getUser(pendingActionRes.user);
-  await applyEffects(pendingActionRes.actionId, user, gameLogic);
+  if (endState === 'success') {
+    const user = await getUser(pendingActionRes.user);
+    await applyEffects(pendingActionRes.actionId, user, gameLogic);
+  }
 
   // unlock queue
   gameLogic.emit('queueUnlock');
