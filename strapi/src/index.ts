@@ -3,6 +3,7 @@ import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { getUser } from './utilities';
 import applyEffects from './effects';
+import { MODIFIER_RATE } from './consts';
 type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> | Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -58,7 +59,7 @@ async function getSuccess(successRate: number, username: string, actionType: Act
       buff = res.mediaModifiers.buff;
       break;
   }
-  const rand = Math.floor(Math.random() * 101) + ((modifier + buff) * 10);
+  const rand = Math.floor(Math.random() * 101) + ((modifier + buff) * MODIFIER_RATE);
   const success = rand >= 100 - successRate;
   console.log('success rate: ' + successRate + ', rand: ' + rand, ', success: ' + success);
   return success;

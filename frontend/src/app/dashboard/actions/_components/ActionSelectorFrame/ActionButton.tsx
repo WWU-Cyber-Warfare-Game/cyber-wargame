@@ -1,6 +1,7 @@
 import { Action, Modifiers, ActionType } from "@/types";
 import styles from "./ActionButton.module.css";
 import classNames from "classnames";
+import { MODIFIER_RATE } from "@/consts";
 
 interface ActionButtonProps {
     readonly action: Action;
@@ -20,7 +21,7 @@ export default function ActionButton({ action, onClick, disabled, modifiers }: R
             <p className={styles.actionButtonLine}>{action.description}</p>
             <p className={styles.actionButtonLine}>Type: {action.type}</p>
             <p className={styles.actionButtonLine}>{action.duration} minutes</p>
-            <p className={styles.actionButtonLine}>Success Rate: {action.successRate}%{(totalModifier > 0) ? ` (+${totalModifier * 10}%)` : ``}</p>
+            <p className={styles.actionButtonLine}>Success Rate: {action.successRate}%{(totalModifier > 0) ? ` (+${totalModifier * MODIFIER_RATE}%)` : ``}</p>
         </div>
     );
 }
