@@ -55,7 +55,7 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::node.node",
-      "mappedBy": "node"
+      "mappedBy": "team"
     }
   }
 }

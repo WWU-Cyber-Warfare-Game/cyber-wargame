@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_positioning_positions",
+  "info": {
+    "displayName": "Position",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "xPosition": {
+      "type": "integer"
+    },
+    "yPosition": {
+      "type": "integer"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_positioning_connections",
+  "info": {
+    "displayName": "Connections",
+    "icon": "code"
+  },
+  "options": {},
+  "attributes": {
+    "sourceNodeID": {
+      "type": "string"
+    },
+    "targetNodeID": {
+      "type": "string"
+    }
+  }
+}

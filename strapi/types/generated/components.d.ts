@@ -73,6 +73,30 @@ export interface ModifiersModifiers extends Schema.Component {
   };
 }
 
+export interface PositioningConnections extends Schema.Component {
+  collectionName: 'components_positioning_connections';
+  info: {
+    displayName: 'Connections';
+    icon: 'code';
+  };
+  attributes: {
+    sourceNodeID: Attribute.String;
+    targetNodeID: Attribute.String;
+  };
+}
+
+export interface PositioningPosition extends Schema.Component {
+  collectionName: 'components_positioning_positions';
+  info: {
+    displayName: 'Position';
+    description: '';
+  };
+  attributes: {
+    xPosition: Attribute.Integer;
+    yPosition: Attribute.Integer;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface Components {
@@ -81,6 +105,8 @@ declare module '@strapi/types' {
       'effects.buff-debuff': EffectsBuffDebuff;
       'effects.stop-offense-action': EffectsStopOffenseAction;
       'modifiers.modifiers': ModifiersModifiers;
+      'positioning.connections': PositioningConnections;
+      'positioning.position': PositioningPosition;
     }
   }
 }

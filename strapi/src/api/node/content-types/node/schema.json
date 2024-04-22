@@ -15,7 +15,7 @@
     "name": {
       "type": "string"
     },
-    "node": {
+    "team": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::team.team",
@@ -26,6 +26,14 @@
     },
     "isCoreNode": {
       "type": "boolean"
+    },
+    "Position": {
+      "type": "component",
+      "repeatable": false,
+      "component": "positioning.position"
+    },
+    "nodeID": {
+      "type": "string"
     }
   }
 }
