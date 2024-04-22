@@ -57,61 +57,59 @@ export default async function applyEffects(actionId: number, user: User, gameLog
             // add a buff or debuff to user
             case 'effects.buff-debuff':
                 console.log('EFFECT: buffing/debuffing');
-                const id = effect.myTeam ? playerTeam.id : otherTeam.id;
-
-                // probably a better way to do this
+                const team = effect.myTeam ? playerTeam : otherTeam;
                 switch (effect.teamRole) {
                     case 'leader':
-                        await strapi.entityService.update('api::team.team', id, {
+                        await strapi.entityService.update('api::team.team', team.id, {
                             data: {
                                 leaderModifiers: {
-                                    offense: playerTeam.leaderModifiers.offense,
-                                    defense: playerTeam.leaderModifiers.defense,
-                                    buff: playerTeam.leaderModifiers.buff + effect.buff
+                                    offense: team.leaderModifiers.offense,
+                                    defense: team.leaderModifiers.defense,
+                                    buff: team.leaderModifiers.buff + effect.buff
                                 }
                             }
                         });
                         break;
                     case 'intelligence':
-                        await strapi.entityService.update('api::team.team', id, {
+                        await strapi.entityService.update('api::team.team', team.id, {
                             data: {
                                 intelligenceModifiers: {
-                                    offense: playerTeam.intelligenceModifiers.offense,
-                                    defense: playerTeam.intelligenceModifiers.defense,
-                                    buff: playerTeam.intelligenceModifiers.buff + effect.buff
+                                    offense: team.intelligenceModifiers.offense,
+                                    defense: team.intelligenceModifiers.defense,
+                                    buff: team.intelligenceModifiers.buff + effect.buff
                                 }
                             }
                         });
                         break;
                     case 'military':
-                        await strapi.entityService.update('api::team.team', id, {
+                        await strapi.entityService.update('api::team.team', team.id, {
                             data: {
                                 militaryModifiers: {
-                                    offense: playerTeam.militaryModifiers.offense,
-                                    defense: playerTeam.militaryModifiers.defense,
-                                    buff: playerTeam.militaryModifiers.buff + effect.buff
+                                    offense: team.militaryModifiers.offense,
+                                    defense: team.militaryModifiers.defense,
+                                    buff: team.militaryModifiers.buff + effect.buff
                                 }
                             }
                         });
                         break;
                     case 'diplomat':
-                        await strapi.entityService.update('api::team.team', id, {
+                        await strapi.entityService.update('api::team.team', team.id, {
                             data: {
                                 diplomatModifiers: {
-                                    offense: playerTeam.diplomatModifiers.offense,
-                                    defense: playerTeam.diplomatModifiers.defense,
-                                    buff: playerTeam.diplomatModifiers.buff + effect.buff
+                                    offense: team.diplomatModifiers.offense,
+                                    defense: team.diplomatModifiers.defense,
+                                    buff: team.diplomatModifiers.buff + effect.buff
                                 }
                             }
                         });
                         break;
                     case 'media':
-                        await strapi.entityService.update('api::team.team', id, {
+                        await strapi.entityService.update('api::team.team', team.id, {
                             data: {
                                 mediaModifiers: {
-                                    offense: playerTeam.mediaModifiers.offense,
-                                    defense: playerTeam.mediaModifiers.defense,
-                                    buff: playerTeam.mediaModifiers.buff + effect.buff
+                                    offense: team.mediaModifiers.offense,
+                                    defense: team.mediaModifiers.defense,
+                                    buff: team.mediaModifiers.buff + effect.buff
                                 }
                             }
                         });
@@ -150,4 +148,65 @@ export default async function applyEffects(actionId: number, user: User, gameLog
                 break;
         }
     });
+
+    // reset the buff to 0 if there is no buff/debuff effect
+    if (effects.filter((effect) => effect.__component === 'effects.buff-debuff').length === 0) {
+        switch (user.teamRole) {
+            case 'leader':
+                await strapi.entityService.update('api::team.team', playerTeam.id, {
+                    data: {
+                        leaderModifiers: {
+                            offense: playerTeam.leaderModifiers.offense,
+                            defense: playerTeam.leaderModifiers.defense,
+                            buff: 0
+                        }
+                    }
+                });
+                break;
+            case 'intelligence':
+                await strapi.entityService.update('api::team.team', playerTeam.id, {
+                    data: {
+                        intelligenceModifiers: {
+                            offense: playerTeam.intelligenceModifiers.offense,
+                            defense: playerTeam.intelligenceModifiers.defense,
+                            buff: 0
+                        }
+                    }
+                });
+                break;
+            case 'military':
+                await strapi.entityService.update('api::team.team', playerTeam.id, {
+                    data: {
+                        militaryModifiers: {
+                            offense: playerTeam.militaryModifiers.offense,
+                            defense: playerTeam.militaryModifiers.defense,
+                            buff: 0
+                        }
+                    }
+                });
+                break;
+            case 'diplomat':
+                await strapi.entityService.update('api::team.team', playerTeam.id, {
+                    data: {
+                        diplomatModifiers: {
+                            offense: playerTeam.diplomatModifiers.offense,
+                            defense: playerTeam.diplomatModifiers.defense,
+                            buff: 0
+                        }
+                    }
+                });
+                break;
+            case 'media':
+                await strapi.entityService.update('api::team.team', playerTeam.id, {
+                    data: {
+                        mediaModifiers: {
+                            offense: playerTeam.mediaModifiers.offense,
+                            defense: playerTeam.mediaModifiers.defense,
+                            buff: 0
+                        }
+                    }
+                });
+                break;
+        }
+    }
 }

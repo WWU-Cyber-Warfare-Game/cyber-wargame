@@ -20,7 +20,7 @@ const minToMs = (min: number) => min * 60 * 1000;
  * @param username The username of the user performing the action
  * @returns `true` if successful, otherwise `false`
  */
-async function getSuccess(successRate: number, username: string) {
+async function getSuccess(successRate: number, username: string, actionType: ActionType) {
   const user = await strapi.entityService.findMany('plugin::users-permissions.user', {
     filters: {
       username: username
@@ -30,26 +30,38 @@ async function getSuccess(successRate: number, username: string) {
   const res = await strapi.entityService.findOne('api::team.team', user[0].team.id, {
     populate: '*'
   });
-  let buff: number;
+  let buff: number, modifier: number;
   switch (user[0].teamRole) {
     case 'leader':
+      if (actionType === ActionType.Offense) modifier = res.leaderModifiers.offense;
+      else modifier = res.leaderModifiers.defense;
       buff = res.leaderModifiers.buff;
       break;
     case 'intelligence':
+      if (actionType === ActionType.Offense) modifier = res.intelligenceModifiers.offense;
+      else modifier = res.intelligenceModifiers.defense;
       buff = res.intelligenceModifiers.buff;
       break;
     case 'military':
+      if (actionType === ActionType.Offense) modifier = res.militaryModifiers.offense;
+      else modifier = res.militaryModifiers.defense;
       buff = res.militaryModifiers.buff;
       break;
     case 'diplomat':
+      if (actionType === ActionType.Offense) modifier = res.diplomatModifiers.offense;
+      else modifier = res.diplomatModifiers.defense;
       buff = res.diplomatModifiers.buff;
       break;
     case 'media':
+      if (actionType === ActionType.Offense) modifier = res.mediaModifiers.offense;
+      else modifier = res.mediaModifiers.defense;
       buff = res.mediaModifiers.buff;
       break;
   }
-  const rand = Math.floor(Math.random() * 101) + (buff * 10);
-  return rand <= successRate;
+  const rand = Math.floor(Math.random() * 101) + ((modifier + buff) * 10);
+  const success = rand >= 100 - successRate;
+  console.log('success rate: ' + successRate + ', rand: ' + rand, ', success: ' + success);
+  return success;
 }
 
 /**
@@ -169,7 +181,8 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
     }
   );
   const successRate = pendingActionRes.action.successRate;
-  const endState = await getSuccess(successRate, pendingActionRes.user) ? 'success' : 'fail';
+  const endState = await getSuccess(successRate, pendingActionRes.user, pendingActionRes.action.type as ActionType) ? 'success' : 'fail';
+  console.log('end state: ' + endState);
   await strapi.entityService.create('api::resolved-action.resolved-action', {
     data: {
       user: pendingActionRes.user,

@@ -98,7 +98,7 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
                     action={action}
                     onClick={butttonDisabled ? () => { } : handleActionClick}
                     disabled={butttonDisabled}
-                    buff={modifiers.buff}
+                    modifiers={modifiers}
                 />
             ))}
             {endTime && <Timer time={endTime} />}

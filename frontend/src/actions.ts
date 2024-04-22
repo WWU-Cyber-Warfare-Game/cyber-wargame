@@ -266,8 +266,19 @@ export async function getActionLog() {
         return null;
     }
     try {
+        // creates a query that gets the last 100 resolved actions for the current user
+        const query = qs.stringify({
+            pagination: {
+                limit: 100
+            },
+            sort: "date:desc",
+            populate: "*",
+            filters: {
+                user: user.username
+            }
+        });
         // NOTE: right now this only fetches the resolved actions for the current user, not the whole team
-        const res = await fetch(`${STRAPI_URL}/api/resolved-actions?populate=*&filters[user][$eq]=${user.username}`, {
+        const res = await fetch(`${STRAPI_URL}/api/resolved-actions?${query}`, {
             headers: {
                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
             }
