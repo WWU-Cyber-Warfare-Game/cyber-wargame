@@ -1,8 +1,9 @@
 {
   "collectionName": "components_positioning_connections",
   "info": {
-    "displayName": "Connections",
-    "icon": "code"
+    "displayName": "Connection",
+    "icon": "code",
+    "description": ""
   },
   "options": {},
   "attributes": {

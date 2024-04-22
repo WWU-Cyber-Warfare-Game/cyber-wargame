@@ -820,12 +820,13 @@ export interface ApiEdgeEdge extends Schema.CollectionType {
     singularName: 'edge';
     pluralName: 'edges';
     displayName: 'Edge';
+    description: '';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
-    connection: Attribute.Component<'positioning.connections', true>;
+    connection: Attribute.Component<'positioning.connections'>;
     edgeID: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

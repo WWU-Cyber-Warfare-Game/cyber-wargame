@@ -49,3 +49,16 @@ export interface ActionResponse {
     actions: Action[];
     endTime: Date | null;
 }
+
+export interface Node {
+    nodeID: string;
+    xpos: number;
+    ypos: number;
+    name: string;
+}
+
+export interface Edge {
+    edgeID: string;
+    target: string;
+    source: string;
+}

@@ -4,7 +4,8 @@
   "info": {
     "singularName": "edge",
     "pluralName": "edges",
-    "displayName": "Edge"
+    "displayName": "Edge",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -13,7 +14,7 @@
   "attributes": {
     "connection": {
       "type": "component",
-      "repeatable": true,
+      "repeatable": false,
       "component": "positioning.connections"
     },
     "edgeID": {

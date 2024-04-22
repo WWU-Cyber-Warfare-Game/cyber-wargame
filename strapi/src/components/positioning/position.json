@@ -6,10 +6,10 @@
   },
   "options": {},
   "attributes": {
-    "xPosition": {
+    "x": {
       "type": "integer"
     },
-    "yPosition": {
+    "y": {
       "type": "integer"
     }
   }

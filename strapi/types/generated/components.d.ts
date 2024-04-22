@@ -76,8 +76,9 @@ export interface ModifiersModifiers extends Schema.Component {
 export interface PositioningConnections extends Schema.Component {
   collectionName: 'components_positioning_connections';
   info: {
-    displayName: 'Connections';
+    displayName: 'Connection';
     icon: 'code';
+    description: '';
   };
   attributes: {
     sourceNodeID: Attribute.String;
@@ -92,8 +93,8 @@ export interface PositioningPosition extends Schema.Component {
     description: '';
   };
   attributes: {
-    xPosition: Attribute.Integer;
-    yPosition: Attribute.Integer;
+    x: Attribute.Integer;
+    y: Attribute.Integer;
   };
 }
 

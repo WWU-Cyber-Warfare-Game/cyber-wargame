@@ -5,7 +5,7 @@ import { emailRegex, usernameRegex, passwordRegex } from "./regex";
 import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { User, Message, Action, ActionLog, ActionResponse } from "./types";
+import { User, Message, Action, ActionLog, ActionResponse, Node, Edge } from "./types";
 import qs from "qs";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
@@ -342,4 +342,83 @@ export async function getActions() {
         console.error('Error fetching actions:', error);
         return null;
     }
+}
+
+/**
+ * Gets all the nodes of the network graph
+ * @returns An array of nodes, or null if there is an error
+ */
+export async function getNodes() {
+    try {
+      // Make API request to fetch nodes
+      const fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?populate=*`, {
+            headers: {
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+            }
+        });
+        const unparsedNodes = await fetchedNodes.json();
+
+        //parse the data
+        return parseNodes(unparsedNodes);
+    } catch (error) {
+      console.error('Error fetching nodes:', error);
+      return null;
+    }
+};
+
+/**
+ * Gets all the edges of the network graph
+ * @returns An array of edges, or null if there is an error
+ */
+export async function getEdges() {
+    try {
+      // Make API request to fetch nodes
+      const fetchedEdges = await fetch(`${STRAPI_URL}/api/edges?populate=*`, {
+            headers: {
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+            }
+        });
+        const unparsedEdges = await fetchedEdges.json();
+
+        //parse the data
+        return parseEdges(unparsedEdges);
+    } catch (error) {
+      console.error('Error fetching edges:', error);
+      return null;
+    }
+};
+
+/**
+ * Helper for getNodes.
+ * @returns parsed node data
+ */
+function parseNodes(data: any) {
+    let nodes: Node[] = [];
+    data.forEach(function (n: any) {
+        const newNode: Node = {
+            nodeID: n.attributes.nodeID,
+            name: n.attributes.name,
+            xpos: n.attributes.position.x,
+            ypos: n.attributes.position.y,
+        }
+        nodes.push(newNode);
+    });
+    return nodes;
+}
+
+/**
+ * Helper for getEdges
+ * @returns parsed edge data
+ */
+function parseEdges(data: any) {
+    let edges: Edge[] = [];
+    data.forEach(function (e: any) {
+        const newEdge: Edge = {
+            edgeID: e.attributes.connection.id,
+            target: e.attributes.connection.targetNodeID,
+            source: e.attributes.connection.sourceNodeID,
+        }
+        edges.push(newEdge);
+    });
+    return edges;
 }
