@@ -1,11 +1,33 @@
 import { useEffect, useState } from "react";
 import ReactFlow, { Node, Edge } from 'reactflow';
 import { getEdges, getNodes } from "@/actions";
+import Dagre from '@dagrejs/dagre';
 import 'reactflow/dist/style.css';
 // import { populateNetwork } from "@/actions";
 
 // creates the networkGraph component
 export default function NetworkGraph() {
+    const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+
+    // layout the elements
+    const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+        g.setGraph({ rankdir: 'TB' });
+
+        edges.forEach((edge: Edge) => g.setEdge(edge.source, edge.target));
+        nodes.forEach((node: Node) => g.setNode(node.id, node.data.label));
+
+        Dagre.layout(g);
+
+        return {
+            nodes: nodes.map((node) => {
+                const { x, y } = g.node(node.id);
+                node.position = { x, y };
+
+                return node;
+            }),
+            edges
+        };
+    };
 
     // fetch the network from strapi
     useEffect(() => {
@@ -29,7 +51,7 @@ export default function NetworkGraph() {
     return (
         // must be inside div
         <div style={{ width: '100%', height: '500px', border: 'solid 1px red', }}>
-            <ReactFlow nodes={nodes} edges={edges} fitView/>
+            <ReactFlow nodes={nodes} edges={edges} fitView />
         </div>
     )
 };
