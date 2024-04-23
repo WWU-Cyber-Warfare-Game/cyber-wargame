@@ -887,7 +887,7 @@ export interface ApiNodeNode extends Schema.CollectionType {
     team: Attribute.Relation<'api::node.node', 'manyToOne', 'api::team.team'>;
     defense: Attribute.Integer;
     isCoreNode: Attribute.Boolean;
-    Position: Attribute.Component<'positioning.position'>;
+    position: Attribute.Component<'positioning.position'>;
     nodeID: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

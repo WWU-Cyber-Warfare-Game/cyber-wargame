@@ -259,7 +259,7 @@ export async function getActionLog() {
             endState: data.attributes.endState
         }
     }
-    
+
     const user = await validateUser();
     if (!user) {
         console.error("User not validated.");
@@ -300,7 +300,7 @@ export async function getActions() {
             teamRole: data.attributes.action.teamRole
         };
     }
-    
+
     const user = await validateUser();
     if (!user) {
         console.error("User not validated.");
@@ -323,12 +323,12 @@ export async function getActions() {
         if (actionsRes.ok && currentActionRes.ok) {
             const actions = await actionsRes.json();
             const currentAction = await currentActionRes.json();
-            
+
             let endTime: Date | null = null;
             if (currentAction.data.length > 0) {
                 endTime = new Date(Date.parse(currentAction.data[0].attributes.date));
             }
-            
+
             return {
                 actions: actions.data.map((action: any) => parseAction(action)),
                 endTime: endTime
@@ -349,9 +349,23 @@ export async function getActions() {
  * @returns An array of nodes, or null if there is an error
  */
 export async function getNodes() {
+    function parseNodes(data: any) {
+        let nodes: Node[] = [];
+        data.forEach(function (n: any) {
+            const newNode: Node = {
+                nodeID: n.attributes.nodeID,
+                name: n.attributes.name,
+                xpos: n.attributes.position.x,
+                ypos: n.attributes.position.y,
+            }
+            nodes.push(newNode);
+        });
+        return nodes;
+    }
+
     try {
-      // Make API request to fetch nodes
-      const fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?populate=*`, {
+        // Make API request to fetch nodes
+        const fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?populate=*`, {
             headers: {
                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
             }
@@ -359,10 +373,10 @@ export async function getNodes() {
         const unparsedNodes = await fetchedNodes.json();
 
         //parse the data
-        return parseNodes(unparsedNodes);
+        return parseNodes(unparsedNodes.data);
     } catch (error) {
-      console.error('Error fetching nodes:', error);
-      return null;
+        console.error('Error fetching nodes:', error);
+        return null;
     }
 };
 
@@ -371,9 +385,22 @@ export async function getNodes() {
  * @returns An array of edges, or null if there is an error
  */
 export async function getEdges() {
+    function parseEdges(data: any) {
+        let edges: Edge[] = [];
+        data.forEach(function (e: any) {
+            const newEdge: Edge = {
+                edgeID: e.attributes.connection.id,
+                target: e.attributes.connection.targetNodeID,
+                source: e.attributes.connection.sourceNodeID,
+            }
+            edges.push(newEdge);
+        });
+        return edges;
+    }
+
     try {
-      // Make API request to fetch nodes
-      const fetchedEdges = await fetch(`${STRAPI_URL}/api/edges?populate=*`, {
+        // Make API request to fetch nodes
+        const fetchedEdges = await fetch(`${STRAPI_URL}/api/edges?populate=*`, {
             headers: {
                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
             }
@@ -381,44 +408,9 @@ export async function getEdges() {
         const unparsedEdges = await fetchedEdges.json();
 
         //parse the data
-        return parseEdges(unparsedEdges);
+        return parseEdges(unparsedEdges.data);
     } catch (error) {
-      console.error('Error fetching edges:', error);
-      return null;
+        console.error('Error fetching edges:', error);
+        return null;
     }
 };
-
-/**
- * Helper for getNodes.
- * @returns parsed node data
- */
-function parseNodes(data: any) {
-    let nodes: Node[] = [];
-    data.forEach(function (n: any) {
-        const newNode: Node = {
-            nodeID: n.attributes.nodeID,
-            name: n.attributes.name,
-            xpos: n.attributes.position.x,
-            ypos: n.attributes.position.y,
-        }
-        nodes.push(newNode);
-    });
-    return nodes;
-}
-
-/**
- * Helper for getEdges
- * @returns parsed edge data
- */
-function parseEdges(data: any) {
-    let edges: Edge[] = [];
-    data.forEach(function (e: any) {
-        const newEdge: Edge = {
-            edgeID: e.attributes.connection.id,
-            target: e.attributes.connection.targetNodeID,
-            source: e.attributes.connection.sourceNodeID,
-        }
-        edges.push(newEdge);
-    });
-    return edges;
-}

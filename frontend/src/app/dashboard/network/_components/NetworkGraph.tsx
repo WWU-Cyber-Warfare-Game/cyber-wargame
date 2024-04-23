@@ -1,23 +1,30 @@
-import React, { useEffect, useState } from "react";
-import ReactFlow from "reactflow";
+import { useEffect, useState } from "react";
+import ReactFlow, { Node, Edge } from 'reactflow';
+import { getEdges, getNodes } from "@/actions";
 import 'reactflow/dist/style.css';
 // import { populateNetwork } from "@/actions";
 
 // creates the networkGraph component
 export default function NetworkGraph() {
-    const [nodes, setNodes] = useState([]);
-    const [edges, setEdges] = useState([]);
 
     // fetch the network from strapi
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //       const { nodes, edges } = await populateNetwork();
-    //     //   setNodes(nodes);
-    //     //   setEdges(edges);
-    //     };
-    
-    //     fetchData();
-    // }, []);
+    useEffect(() => {
+        getNodes().then((nodes) => {
+            console.log(nodes);
+        });
+        getEdges().then((edges) => {
+            console.log(edges);
+        });
+    }, []);
+
+    const nodes: Node[] = [
+        { id: '1', data: { label: 'Node 1' }, position: { x: 250, y: 50 } },
+        { id: '2', data: { label: 'Node 2' }, position: { x: 100, y: 100 } }
+    ];
+
+    const edges: Edge[] = [
+        { id: 'e1-2', source: '1', target: '2', animated: true }
+    ];
 
     return (
         // must be inside div

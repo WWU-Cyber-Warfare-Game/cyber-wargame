@@ -27,7 +27,7 @@
     "isCoreNode": {
       "type": "boolean"
     },
-    "Position": {
+    "position": {
       "type": "component",
       "repeatable": false,
       "component": "positioning.position"
