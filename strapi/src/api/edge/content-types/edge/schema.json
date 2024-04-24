@@ -8,17 +8,19 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
-    "connection": {
-      "type": "component",
-      "repeatable": false,
-      "component": "positioning.connections"
+    "source": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::node.node"
     },
-    "edgeID": {
-      "type": "string"
+    "target": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::node.node"
     }
   }
 }

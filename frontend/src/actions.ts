@@ -353,10 +353,10 @@ export async function getNodes() {
         let nodes: Node[] = [];
         data.forEach(function (n: any) {
             const newNode: Node = {
-                nodeID: n.attributes.nodeID,
+                id: n.id.toString(),
                 name: n.attributes.name,
-                xpos: n.attributes.position.x,
-                ypos: n.attributes.position.y,
+                defense: n.attributes.defense,
+                isCoreNode: n.attributes.isCoreNode
             }
             nodes.push(newNode);
         });
@@ -365,7 +365,12 @@ export async function getNodes() {
 
     try {
         // Make API request to fetch nodes
-        const fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?populate=*`, {
+        const user = await validateUser();
+        if (!user) {
+            console.error("User not validated.");
+            return null;
+        }
+        const fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$eq]=${user.team}&populate=*`, {
             headers: {
                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
             }
@@ -389,9 +394,9 @@ export async function getEdges() {
         let edges: Edge[] = [];
         data.forEach(function (e: any) {
             const newEdge: Edge = {
-                edgeID: e.attributes.connection.id,
-                target: e.attributes.connection.targetNodeID,
-                source: e.attributes.connection.sourceNodeID,
+                id: e.id.toString(),
+                sourceId: e.attributes.source.data.id.toString(),
+                targetId: e.attributes.target.data.id.toString()
             }
             edges.push(newEdge);
         });
@@ -399,6 +404,11 @@ export async function getEdges() {
     }
 
     try {
+        const user = await validateUser();
+        if (!user) {
+            console.error("User not validated.");
+            return null;
+        }
         // Make API request to fetch nodes
         const fetchedEdges = await fetch(`${STRAPI_URL}/api/edges?populate=*`, {
             headers: {

@@ -823,14 +823,13 @@ export interface ApiEdgeEdge extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
-    connection: Attribute.Component<'positioning.connections'>;
-    edgeID: Attribute.String;
+    source: Attribute.Relation<'api::edge.edge', 'oneToOne', 'api::node.node'>;
+    target: Attribute.Relation<'api::edge.edge', 'oneToOne', 'api::node.node'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::edge.edge', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::edge.edge', 'oneToOne', 'admin::user'> &
@@ -880,18 +879,15 @@ export interface ApiNodeNode extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
-    name: Attribute.String;
+    name: Attribute.String & Attribute.Required;
     team: Attribute.Relation<'api::node.node', 'manyToOne', 'api::team.team'>;
-    defense: Attribute.Integer;
-    isCoreNode: Attribute.Boolean;
-    position: Attribute.Component<'positioning.position'>;
-    nodeID: Attribute.String;
+    defense: Attribute.Integer & Attribute.Required;
+    isCoreNode: Attribute.Boolean & Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &

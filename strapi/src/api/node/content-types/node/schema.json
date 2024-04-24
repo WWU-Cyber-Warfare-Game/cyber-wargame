@@ -8,12 +8,13 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
     "name": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "team": {
       "type": "relation",
@@ -22,18 +23,12 @@
       "inversedBy": "team"
     },
     "defense": {
-      "type": "integer"
+      "type": "integer",
+      "required": true
     },
     "isCoreNode": {
-      "type": "boolean"
-    },
-    "position": {
-      "type": "component",
-      "repeatable": false,
-      "component": "positioning.position"
-    },
-    "nodeID": {
-      "type": "string"
+      "type": "boolean",
+      "required": true
     }
   }
 }

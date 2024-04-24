@@ -51,14 +51,14 @@ export interface ActionResponse {
 }
 
 export interface Node {
-    nodeID: string;
-    xpos: number;
-    ypos: number;
+    id: string;
     name: string;
+    defense: number;
+    isCoreNode: boolean;
 }
 
 export interface Edge {
-    edgeID: string;
-    target: string;
-    source: string;
+    id: string;
+    sourceId: string;
+    targetId: string;
 }
