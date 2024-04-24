@@ -1,0 +1,1 @@
+export const MODIFIER_RATE = 10;

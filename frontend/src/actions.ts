@@ -5,7 +5,7 @@ import { emailRegex, usernameRegex, passwordRegex } from "./regex";
 import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { User, Message, Action, ActionLog, ActionResponse, Node, Edge } from "./types";
+import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole, Node, Edge } from "./types";
 import qs from "qs";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
@@ -424,3 +424,71 @@ export async function getEdges() {
         return null;
     }
 };
+
+/**
+ * Gets the current modifiers that the user has.
+ * @returns the modifiers, or `null` if there is an error
+ */
+export async function getModifiers() {
+    const user = await validateUser();
+    if (!user) {
+        console.error("User not validated.");
+        return null;
+    }
+    try {
+        const res = await fetch(`${STRAPI_URL}/api/teams?filters[name][$eq]=${user.team}&populate=*`, {
+            headers: {
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+            }
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            let modifiers: Modifiers;
+            switch (user.teamRole) {
+                case TeamRole.Leader:
+                    modifiers = {
+                        offense: data.data[0].attributes.leaderModifiers.offense,
+                        defense: data.data[0].attributes.leaderModifiers.defense,
+                        buff: data.data[0].attributes.leaderModifiers.buff
+                    };
+                    break;
+                case TeamRole.Intelligence:
+                    modifiers = {
+                        offense: data.data[0].attributes.intelligenceModifiers.offense,
+                        defense: data.data[0].attributes.intelligenceModifiers.defense,
+                        buff: data.data[0].attributes.intelligenceModifiers.buff
+                    };
+                    break;
+                case TeamRole.Military:
+                    modifiers = {
+                        offense: data.data[0].attributes.militaryModifiers.offense,
+                        defense: data.data[0].attributes.militaryModifiers.defense,
+                        buff: data.data[0].attributes.militaryModifiers.buff
+                    };
+                    break;
+                case TeamRole.Diplomat:
+                    modifiers = {
+                        offense: data.data[0].attributes.diplomatModifiers.offense,
+                        defense: data.data[0].attributes.diplomatModifiers.defense,
+                        buff: data.data[0].attributes.diplomatModifiers.buff
+                    };
+                    break;
+                case TeamRole.Media:
+                    modifiers = {
+                        offense: data.data[0].attributes.mediaModifiers.offense,
+                        defense: data.data[0].attributes.mediaModifiers.defense,
+                        buff: data.data[0].attributes.mediaModifiers.buff
+                    };
+                    break;
+            }
+            return modifiers;
+        } else {
+            console.error('Failed to fetch buff:', res.status, res.statusText);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching buff:', error);
+        return null;
+    }
+}
