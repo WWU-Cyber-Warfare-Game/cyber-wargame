@@ -814,6 +814,29 @@ export interface ApiActionAction extends Schema.CollectionType {
   };
 }
 
+export interface ApiEdgeEdge extends Schema.CollectionType {
+  collectionName: 'edges';
+  info: {
+    singularName: 'edge';
+    pluralName: 'edges';
+    displayName: 'Edge';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    source: Attribute.Relation<'api::edge.edge', 'oneToOne', 'api::node.node'>;
+    target: Attribute.Relation<'api::edge.edge', 'oneToOne', 'api::node.node'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::edge.edge', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::edge.edge', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
 export interface ApiMessageMessage extends Schema.CollectionType {
   collectionName: 'messages';
   info: {
@@ -843,6 +866,31 @@ export interface ApiMessageMessage extends Schema.CollectionType {
       'oneToOne',
       'admin::user'
     > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiNodeNode extends Schema.CollectionType {
+  collectionName: 'nodes';
+  info: {
+    singularName: 'node';
+    pluralName: 'nodes';
+    displayName: 'Node';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    name: Attribute.String & Attribute.Required;
+    team: Attribute.Relation<'api::node.node', 'manyToOne', 'api::team.team'>;
+    defense: Attribute.Integer & Attribute.Required;
+    isCoreNode: Attribute.Boolean & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &
       Attribute.Private;
   };
 }
@@ -939,6 +987,7 @@ export interface ApiTeamTeam extends Schema.CollectionType {
     mediaModifiers: Attribute.Component<'modifiers.modifiers'> &
       Attribute.Required;
     diplomatModifiers: Attribute.Component<'modifiers.modifiers'>;
+    team: Attribute.Relation<'api::team.team', 'oneToMany', 'api::node.node'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::team.team', 'oneToOne', 'admin::user'> &
@@ -967,7 +1016,9 @@ declare module '@strapi/types' {
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'api::action.action': ApiActionAction;
+      'api::edge.edge': ApiEdgeEdge;
       'api::message.message': ApiMessageMessage;
+      'api::node.node': ApiNodeNode;
       'api::pending-action.pending-action': ApiPendingActionPendingAction;
       'api::resolved-action.resolved-action': ApiResolvedActionResolvedAction;
       'api::team.team': ApiTeamTeam;

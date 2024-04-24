@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "edges",
+  "info": {
+    "singularName": "edge",
+    "pluralName": "edges",
+    "displayName": "Edge",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "source": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::node.node"
+    },
+    "target": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::node.node"
+    }
+  }
+}

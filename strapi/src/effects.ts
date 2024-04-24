@@ -151,6 +151,7 @@ export default async function applyEffects(actionId: number, user: User, gameLog
 
     // reset the buff to 0 if there is no buff/debuff effect
     if (effects.filter((effect) => effect.__component === 'effects.buff-debuff').length === 0) {
+        console.log('EFFECT: resetting buff');
         switch (user.teamRole) {
             case 'leader':
                 await strapi.entityService.update('api::team.team', playerTeam.id, {

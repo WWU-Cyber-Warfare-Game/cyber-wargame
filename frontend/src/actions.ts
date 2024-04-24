@@ -5,7 +5,7 @@ import { emailRegex, usernameRegex, passwordRegex } from "./regex";
 import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole } from "./types";
+import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole, Node, Edge } from "./types";
 import qs from "qs";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
@@ -356,6 +356,87 @@ export async function getActions() {
         return null;
     }
 }
+
+/**
+ * Gets all the nodes of the network graph
+ * @returns An array of nodes, or null if there is an error
+ */
+export async function getNodes() {
+    function parseNodes(data: any) {
+        let nodes: Node[] = [];
+        data.forEach(function (n: any) {
+            const newNode: Node = {
+                id: n.id.toString(),
+                name: n.attributes.name,
+                defense: n.attributes.defense,
+                isCoreNode: n.attributes.isCoreNode
+            }
+            nodes.push(newNode);
+        });
+        return nodes;
+    }
+
+    try {
+        // Make API request to fetch nodes
+        const user = await validateUser();
+        if (!user) {
+            console.error("User not validated.");
+            return null;
+        }
+        const fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$eq]=${user.team}&populate=*`, {
+            headers: {
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+            }
+        });
+        const unparsedNodes = await fetchedNodes.json();
+
+        //parse the data
+        return parseNodes(unparsedNodes.data);
+    } catch (error) {
+        console.error('Error fetching nodes:', error);
+        return null;
+    }
+};
+
+/**
+ * Gets all the edges of the network graph
+ * @returns An array of edges, or null if there is an error
+ */
+export async function getEdges() {
+    function parseEdges(data: any) {
+        let edges: Edge[] = [];
+        data.forEach(function (e: any) {
+            const newEdge: Edge = {
+                id: e.id.toString(),
+                sourceId: e.attributes.source.data.id.toString(),
+                targetId: e.attributes.target.data.id.toString()
+            }
+            edges.push(newEdge);
+        });
+        return edges;
+    }
+
+    try {
+        const user = await validateUser();
+        if (!user) {
+            console.error("User not validated.");
+            return null;
+        }
+        // Make API request to fetch nodes
+        const fetchedEdges = await fetch(`${STRAPI_URL}/api/edges?populate=*`, {
+            headers: {
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+            }
+        });
+        const unparsedEdges = await fetchedEdges.json();
+
+        //parse the data
+        return parseEdges(unparsedEdges.data);
+    } catch (error) {
+        console.error('Error fetching edges:', error);
+        return null;
+    }
+};
 
 /**
  * Gets the current modifiers that the user has.

@@ -57,6 +57,19 @@ export interface ActionResponse {
     endTime: Date | null;
 }
 
+export interface Node {
+    id: string;
+    name: string;
+    defense: number;
+    isCoreNode: boolean;
+}
+
+export interface Edge {
+    id: string;
+    sourceId: string;
+    targetId: string;
+}
+
 export interface Modifiers {
     offense: number;
     defense: number;
