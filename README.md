@@ -10,7 +10,6 @@
   - If you are not importing data, you must set user permissions by going to Settings -> Users & Permissions plugin -> Roles -> Authenticated -> Team -> check find and findOne
   - Teams and roles must be assigned to users in the Strapi content manager.
 - Generate an API key with full permissions in Strapi and set `STRAPI_API_KEY` in `.env.local` in `frontend`.
-- Generate another API key with full permissions in Strapi and set `TOKEN` in `.env` in `game-logic`.
 - For further instructions, see the READMEs in the individual directories.
 
 ## Figma Design Link 
