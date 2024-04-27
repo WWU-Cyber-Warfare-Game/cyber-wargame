@@ -23,6 +23,7 @@ export interface ActionsPlaceholderAction extends Schema.Component {
         max: 100;
       }> &
       Attribute.DefaultTo<50>;
+    targetsNode: Attribute.Boolean & Attribute.DefaultTo<false>;
   };
 }
 

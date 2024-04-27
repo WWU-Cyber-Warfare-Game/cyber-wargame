@@ -886,6 +886,9 @@ export interface ApiNodeNode extends Schema.CollectionType {
     team: Attribute.Relation<'api::node.node', 'manyToOne', 'api::team.team'>;
     defense: Attribute.Integer & Attribute.Required;
     isCoreNode: Attribute.Boolean & Attribute.Required;
+    visible: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &
@@ -911,6 +914,11 @@ export interface ApiPendingActionPendingAction extends Schema.CollectionType {
     date: Attribute.DateTime;
     action: Attribute.Component<'actions.placeholder-action'>;
     actionId: Attribute.Integer;
+    targetNode: Attribute.Relation<
+      'api::pending-action.pending-action',
+      'oneToOne',
+      'api::node.node'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

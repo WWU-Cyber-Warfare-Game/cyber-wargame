@@ -310,7 +310,8 @@ export async function getActions() {
             description: data.attributes.action.description,
             teamRole: data.attributes.action.teamRole,
             type: data.attributes.action.type,
-            successRate: data.attributes.action.successRate
+            successRate: data.attributes.action.successRate,
+            targetsNode: data.attributes.action.targetsNode || false
         };
     }
 
@@ -361,7 +362,7 @@ export async function getActions() {
  * Gets all the nodes of the network graph
  * @returns An array of nodes, or null if there is an error
  */
-export async function getNodes() {
+export async function getNodes(enemyTeam: boolean = false) {
     function parseNodes(data: any) {
         let nodes: Node[] = [];
         data.forEach(function (n: any) {
@@ -383,11 +384,20 @@ export async function getNodes() {
             console.error("User not validated.");
             return null;
         }
-        const fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$eq]=${user.team}&populate=*`, {
-            headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
-            }
-        });
+        let fetchedNodes;
+        if (enemyTeam) {
+            fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$ne]=${user.team}&filters[visible][$eq]=true&populate=*`, {
+                headers: {
+                    Authorization: `Bearer ${STRAPI_API_TOKEN}`
+                }
+            });
+        } else {
+            fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$eq]=${user.team}&populate=*`, {
+                headers: {
+                    Authorization: `Bearer ${STRAPI_API_TOKEN}`
+                }
+            });
+        }
         const unparsedNodes = await fetchedNodes.json();
 
         //parse the data
@@ -423,6 +433,7 @@ export async function getEdges() {
             return null;
         }
         // Make API request to fetch nodes
+        // NOTE: this sends edges for all nodes, all ids are unique so it should be fine, just unnecessary data
         const fetchedEdges = await fetch(`${STRAPI_URL}/api/edges?populate=*`, {
             headers: {
                 Authorization: `Bearer ${STRAPI_API_TOKEN}`

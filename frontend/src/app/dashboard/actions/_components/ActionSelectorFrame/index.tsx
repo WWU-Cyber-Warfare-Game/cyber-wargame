@@ -73,10 +73,13 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
         });
     }, [socket]);
 
-    function handleActionClick(action: Action) {
-        const pendingAction: PendingAction = {
+    function handleActionClick(action: Action, nodeId?: number) {
+        if (endTime) return; // if an action is already in progress, don't start another
+        
+        const pendingAction = {
             user: user.username,
             action: action.id,
+            nodeId: nodeId
         };
 
         if (socket) {
@@ -96,9 +99,10 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
                 <ActionButton
                     key={index}
                     action={action}
-                    onClick={butttonDisabled ? () => { } : handleActionClick}
+                    onClick={handleActionClick}
                     disabled={butttonDisabled}
                     modifiers={modifiers}
+                    setButtonDisabled={setButtonDisabled}
                 />
             ))}
             {endTime && <Timer time={endTime} />}

@@ -43,6 +43,10 @@
       "max": 100,
       "min": 0,
       "default": 50
+    },
+    "targetsNode": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

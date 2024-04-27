@@ -33,6 +33,7 @@ export interface Action {
     teamRole: TeamRole;
     type: ActionType;
     successRate: number;
+    targetsNode?: boolean;
 }
 
 export enum ActionEndState {
@@ -50,6 +51,7 @@ export interface ActionLog {
 export interface PendingAction {
     user: string;
     action: number;
+    nodeId?: number;
 }
 
 export interface ActionResponse {
