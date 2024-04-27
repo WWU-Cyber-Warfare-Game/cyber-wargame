@@ -146,7 +146,22 @@ export default async function applyEffects(actionId: number, user: User, gameLog
                     gameLogic.emit('deleteAction', offenseAction.id);
                 }
                 break;
-        }
+        
+            // reveal a node
+            case 'effects.reveal-node':
+                // TODO
+                break;
+
+            // attack a node
+            case 'effects.attack-node':
+                // TODO
+                break;
+            
+            // defend a node
+            case 'effects.defend-node':
+                // TODO
+                break;
+            }
     });
 
     // reset the buff to 0 if there is no buff/debuff effect

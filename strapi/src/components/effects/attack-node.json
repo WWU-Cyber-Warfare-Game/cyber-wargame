@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_modifiers_attack_nodes",
+  "info": {
+    "displayName": "Attack Node",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "placeholder": {
+      "type": "string"
+    }
+  }
+}

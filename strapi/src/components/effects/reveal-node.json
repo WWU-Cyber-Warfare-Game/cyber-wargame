@@ -1,0 +1,12 @@
+{
+  "collectionName": "components_effects_reveal_nodes",
+  "info": {
+    "displayName": "Reveal Node"
+  },
+  "options": {},
+  "attributes": {
+    "placeholder": {
+      "type": "string"
+    }
+  }
+}

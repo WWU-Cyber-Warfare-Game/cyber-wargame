@@ -793,7 +793,10 @@ export interface ApiActionAction extends Schema.CollectionType {
       [
         'effects.add-victory-points',
         'effects.buff-debuff',
-        'effects.stop-offense-action'
+        'effects.stop-offense-action',
+        'effects.reveal-node',
+        'effects.attack-node',
+        'effects.defend-node'
       ]
     >;
     createdAt: Attribute.DateTime;
