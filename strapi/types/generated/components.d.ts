@@ -23,6 +23,7 @@ export interface ActionsPlaceholderAction extends Schema.Component {
         max: 100;
       }> &
       Attribute.DefaultTo<50>;
+    targetsNode: Attribute.Boolean & Attribute.DefaultTo<false>;
   };
 }
 
@@ -35,6 +36,17 @@ export interface EffectsAddVictoryPoints extends Schema.Component {
   attributes: {
     points: Attribute.Integer & Attribute.Required;
     myTeam: Attribute.Boolean & Attribute.Required & Attribute.DefaultTo<true>;
+  };
+}
+
+export interface EffectsAttackNode extends Schema.Component {
+  collectionName: 'components_modifiers_attack_nodes';
+  info: {
+    displayName: 'Attack Node';
+    description: '';
+  };
+  attributes: {
+    placeholder: Attribute.String;
   };
 }
 
@@ -51,6 +63,26 @@ export interface EffectsBuffDebuff extends Schema.Component {
       Attribute.Required;
     buff: Attribute.Integer & Attribute.Required;
     myTeam: Attribute.Boolean & Attribute.Required & Attribute.DefaultTo<true>;
+  };
+}
+
+export interface EffectsDefendNode extends Schema.Component {
+  collectionName: 'components_effects_defend_nodes';
+  info: {
+    displayName: 'Defend Node';
+  };
+  attributes: {
+    placeholder: Attribute.String;
+  };
+}
+
+export interface EffectsRevealNode extends Schema.Component {
+  collectionName: 'components_effects_reveal_nodes';
+  info: {
+    displayName: 'Reveal Node';
+  };
+  attributes: {
+    placeholder: Attribute.String;
   };
 }
 
@@ -110,7 +142,10 @@ declare module '@strapi/types' {
     export interface Components {
       'actions.placeholder-action': ActionsPlaceholderAction;
       'effects.add-victory-points': EffectsAddVictoryPoints;
+      'effects.attack-node': EffectsAttackNode;
       'effects.buff-debuff': EffectsBuffDebuff;
+      'effects.defend-node': EffectsDefendNode;
+      'effects.reveal-node': EffectsRevealNode;
       'effects.stop-offense-action': EffectsStopOffenseAction;
       'modifiers.modifiers': ModifiersModifiers;
       'positioning.connections': PositioningConnections;

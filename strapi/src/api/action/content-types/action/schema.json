@@ -23,7 +23,10 @@
       "components": [
         "effects.add-victory-points",
         "effects.buff-debuff",
-        "effects.stop-offense-action"
+        "effects.stop-offense-action",
+        "effects.reveal-node",
+        "effects.attack-node",
+        "effects.defend-node"
       ]
     }
   }

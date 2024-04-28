@@ -29,6 +29,11 @@
     "isCoreNode": {
       "type": "boolean",
       "required": true
+    },
+    "visible": {
+      "type": "boolean",
+      "default": false,
+      "required": true
     }
   }
 }

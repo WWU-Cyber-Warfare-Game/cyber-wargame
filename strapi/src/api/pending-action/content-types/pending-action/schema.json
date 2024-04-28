@@ -25,6 +25,11 @@
     },
     "actionId": {
       "type": "integer"
+    },
+    "targetNode": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::node.node"
     }
   }
 }

@@ -61,7 +61,6 @@ async function getSuccess(successRate: number, username: string, actionType: Act
   }
   const rand = Math.floor(Math.random() * 101) + ((modifier + buff) * MODIFIER_RATE);
   const success = rand >= 100 - successRate;
-  console.log('success rate: ' + successRate + ', rand: ' + rand, ', success: ' + success);
   return success;
 }
 
@@ -199,7 +198,11 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
   // parse and apply action effects
   if (endState === 'success') {
     const user = await getUser(pendingActionRes.user);
-    await applyEffects(pendingActionRes.actionId, user, gameLogic);
+    if (pendingActionRes.targetNode) {
+      await applyEffects(pendingActionRes.actionId, user, gameLogic, pendingActionRes.targetNode.id as number);
+    } else {
+      await applyEffects(pendingActionRes.actionId, user, gameLogic);
+    }
   }
 
   // unlock queue
@@ -284,7 +287,8 @@ async function startAction(pendingActionReq: PendingActionRequest, gameLogic: So
       user: pendingActionReq.user,
       date: new Date(Date.now() + minToMs(action.duration)),
       action: action,
-      actionId: action.id
+      actionId: action.id,
+      targetNode: pendingActionReq.nodeId
     }
   });
 
