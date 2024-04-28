@@ -199,7 +199,13 @@ export default async function applyEffects(actionId: number, user: User, gameLog
 
             // defend a node
             case 'effects.defend-node':
-                // TODO
+                if (!targetNodeId) console.error('No target node ID provided for defend-node effect');
+                const targetNode = await strapi.entityService.findOne('api::node.node', targetNodeId);
+                await strapi.entityService.update('api::node.node', targetNodeId, {
+                    data: {
+                        defense: targetNode.defense + 1
+                    }
+                });
                 break;
         }
     });
