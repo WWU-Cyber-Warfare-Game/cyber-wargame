@@ -4,9 +4,11 @@ import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { getUser } from './utilities';
 import applyEffects from './effects';
 import { MODIFIER_RATE } from './consts';
+import ActionQueue from './queue';
 type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> | Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+let actionQueue: ActionQueue;
 
 /**
  * Converts minutes to milliseconds
@@ -149,28 +151,11 @@ async function checkAction(username: string, actionId: number) {
 }
 
 /**
- * Creates the server for the sockets and a namespace for the game logic
- * @returns An array containing the frontend and game logic socket servers
- */
-function createSockets() {
-  const io = new Server(strapi.server.httpServer, {
-    cors: {
-      origin: [`${FRONTEND_URL}`], //dashboard, can add other origins
-      methods: ['GET', 'POST'],
-    },
-  });
-  const frontend = io;
-  const gameLogic = io.of('/game-logic');
-  return [frontend, gameLogic];
-}
-
-/**
  * Handles the completion of an action
  * @param actionCompleteRequest The action complete request
  * @param frontend The frontend socket server
- * @param gameLogic The game logic socket server
  */
-async function actionComplete(actionCompleteRequest: ActionCompleteRequest, frontend: SocketServer, gameLogic: SocketServer) {
+async function actionComplete(actionCompleteRequest: ActionCompleteRequest, frontend: SocketServer) {
   console.log('action complete: ' + actionCompleteRequest.pendingActionId);
 
   // add action to resolved queue
@@ -199,14 +184,11 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
   if (endState === 'success') {
     const user = await getUser(pendingActionRes.user);
     if (pendingActionRes.targetNode) {
-      await applyEffects(pendingActionRes.actionId, user, gameLogic, pendingActionRes.targetNode.id as number);
+      await applyEffects(pendingActionRes.actionId, user, actionQueue, pendingActionRes.targetNode.id as number);
     } else {
-      await applyEffects(pendingActionRes.actionId, user, gameLogic);
+      await applyEffects(pendingActionRes.actionId, user, actionQueue);
     }
   }
-
-  // unlock queue
-  gameLogic.emit('queueUnlock');
 
   // emit action complete to user
   frontend.emit('actionComplete');
@@ -255,12 +237,11 @@ async function joinRoom(users: string[], userId: number, socket: Socket) {
 }
 
 /**
- * Receives an action from the frontend, sends it to the game logic process, and adds it to the pending queue
+ * Receives an action from the frontend and adds it to the in-memory queue and Strapi
  * @param pendingActionReq The pending action request
- * @param gameLogic The game logic socket server
  * @param socket The sender's socket
  */
-async function startAction(pendingActionReq: PendingActionRequest, gameLogic: SocketServer, socket: Socket) {
+async function startAction(pendingActionReq: PendingActionRequest, socket: Socket) {
   console.log('action received');
 
   // check if action is valid
@@ -292,15 +273,15 @@ async function startAction(pendingActionReq: PendingActionRequest, gameLogic: So
     }
   });
 
-  // emit action to game logic
-  console.log('sending to gameSocket');
+  // add action to in-memory queue
+  console.log('adding action to queue');
   const pendingAction: PendingAction = {
     id: res.id as number,
     user: pendingActionReq.user,
     date: new Date(res.date),
     action: action
   };
-  gameLogic.emit('pendingAction', pendingAction);
+  actionQueue.addAction(pendingAction);
 }
 
 export default {
@@ -310,7 +291,9 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/*{ strapi }*/) { },
+  register(/*{ strapi }*/) {
+    actionQueue = new ActionQueue();
+  },
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -320,20 +303,16 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ /* strapi */ }) {
-    const [frontend, gameLogic] = createSockets();
-
-    gameLogic.on('connection', (socket) => {
-      console.log('game-logic connected');
-
-      // prints string to console, for debugging
-      socket.on('print', (str: string) => {
-        console.log(str);
-      });
-
-      // listen for action complete
-      socket.on('actionComplete', async (actionCompleteRequest: ActionCompleteRequest) =>
-        await actionComplete(actionCompleteRequest, frontend, gameLogic));
+    const frontend = new Server(strapi.server.httpServer, {
+      cors: {
+        origin: [`${FRONTEND_URL}`], //dashboard, can add other origins
+        methods: ['GET', 'POST'],
+      },
     });
+
+    // listen for action complete
+    actionQueue.eventEmitter.on('actionComplete', async (actionCompleteRequest: ActionCompleteRequest) =>
+      await actionComplete(actionCompleteRequest, frontend));
 
     frontend.on('connection', async (socket) => {
       // check user jwt
@@ -358,7 +337,11 @@ export default {
       socket.on('join-room', async (users: string[]) => await joinRoom(users, userId, socket));
 
       // listens for pending actions
-      socket.on('startAction', async (pendingActionReq: PendingActionRequest) => await startAction(pendingActionReq, gameLogic, socket));
+      socket.on('startAction', async (pendingActionReq: PendingActionRequest) => await startAction(pendingActionReq, socket));
     });
+  },
+
+  destroy() {
+    actionQueue.stopQueue();
   }
 };

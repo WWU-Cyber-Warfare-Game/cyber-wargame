@@ -2,6 +2,7 @@ import { User } from './types';
 import { getUser } from './utilities';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { Server, Namespace } from 'socket.io';
+import ActionQueue from './queue';
 type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> | Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
 
 /**
@@ -10,7 +11,7 @@ type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap,
  * @param user The user who performed the action
  * @param gameLogic The socket server for the game logic
  */
-export default async function applyEffects(actionId: number, user: User, gameLogic: SocketServer, targetNodeId?: number) {
+export default async function applyEffects(actionId: number, user: User, actionQueue: ActionQueue, targetNodeId?: number) {
     const effects = (await strapi.entityService.findOne('api::action.action', actionId, {
         populate: ['effects']
     })).effects;
@@ -143,7 +144,7 @@ export default async function applyEffects(actionId: number, user: User, gameLog
                         }
                     });
                     await strapi.entityService.delete('api::pending-action.pending-action', offenseAction.id);
-                    gameLogic.emit('deleteAction', offenseAction.id);
+                    actionQueue.deleteAction(offenseAction.id as number);
                 }
                 break;
 
