@@ -146,22 +146,62 @@ export default async function applyEffects(actionId: number, user: User, gameLog
                     gameLogic.emit('deleteAction', offenseAction.id);
                 }
                 break;
-        
+
             // reveal a node
             case 'effects.reveal-node':
-                // TODO
+                // get player team's nodes and edges
+                const nodes = await strapi.entityService.findMany('api::node.node', {
+                    populate: '*',
+                    filters: {
+                        team: {
+                            id: otherTeam.id
+                        }
+                    }
+                });
+                const edges = await strapi.entityService.findMany('api::edge.edge', {
+                    populate: '*',
+                    filters: {
+                        source: {
+                            team: {
+                                id: otherTeam.id
+                            }
+                        }
+                    }
+                });
+
+                if (nodes.filter((node) => node.visible).length === 0) {
+                    // reveal an outer node (a node that has no incoming edges)
+                    const outerNodes = nodes.filter((node) => edges.filter((edge) => edge.target.id === node.id).length === 0);
+                    const randomNode = outerNodes[Math.floor(Math.random() * outerNodes.length)];
+                    await strapi.entityService.update('api::node.node', randomNode.id, {
+                        data: {
+                            visible: true
+                        }
+                    });
+                } else {
+                    // reveal a node that is not visible that is connected to a visible node
+                    const connectedEdges = edges.filter((edge) => edge.source.visible && !edge.target.visible);
+                    if (connectedEdges.length > 0)
+                        await strapi.entityService.update('api::node.node',
+                            connectedEdges[Math.floor(Math.random() * connectedEdges.length)].target.id,
+                            {
+                                data: {
+                                    visible: true
+                                }
+                            });
+                }
                 break;
 
             // attack a node
             case 'effects.attack-node':
                 // TODO
                 break;
-            
+
             // defend a node
             case 'effects.defend-node':
                 // TODO
                 break;
-            }
+        }
     });
 
     // reset the buff to 0 if there is no buff/debuff effect
