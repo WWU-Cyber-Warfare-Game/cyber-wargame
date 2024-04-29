@@ -5,7 +5,6 @@
 - Run `npm install` in all directories.
 - In `strapi`, make a `.env` file using `.env.example`.
 - In `frontend`, make a `.env.local` file using `.env.local.example`.
-- In `game-logic`, make a `.env` file using `.env.example`.
 - Run `npm run strapi import -- -f testdata.tar.gz` to import test data.
   - If you are not importing data, you must set user permissions by going to Settings -> Users & Permissions plugin -> Roles -> Authenticated -> Team -> check find and findOne
   - Teams and roles must be assigned to users in the Strapi content manager.
