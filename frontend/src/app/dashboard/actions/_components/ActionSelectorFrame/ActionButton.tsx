@@ -20,6 +20,7 @@ export default function ActionButton({ action, onClick, disabled, modifiers, set
     const [targetedActionSelected, setTargetedActionSelected] = useState(false);
 
     function handleClick() {
+        if (disabled) return;
         if (action.targetsNode) {
             setTargetedActionSelected(true);
             setButtonDisabled(true);
