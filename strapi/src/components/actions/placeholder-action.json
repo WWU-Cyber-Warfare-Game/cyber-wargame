@@ -47,6 +47,10 @@
     "targetsNode": {
       "type": "boolean",
       "default": false
+    },
+    "targetsEdge": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

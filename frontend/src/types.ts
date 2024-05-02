@@ -34,6 +34,7 @@ export interface Action {
     type: ActionType;
     successRate: number;
     targetsNode?: boolean;
+    targetsEdge?: boolean;
 }
 
 export enum ActionEndState {

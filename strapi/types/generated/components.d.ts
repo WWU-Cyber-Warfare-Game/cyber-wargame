@@ -24,6 +24,7 @@ export interface ActionsPlaceholderAction extends Schema.Component {
       }> &
       Attribute.DefaultTo<50>;
     targetsNode: Attribute.Boolean & Attribute.DefaultTo<false>;
+    targetsEdge: Attribute.Boolean & Attribute.DefaultTo<false>;
   };
 }
 
