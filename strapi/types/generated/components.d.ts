@@ -67,6 +67,16 @@ export interface EffectsBuffDebuff extends Schema.Component {
   };
 }
 
+export interface EffectsDefendEdge extends Schema.Component {
+  collectionName: 'components_effects_defend_edges';
+  info: {
+    displayName: 'Defend Edge';
+  };
+  attributes: {
+    placeholder: Attribute.String;
+  };
+}
+
 export interface EffectsDefendNode extends Schema.Component {
   collectionName: 'components_effects_defend_nodes';
   info: {
@@ -145,6 +155,7 @@ declare module '@strapi/types' {
       'effects.add-victory-points': EffectsAddVictoryPoints;
       'effects.attack-node': EffectsAttackNode;
       'effects.buff-debuff': EffectsBuffDebuff;
+      'effects.defend-edge': EffectsDefendEdge;
       'effects.defend-node': EffectsDefendNode;
       'effects.reveal-node': EffectsRevealNode;
       'effects.stop-offense-action': EffectsStopOffenseAction;

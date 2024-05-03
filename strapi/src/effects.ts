@@ -204,11 +204,24 @@ export default async function applyEffects(actionId: number, user: User, actionQ
 
             // defend a node
             case 'effects.defend-node':
+                console.log('EFFECT: defending node');
                 if (!targetNodeId) console.error('No target node ID provided for defend-node effect');
                 const targetNode = await strapi.entityService.findOne('api::node.node', targetNodeId);
                 await strapi.entityService.update('api::node.node', targetNodeId, {
                     data: {
                         defense: targetNode.defense + DEFENSE_RATE
+                    }
+                });
+                break;
+
+            // defend an edge
+            case 'effects.defend-edge':
+                console.log('EFFECT: defending edge');
+                if (!targetEdgeId) console.error('No target edge ID provided for defend-edge effect');
+                const targetEdge = await strapi.entityService.findOne('api::edge.edge', targetEdgeId);
+                await strapi.entityService.update('api::edge.edge', targetEdgeId, {
+                    data: {
+                        defense: targetEdge.defense + DEFENSE_RATE
                     }
                 });
                 break;

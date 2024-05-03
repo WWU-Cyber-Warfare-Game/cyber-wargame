@@ -21,6 +21,11 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::node.node"
+    },
+    "defense": {
+      "type": "integer",
+      "required": true,
+      "default": 0
     }
   }
 }

@@ -26,7 +26,8 @@
         "effects.stop-offense-action",
         "effects.reveal-node",
         "effects.attack-node",
-        "effects.defend-node"
+        "effects.defend-node",
+        "effects.defend-edge"
       ]
     }
   }
