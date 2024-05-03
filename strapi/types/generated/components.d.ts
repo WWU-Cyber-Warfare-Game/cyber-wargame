@@ -23,8 +23,8 @@ export interface ActionsPlaceholderAction extends Schema.Component {
         max: 100;
       }> &
       Attribute.DefaultTo<50>;
-    targetsNode: Attribute.Boolean & Attribute.DefaultTo<false>;
-    targetsEdge: Attribute.Boolean & Attribute.DefaultTo<false>;
+    targetsNode: Attribute.Enumeration<['team', 'opponent']>;
+    targetsEdge: Attribute.Enumeration<['team', 'opponent']>;
   };
 }
 

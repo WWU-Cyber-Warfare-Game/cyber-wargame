@@ -12,7 +12,10 @@ type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap,
  * @param user The user who performed the action
  * @param gameLogic The socket server for the game logic
  */
-export default async function applyEffects(actionId: number, user: User, actionQueue: ActionQueue, targetNodeId?: number) {
+export default async function applyEffects(actionId: number, user: User, actionQueue: ActionQueue, targetNodeId?: number, targetEdgeId?: number) {
+    console.log('targetNodeId:', targetNodeId);
+    console.log('targetEdgeId:', targetEdgeId);
+    
     const effects = (await strapi.entityService.findOne('api::action.action', actionId, {
         populate: ['effects']
     })).effects;

@@ -922,6 +922,11 @@ export interface ApiPendingActionPendingAction extends Schema.CollectionType {
       'oneToOne',
       'api::node.node'
     >;
+    targetEdge: Attribute.Relation<
+      'api::pending-action.pending-action',
+      'oneToOne',
+      'api::edge.edge'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

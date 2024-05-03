@@ -73,11 +73,12 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
         });
     }, [socket]);
 
-    function handleActionClick(action: Action, nodeId?: number) {
+    function handleActionClick(action: Action, nodeId?: number, edgeId?: number) {
         const pendingAction = {
             user: user.username,
             action: action.id,
-            nodeId: nodeId
+            nodeId: nodeId,
+            edgeId: edgeId
         };
 
         if (socket) {

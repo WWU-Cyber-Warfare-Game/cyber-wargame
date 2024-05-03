@@ -45,12 +45,18 @@
       "default": 50
     },
     "targetsNode": {
-      "type": "boolean",
-      "default": false
+      "type": "enumeration",
+      "enum": [
+        "team",
+        "opponent"
+      ]
     },
     "targetsEdge": {
-      "type": "boolean",
-      "default": false
+      "type": "enumeration",
+      "enum": [
+        "team",
+        "opponent"
+      ]
     }
   }
 }
