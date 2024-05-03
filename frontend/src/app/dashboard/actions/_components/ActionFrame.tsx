@@ -5,6 +5,7 @@ import ActionSelectorFrame from "./ActionSelectorFrame";
 import { User } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import io, { Socket } from "socket.io-client";
+import { TargetContext, TargetContextProvider } from "./TargetContext";
 
 interface ActionFrameProps {
     readonly user: User;
@@ -34,10 +35,12 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
             newSocket.disconnect();
         };
     }, [jwt]);
-    
+
     return (
         <>
-            <ActionSelectorFrame user={user} socket={socket} />
+            <TargetContextProvider>
+                <ActionSelectorFrame user={user} socket={socket} />
+            </TargetContextProvider>
             <ActionLogFrame socket={socket} />
         </>
     );

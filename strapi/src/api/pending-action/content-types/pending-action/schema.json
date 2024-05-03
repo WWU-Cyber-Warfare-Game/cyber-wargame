@@ -30,6 +30,11 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::node.node"
+    },
+    "targetEdge": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::edge.edge"
     }
   }
 }

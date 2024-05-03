@@ -1,5 +1,5 @@
 import { Server, Namespace, Socket } from 'socket.io';
-import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType, ActionCompleteRequest, Message } from './types';
+import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType, ActionCompleteRequest, Message, Target } from './types';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { getUser } from './utilities';
 import applyEffects from './effects';
@@ -183,11 +183,13 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
   // parse and apply action effects
   if (endState === 'success') {
     const user = await getUser(pendingActionRes.user);
-    if (pendingActionRes.targetNode) {
-      await applyEffects(pendingActionRes.actionId, user, actionQueue, pendingActionRes.targetNode.id as number);
-    } else {
-      await applyEffects(pendingActionRes.actionId, user, actionQueue);
-    }
+    await applyEffects(
+      pendingActionRes.actionId,
+      user,
+      actionQueue,
+      pendingActionRes.targetNode && pendingActionRes.targetNode.id as number,
+      pendingActionRes.targetEdge && pendingActionRes.targetEdge.id as number
+    );
   }
 
   // emit action complete to user
@@ -269,7 +271,8 @@ async function startAction(pendingActionReq: PendingActionRequest, socket: Socke
       date: new Date(Date.now() + minToMs(action.duration)),
       action: action,
       actionId: action.id,
-      targetNode: pendingActionReq.nodeId
+      targetNode: pendingActionReq.nodeId,
+      targetEdge: pendingActionReq.edgeId
     }
   });
 

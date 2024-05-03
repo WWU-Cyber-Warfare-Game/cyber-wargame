@@ -796,7 +796,8 @@ export interface ApiActionAction extends Schema.CollectionType {
         'effects.stop-offense-action',
         'effects.reveal-node',
         'effects.attack-node',
-        'effects.defend-node'
+        'effects.defend-node',
+        'effects.defend-edge'
       ]
     >;
     createdAt: Attribute.DateTime;
@@ -831,6 +832,7 @@ export interface ApiEdgeEdge extends Schema.CollectionType {
   attributes: {
     source: Attribute.Relation<'api::edge.edge', 'oneToOne', 'api::node.node'>;
     target: Attribute.Relation<'api::edge.edge', 'oneToOne', 'api::node.node'>;
+    defense: Attribute.Integer & Attribute.Required & Attribute.DefaultTo<0>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::edge.edge', 'oneToOne', 'admin::user'> &
@@ -921,6 +923,11 @@ export interface ApiPendingActionPendingAction extends Schema.CollectionType {
       'api::pending-action.pending-action',
       'oneToOne',
       'api::node.node'
+    >;
+    targetEdge: Attribute.Relation<
+      'api::pending-action.pending-action',
+      'oneToOne',
+      'api::edge.edge'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

@@ -33,8 +33,11 @@ export interface Action {
     teamRole: TeamRole;
     type: ActionType;
     successRate: number;
-    targetsNode?: boolean;
+    targetsNode?: Target;
+    targetsEdge?: Target;
 }
+
+export type Target = "team" | "opponent";
 
 export enum ActionEndState {
     Success = "success",
@@ -52,6 +55,7 @@ export interface PendingAction {
     user: string;
     action: number;
     nodeId?: number;
+    edgeId?: number;
 }
 
 export interface ActionResponse {
@@ -70,6 +74,11 @@ export interface Edge {
     id: string;
     sourceId: string;
     targetId: string;
+}
+
+export interface Graph {
+    nodes: Node[];
+    edges: Edge[];
 }
 
 export interface Modifiers {

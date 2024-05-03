@@ -33,8 +33,11 @@ export interface Action {
     teamRole: TeamRole;
     type: ActionType;
     successRate: number;
-    targetsNode?: boolean;
+    targetsNode?: Target;
+    targetsEdge?: Target;
 }
+
+export type Target = "team" | "opponent";
 
 export interface ActionLog {
     action: Action;
@@ -46,6 +49,7 @@ export interface PendingActionRequest {
     user: string;
     action: number;
     nodeId?: number;
+    edgeId?: number;
 }
 
 export interface PendingAction {
