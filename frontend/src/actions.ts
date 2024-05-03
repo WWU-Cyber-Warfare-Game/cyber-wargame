@@ -425,7 +425,7 @@ export async function getGraphData(target: Target) {
         });
         const unparsedEdges = await fetchedEdges.json();
         const parsedEdges = parseEdges(unparsedEdges.data)
-            .filter((edge) => edge.sourceId in parsedNodes.map((node) => node.id));
+            .filter((edge) => parsedNodes.map((node) => node.id).includes(edge.sourceId) && parsedNodes.map((node) => node.id).includes(edge.targetId));
 
         // return object with nodes and edges
         const graph: Graph = {

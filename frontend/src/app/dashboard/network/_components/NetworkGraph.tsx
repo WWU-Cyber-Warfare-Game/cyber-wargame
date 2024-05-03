@@ -2,8 +2,13 @@ import { useEffect, useState } from "react";
 import ReactFlow, { Node as ReactFlowNode, Edge as ReactFlowEdge, useNodesState, useEdgesState } from 'reactflow';
 import { getGraphData } from "@/actions";
 import Dagre from '@dagrejs/dagre';
-import { Edge, Node } from "@/types";
+import { Edge, Graph, Node, Target } from "@/types";
 import 'reactflow/dist/style.css';
+
+interface NetworkGraphProps {
+    target: Target;
+    graph: Graph;
+}
 
 /**
  * Generates a layout for the nodes and edges
@@ -46,21 +51,15 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
 };
 
 // creates the networkGraph component
-export default function NetworkGraph() {
+export default function NetworkGraph({ target, graph }: NetworkGraphProps) {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
     useEffect(() => {
-        getGraphData("team").then((graph) => {
-            if (graph === null) {
-                console.error("Error: graph is null");
-                return;
-            }
-            const layoutedElements = getLayoutedElements(graph.nodes, graph.edges);
-            setNodes([...layoutedElements.nodes]);
-            setEdges([...layoutedElements.edges]);
-        });
-    }, [setNodes, setEdges]);
+        const layoutedElements = getLayoutedElements(graph.nodes, graph.edges);
+        setNodes([...layoutedElements.nodes]);
+        setEdges([...layoutedElements.edges]);
+    }, [target, graph, setNodes, setEdges]);
 
     return (
         // must be inside div
