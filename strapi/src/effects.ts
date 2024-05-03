@@ -3,6 +3,7 @@ import { getUser } from './utilities';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { Server, Namespace } from 'socket.io';
 import ActionQueue from './queue';
+import { DEFENSE_RATE } from './consts';
 type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> | Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
 
 /**
@@ -204,7 +205,7 @@ export default async function applyEffects(actionId: number, user: User, actionQ
                 const targetNode = await strapi.entityService.findOne('api::node.node', targetNodeId);
                 await strapi.entityService.update('api::node.node', targetNodeId, {
                     data: {
-                        defense: targetNode.defense + 1
+                        defense: targetNode.defense + DEFENSE_RATE
                     }
                 });
                 break;
