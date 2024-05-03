@@ -2,9 +2,10 @@ import { Action, Modifiers, ActionType } from "@/types";
 import styles from "./ActionButton.module.css";
 import classNames from "classnames";
 import { MODIFIER_RATE } from "@/consts";
-import { getEdges, getNodes } from "@/actions";
-import { useEffect, useState } from "react";
+import { getGraphData } from "@/actions";
+import { useContext, useEffect, useState } from "react";
 import { Node, Edge } from "@/types";
+import { TargetContext } from "../TargetContext";
 
 interface ActionButtonProps {
     readonly action: Action;
@@ -23,6 +24,7 @@ export default function ActionButton({ action, onClick, disabled, modifiers, set
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<EdgeWithName[]>([]);
     const [targetedActionSelected, setTargetedActionSelected] = useState(false);
+    const { teamGraph, opponentGraph } = useContext(TargetContext);
 
     function handleClick() {
         if (disabled) return;
@@ -54,31 +56,25 @@ export default function ActionButton({ action, onClick, disabled, modifiers, set
     }
 
     useEffect(() => {
-        // TODO: fetch nodes and edges in parent component and pass them as props
-        // if there are lots of targeted action, there are lots of unnecessary API calls made
         async function getTargets() {
             if (action.targetsNode) {
-                const fetchedNodes = await getNodes(action.targetsNode);
-                if (fetchedNodes) setNodes(fetchedNodes);
-                else console.error("Error fetching nodes");
+                if (action.targetsNode === "team") setNodes(teamGraph.nodes);
+                else setNodes(opponentGraph.nodes);
             }
             if (action.targetsEdge) {
-                const fetchedEdges = await getEdges(action.targetsEdge);
-                const fetchedNodes = await getNodes(action.targetsEdge);
-                if (fetchedEdges && fetchedNodes) {
-                    const edgesWithName = fetchedEdges.map((edge) => {
-                        const sourceNode = fetchedNodes.find((node) => node.id === edge.sourceId);
-                        const targetNode = fetchedNodes.find((node) => node.id === edge.targetId);
-                        return { ...edge, name: `${sourceNode?.name} -> ${targetNode?.name}` };
-                    });
-                    setEdges(edgesWithName);
-                }
-                else console.error("Error fetching edges or nodes");
+                const fetchedEdges = action.targetsEdge === "team" ? teamGraph.edges : opponentGraph.edges;
+                const fetchedNodes = action.targetsEdge === "team" ? teamGraph.nodes : opponentGraph.nodes;
+                const edgesWithName = fetchedEdges.map((edge) => {
+                    const sourceNode = fetchedNodes.find((node) => node.id === edge.sourceId);
+                    const targetNode = fetchedNodes.find((node) => node.id === edge.targetId);
+                    return { ...edge, name: `${sourceNode?.name} -> ${targetNode?.name}` };
+                });
+                setEdges(edgesWithName);
             }
         }
 
         getTargets();
-    }, [action]);
+    }, [action, opponentGraph, teamGraph]);
 
     // TODO: be able to have different kinds of (and multiple) targets
     if (action.targetsNode && action.targetsEdge)

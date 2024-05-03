@@ -1,10 +1,11 @@
 "use client";
 import { io, Socket } from "socket.io-client";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import { Action, PendingAction, User, Modifiers } from "@/types";
 import ActionButton from "./ActionButton";
-import { getActions, getModifiers } from "@/actions";
+import { getActions, getGraphData, getModifiers } from "@/actions";
 import Timer from "./Timer";
+import { TargetContext } from "../TargetContext";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
@@ -20,8 +21,9 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
     const [butttonDisabled, setButtonDisabled] = useState(false);
     const [endTime, setEndTime] = useState<Date | null>(null);
     const [modifiers, setModifiers] = useState<Modifiers>({ offense: 0, defense: 0, buff: 0 });
+    const {setTeamGraph, setOpponentGraph} = useContext(TargetContext);
 
-    function refresh() {
+    const refresh = useCallback(() => {
         // Get the list of actions from the server
         getActions().then((res) => {
             if (res) {
@@ -33,6 +35,7 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
                 setButtonDisabled(true);
             }
         });
+
         // Get modifiers from the server
         getModifiers().then((res) => {
             if (res) {
@@ -43,11 +46,27 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
         });
         setLoading(false);
         setEndTime(null);
-    }
+
+        // Get graph data from the server
+        getGraphData("team").then((res) => {
+            if (res) {
+                setTeamGraph(res);
+            } else {
+                setError("Error fetching graph data");
+            }
+        });
+        getGraphData("opponent").then((res) => {
+            if (res) {
+                setOpponentGraph(res);
+            } else {
+                setError("Error fetching graph data");
+            }
+        });
+    }, [setTeamGraph, setOpponentGraph]);
 
     useEffect(() => {
         refresh();
-    }, []);
+    }, [refresh]);
 
     useEffect(() => {
         // re-enable buttons when action is complete
@@ -71,7 +90,7 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
             setButtonDisabled(false);
             refresh();
         });
-    }, [socket]);
+    }, [socket, refresh]);
 
     function handleActionClick(action: Action, nodeId?: number, edgeId?: number) {
         const pendingAction = {

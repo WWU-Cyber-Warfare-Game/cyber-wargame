@@ -5,7 +5,7 @@ import { emailRegex, usernameRegex, passwordRegex } from "./regex";
 import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole, Node, Edge, Target } from "./types";
+import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole, Node, Edge, Target, Graph } from "./types";
 import qs from "qs";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
@@ -359,11 +359,110 @@ export async function getActions() {
     }
 }
 
+// /**
+//  * Gets all the nodes of the network graph
+//  * @returns An array of nodes, or null if there is an error
+//  */
+// export async function getNodes(target: Target) {
+//     function parseNodes(data: any) {
+//         let nodes: Node[] = [];
+//         data.forEach(function (n: any) {
+//             const newNode: Node = {
+//                 id: n.id.toString(),
+//                 name: n.attributes.name,
+//                 defense: n.attributes.defense,
+//                 isCoreNode: n.attributes.isCoreNode
+//             }
+//             nodes.push(newNode);
+//         });
+//         return nodes;
+//     }
+
+//     try {
+//         // Make API request to fetch nodes
+//         const user = await validateUser();
+//         if (!user) {
+//             console.error("User not validated.");
+//             return null;
+//         }
+//         let fetchedNodes;
+//         if (target === "opponent") {
+//             fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$ne]=${user.team}&filters[visible][$eq]=true&populate=*`, {
+//                 headers: {
+//                     Authorization: `Bearer ${STRAPI_API_TOKEN}`
+//                 }
+//             });
+//         } else {
+//             fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$eq]=${user.team}&populate=*`, {
+//                 headers: {
+//                     Authorization: `Bearer ${STRAPI_API_TOKEN}`
+//                 }
+//             });
+//         }
+//         const unparsedNodes = await fetchedNodes.json();
+
+//         //parse the data
+//         return parseNodes(unparsedNodes.data);
+//     } catch (error) {
+//         console.error('Error fetching nodes:', error);
+//         return null;
+//     }
+// };
+
+// /**
+//  * Gets all the edges of the network graph
+//  * @returns An array of edges, or null if there is an error
+//  */
+// export async function getEdges(target: Target) {
+//     // TODO: combine getNodes and getEdges into one function to reduce number of API calls
+//     function parseEdges(data: any) {
+//         let edges: Edge[] = [];
+//         data.forEach(function (e: any) {
+//             const newEdge: Edge = {
+//                 id: e.id.toString(),
+//                 sourceId: e.attributes.source.data.id.toString(),
+//                 targetId: e.attributes.target.data.id.toString()
+//             }
+//             edges.push(newEdge);
+//         });
+//         return edges;
+//     }
+
+//     try {
+//         const user = await validateUser();
+//         if (!user) {
+//             console.error("User not validated.");
+//             return null;
+//         }
+//         const nodes = await getNodes(target);
+//         if (!nodes) {
+//             console.error("Error fetching nodes.");
+//             return null;
+//         }
+
+//         // Make API request to fetch nodes
+//         const fetchedEdges = await fetch(`${STRAPI_URL}/api/edges?populate=*`, {
+//             headers: {
+//                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
+//             }
+//         });
+//         const unparsedEdges = await fetchedEdges.json();
+
+//         // parse the data
+//         const parsedEdges = parseEdges(unparsedEdges.data);
+//         return parsedEdges.filter((edge) => edge.sourceId in nodes.map((node) => node.id));
+//     } catch (error) {
+//         console.error('Error fetching edges:', error);
+//         return null;
+//     }
+// };
+
 /**
- * Gets all the nodes of the network graph
- * @returns An array of nodes, or null if there is an error
+ * Gets the graph data for the network graph
+ * @param target The target of the action (team or opponent)
+ * @returns An object containing the nodes and edges, or null if there is an error
  */
-export async function getNodes(target: Target) {
+export async function getGraphData(target: Target) {
     function parseNodes(data: any) {
         let nodes: Node[] = [];
         data.forEach(function (n: any) {
@@ -378,43 +477,6 @@ export async function getNodes(target: Target) {
         return nodes;
     }
 
-    try {
-        // Make API request to fetch nodes
-        const user = await validateUser();
-        if (!user) {
-            console.error("User not validated.");
-            return null;
-        }
-        let fetchedNodes;
-        if (target === "opponent") {
-            fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$ne]=${user.team}&filters[visible][$eq]=true&populate=*`, {
-                headers: {
-                    Authorization: `Bearer ${STRAPI_API_TOKEN}`
-                }
-            });
-        } else {
-            fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$eq]=${user.team}&populate=*`, {
-                headers: {
-                    Authorization: `Bearer ${STRAPI_API_TOKEN}`
-                }
-            });
-        }
-        const unparsedNodes = await fetchedNodes.json();
-
-        //parse the data
-        return parseNodes(unparsedNodes.data);
-    } catch (error) {
-        console.error('Error fetching nodes:', error);
-        return null;
-    }
-};
-
-/**
- * Gets all the edges of the network graph
- * @returns An array of edges, or null if there is an error
- */
-export async function getEdges(target: Target) {
-    // TODO: combine getNodes and getEdges into one function to reduce number of API calls
     function parseEdges(data: any) {
         let edges: Edge[] = [];
         data.forEach(function (e: any) {
@@ -434,28 +496,46 @@ export async function getEdges(target: Target) {
             console.error("User not validated.");
             return null;
         }
-        const nodes = await getNodes(target);
-        if (!nodes) {
-            console.error("Error fetching nodes.");
-            return null;
-        }
 
-        // Make API request to fetch nodes
+        // fetch nodes
+        let fetchedNodes;
+        if (target === "opponent") {
+            fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$ne]=${user.team}&filters[visible][$eq]=true&populate=*`, {
+                headers: {
+                    Authorization: `Bearer ${STRAPI_API_TOKEN}`
+                }
+            });
+        } else {
+            fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$eq]=${user.team}&populate=*`, {
+                headers: {
+                    Authorization: `Bearer ${STRAPI_API_TOKEN}`
+                }
+            });
+        }
+        const unparsedNodes = await fetchedNodes.json();
+        const parsedNodes = parseNodes(unparsedNodes.data);
+
+        // fetch edges
         const fetchedEdges = await fetch(`${STRAPI_URL}/api/edges?populate=*`, {
             headers: {
                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
             }
         });
         const unparsedEdges = await fetchedEdges.json();
+        const parsedEdges = parseEdges(unparsedEdges.data)
+            .filter((edge) => edge.sourceId in parsedNodes.map((node) => node.id));
 
-        // parse the data
-        const parsedEdges = parseEdges(unparsedEdges.data);
-        return parsedEdges.filter((edge) => edge.sourceId in nodes.map((node) => node.id));
+        // return object with nodes and edges
+        const graph: Graph = {
+            nodes: parsedNodes,
+            edges: parsedEdges
+        };
+        return graph;
     } catch (error) {
-        console.error('Error fetching edges:', error);
+        console.error('Error fetching nodes:', error);
         return null;
     }
-};
+}
 
 /**
  * Gets the current modifiers that the user has.

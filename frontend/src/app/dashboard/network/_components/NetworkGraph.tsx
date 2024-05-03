@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ReactFlow, { Node as ReactFlowNode, Edge as ReactFlowEdge, useNodesState, useEdgesState } from 'reactflow';
-import { getEdges, getNodes } from "@/actions";
+import { getGraphData } from "@/actions";
 import Dagre from '@dagrejs/dagre';
 import { Edge, Node } from "@/types";
 import 'reactflow/dist/style.css';
@@ -51,12 +51,12 @@ export default function NetworkGraph() {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
     useEffect(() => {
-        Promise.all([getNodes(), getEdges()]).then(([fetchedNodes, fetchedEdges]) => {
-            if (fetchedNodes === null || fetchedEdges === null) {
-                console.error("Error: nodes or edges is null");
+        getGraphData("team").then((graph) => {
+            if (graph === null) {
+                console.error("Error: graph is null");
                 return;
             }
-            const layoutedElements = getLayoutedElements(fetchedNodes, fetchedEdges);
+            const layoutedElements = getLayoutedElements(graph.nodes, graph.edges);
             setNodes([...layoutedElements.nodes]);
             setEdges([...layoutedElements.edges]);
         });

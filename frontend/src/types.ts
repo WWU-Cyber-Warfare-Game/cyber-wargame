@@ -76,6 +76,11 @@ export interface Edge {
     targetId: string;
 }
 
+export interface Graph {
+    nodes: Node[];
+    edges: Edge[];
+}
+
 export interface Modifiers {
     offense: number;
     defense: number;
