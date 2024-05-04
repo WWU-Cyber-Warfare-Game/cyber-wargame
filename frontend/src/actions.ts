@@ -35,7 +35,6 @@ async function sendGraphQLQuery(query: string) {
  * @returns The parsed user data
  */
 function parseUser(user: any) {
-    console.log(user);
     let team;
     if (!user.attributes.team) team = null;
     else team = user.attributes.team.data.attributes.name;
