@@ -34,17 +34,18 @@ async function sendGraphQLQuery(query: string) {
  * @param data The data retreived from the Strapi API
  * @returns The parsed user data
  */
-function parseUser(data: any): User {
+function parseUser(user: any) {
+    console.log(user);
     let team;
-    if (!data.team) team = null;
-    else team = data.team.name;
-
-    return {
-        username: data.username,
-        email: data.email,
-        teamRole: data.teamRole,
+    if (!user.attributes.team) team = null;
+    else team = user.attributes.team.data.attributes.name;
+    const ret: User = {
+        username: user.attributes.username,
+        email: user.attributes.email,
+        teamRole: user.attributes.teamRole,
         team: team
     };
+    return ret;
 }
 
 /**
@@ -151,7 +152,13 @@ export async function validateUser() {
 
         if (res.ok) {
             const unparsedData = await res.json();
-            return parseUser(unparsedData);
+            const ret: User = {
+                username: unparsedData.username,
+                email: unparsedData.email,
+                teamRole: unparsedData.teamRole,
+                team: unparsedData.team ? unparsedData.team.name : null
+            };
+            return ret;
         }
         return null;
     } catch (error) {
@@ -195,18 +202,7 @@ export async function getTeamUsers(team: string) {
 
     if (res.ok) {
         const data = await res.json();
-        return data.data.usersPermissionsUsers.data.map((user: any) => {
-            let team;
-            if (!user.attributes.team) team = null;
-            else team = user.attributes.team.data.attributes.name;
-            const ret: User = {
-                username: user.attributes.username,
-                email: user.attributes.email,
-                teamRole: user.attributes.teamRole,
-                team: team
-            };
-            return ret;
-        });
+        return data.data.usersPermissionsUsers.data.map((user: any) => parseUser(user));
     } else {
         console.error(res);
         return [];
@@ -219,11 +215,30 @@ export async function getTeamUsers(team: string) {
  * @returns A User object if the user exists, or null if they do not.
  */
 export async function getUser(username: string) {
-    const res = await fetch(`${STRAPI_URL}/api/users?populate=*&filters[username][$eq]=${username}`, {
-        headers: {
-            Authorization: `Bearer ${STRAPI_API_TOKEN}`
+    const res = await sendGraphQLQuery(`
+    {
+        usersPermissionsUsers(filters: {
+          username: {
+            eq: "${username}"
+          }
+        }) {
+          data {
+            attributes {
+              username
+              email
+              teamRole
+              team {
+                data {
+                  attributes {
+                    name
+                  }
+                }
+              }
+            }
+          }
         }
-    });
+      }
+    `);
 
     if (res.ok) {
         const unparsedData = await res.json();
