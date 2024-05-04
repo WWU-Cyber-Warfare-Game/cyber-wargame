@@ -171,7 +171,7 @@ export async function getTeamUsers(team: string) {
         usersPermissionsUsers(filters: {
           team: {
             name: {
-              eq: "Team 1"
+              eq: "${team}"
             }
           }
         }) {
