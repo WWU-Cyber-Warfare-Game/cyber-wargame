@@ -46,7 +46,9 @@ export enum ActionEndState {
 }
 
 export interface ActionLog {
-    action: Action;
+    name: string;
+    description: string;
+    teamRole: TeamRole;
     time: Date;
     endState: ActionEndState;
 }

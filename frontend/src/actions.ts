@@ -172,39 +172,44 @@ export async function validateUser() {
  * @returns An array of User objects
  */
 export async function getTeamUsers(team: string) {
-    const res = await sendGraphQLQuery(`
-    {
-        usersPermissionsUsers(filters: {
-          team: {
-            name: {
-              eq: "${team}"
-            }
-          }
-        }, sort: "username:asc") {
-          data {
-            attributes {
-              username
-              email
-              teamRole
-              team {
-                data {
-                  attributes {
-                    name
+    try {
+        const res = await sendGraphQLQuery(`
+        {
+            usersPermissionsUsers(filters: {
+              team: {
+                name: {
+                  eq: "${team}"
+                }
+              }
+            }, sort: "username:asc") {
+              data {
+                attributes {
+                  username
+                  email
+                  teamRole
+                  team {
+                    data {
+                      attributes {
+                        name
+                      }
+                    }
                   }
                 }
               }
             }
           }
-        }
-      }
-    `);
+        `);
 
-    if (res.ok) {
-        const data = await res.json();
-        const parsedData: User[] = data.data.usersPermissionsUsers.data.map((user: any) => parseUser(user));
-        return parsedData;
-    } else {
-        console.error(res);
+        if (res.ok) {
+            const data = await res.json();
+            const parsedData: User[] = data.data.usersPermissionsUsers.data.map((user: any) => parseUser(user));
+            return parsedData;
+        } else {
+            console.error(res);
+            return [] as User[];
+        }
+    } catch (error) {
+        console.error(error);
         return [] as User[];
     }
 }
@@ -215,39 +220,44 @@ export async function getTeamUsers(team: string) {
  * @returns A User object if the user exists, or null if they do not.
  */
 export async function getUser(username: string) {
-    const res = await sendGraphQLQuery(`
-    {
-        usersPermissionsUsers(filters: {
-          username: {
-            eq: "${username}"
-          }
-        }) {
-          data {
-            attributes {
-              username
-              email
-              teamRole
-              team {
-                data {
-                  attributes {
-                    name
+    try {
+        const res = await sendGraphQLQuery(`
+        {
+            usersPermissionsUsers(filters: {
+              username: {
+                eq: "${username}"
+              }
+            }) {
+              data {
+                attributes {
+                  username
+                  email
+                  teamRole
+                  team {
+                    data {
+                      attributes {
+                        name
+                      }
+                    }
                   }
                 }
               }
             }
           }
-        }
-      }
-    `);
+        `);
 
-    if (res.ok) {
-        const unparsedData = await res.json();
-        const user = unparsedData[0];
-        if (!user) return null;
-        return parseUser(user);
+        if (res.ok) {
+            const unparsedData = await res.json();
+            const user = unparsedData[0];
+            if (!user) return null;
+            return parseUser(user);
+        }
+        console.error(res);
+        return null;
+    } catch (error) {
+        console.error(error);
+        return null;
     }
-    console.error(res);
-    return null;
 }
 
 /**
