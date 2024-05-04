@@ -12,6 +12,24 @@ const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 
 /**
+ * Sends a GraphQL query to the Strapi API.
+ * @param query The GraphQL query to send to the Strapi API
+ * @returns A response from the Strapi API
+ */
+async function sendGraphQLQuery(query: string) {
+    return fetch(`${STRAPI_URL}/graphql`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${STRAPI_API_TOKEN}`
+        },
+        body: JSON.stringify({
+            query: query
+        })
+    });
+}
+
+/**
  * Parses the user data retreived from Strapi.
  * @param data The data retreived from the Strapi API
  * @returns The parsed user data
@@ -148,18 +166,51 @@ export async function validateUser() {
  * @returns An array of User objects
  */
 export async function getTeamUsers(team: string) {
-    const res = await fetch(`${STRAPI_URL}/api/users?populate=*&filters[team][name][$eq]=${team}`, {
-        headers: {
-            Authorization: `Bearer ${STRAPI_API_TOKEN}`
+    const res = await sendGraphQLQuery(`
+    {
+        usersPermissionsUsers(filters: {
+          team: {
+            name: {
+              eq: "Team 1"
+            }
+          }
+        }) {
+          data {
+            attributes {
+              username
+              email
+              teamRole
+              team {
+                data {
+                  attributes {
+                    name
+                  }
+                }
+              }
+            }
+          }
         }
-    });
+      }
+    `);
 
     if (res.ok) {
-        const unparsedData = await res.json();
-        return unparsedData.map((user: any) => parseUser(user));
+        const data = await res.json();
+        return data.data.usersPermissionsUsers.data.map((user: any) => {
+            let team;
+            if (!user.attributes.team) team = null;
+            else team = user.attributes.team.data.attributes.name;
+            const ret: User = {
+                username: user.attributes.username,
+                email: user.attributes.email,
+                teamRole: user.attributes.teamRole,
+                team: team
+            };
+            return ret;
+        });
+    } else {
+        console.error(res);
+        return [];
     }
-    console.error(res);
-    return [] as User[];
 }
 
 /**

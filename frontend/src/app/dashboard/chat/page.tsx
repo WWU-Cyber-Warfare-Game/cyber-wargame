@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTeamUsers, validateUser } from "@/actions";
+import { validateUser } from "@/actions";
 import { redirect } from "next/navigation";
 import styles from "./ChatPage.module.css";
 import { User } from "@/types";
