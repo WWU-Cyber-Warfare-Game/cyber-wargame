@@ -22,6 +22,7 @@ export default function ActionLogFrame({ socket }: Readonly<ActionLogFrameProps>
   const [loading, setLoading] = useState(true);
 
   function refreshActionLog() {
+    console.log("Refreshing action log");
     getActionLog().then((actionLogData) => {
       if (actionLogData) {
         setActionLogData(actionLogData);

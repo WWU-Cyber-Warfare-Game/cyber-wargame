@@ -24,6 +24,7 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
     const {setTeamGraph, setOpponentGraph} = useContext(TargetContext);
 
     const refresh = useCallback(() => {
+        console.log("Refreshing action selector");
         // Get the list of actions from the server
         getActions().then((res) => {
             if (res) {
@@ -65,10 +66,12 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
     }, [setTeamGraph, setOpponentGraph]);
 
     useEffect(() => {
+        console.log("ActionSelectorFrame mounted");
         refresh();
     }, [refresh]);
 
     useEffect(() => {
+        console.log("socket changed");
         // re-enable buttons when action is complete
         if (socket) socket.on('actionComplete', () => refresh());
 

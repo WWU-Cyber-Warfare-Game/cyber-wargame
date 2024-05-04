@@ -17,7 +17,7 @@ const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
  * @returns A response from the Strapi API
  */
 async function sendGraphQLQuery(query: string) {
-    return fetch(`${STRAPI_URL}/graphql`, {
+    return await fetch(`${STRAPI_URL}/graphql`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -180,7 +180,7 @@ export async function getTeamUsers(team: string) {
               eq: "${team}"
             }
           }
-        }) {
+        }, sort: "username:asc") {
           data {
             attributes {
               username
@@ -201,10 +201,11 @@ export async function getTeamUsers(team: string) {
 
     if (res.ok) {
         const data = await res.json();
-        return data.data.usersPermissionsUsers.data.map((user: any) => parseUser(user));
+        const parsedData: User[] = data.data.usersPermissionsUsers.data.map((user: any) => parseUser(user));
+        return parsedData;
     } else {
         console.error(res);
-        return [];
+        return [] as User[];
     }
 }
 
@@ -255,61 +256,68 @@ export async function getUser(username: string) {
  * @returns An array of Message objects, or null if there is an error
  */
 export async function getMessages(username: string) {
-
-    // parses the data retreived from the Strapi API and returns an array of Message objects
-    function parseResponseData(data: any) {
-        let messages: Message[] = [];
-        data.forEach(function (m: any) {
-            const newMessage: Message = {
-                message: m.attributes.message,
-                date: new Date(Date.parse(m.attributes.date)),
-                sender: m.attributes.sender,
-                receiver: m.attributes.receiver
-            }
-            messages.push(newMessage);
-        });
-        return messages;
-    }
-
     const user = await validateUser();
     if (!user) {
         console.error("User not validated.");
         return null;
     }
 
-    // creates a query that get the last 100 messages between the current user and the other user
-    const query = qs.stringify({
-        pagination: {
-            limit: 100
-        },
-        sort: "date:desc",
-        populate: "*",
-        filters: {
-            $or: [
-                {
-                    sender: user.username,
-                    receiver: username
+    const res = await sendGraphQLQuery(`
+    {
+        messages(
+          pagination: {
+              limit: 100
+          },
+          sort: "date:desc",
+          filters: {
+            or: [
+              {
+                sender: {
+                  eq: "${user.username}"
                 },
-                {
-                    sender: username,
-                    receiver: user.username
+                receiver: {
+                  eq: "${username}"
                 }
+              },
+              {
+                sender: {
+                  eq: "${username}"
+                },
+                receiver: {
+                  eq: "${user.username}"
+                }
+              }
             ]
+          }
+        ) {
+          data {
+            attributes {
+              message
+              date
+              sender
+              receiver
+            }
+          }
         }
-    });
-
-    const res = await fetch(`${STRAPI_URL}/api/messages?${query}`, {
-        headers: {
-            Authorization: `Bearer ${STRAPI_API_TOKEN}`
-        }
-    });
+      }
+    `);
 
     if (!res.ok) {
         console.error(res);
         return null;
     }
     const data = await res.json();
-    return parseResponseData(data.data).sort((a, b) => a.date.getTime() - b.date.getTime());
+    const parsedData: Message[] = data.data.messages.data
+        .map((message: any) => {
+            const ret: Message = {
+                message: message.attributes.message,
+                date: new Date(Date.parse(message.attributes.date)),
+                sender: message.attributes.sender,
+                receiver: message.attributes.receiver
+            };
+            return ret;
+        });
+    return parsedData.sort((a, b) => a.date.getTime() - b.date.getTime());
 }
 
 /**
