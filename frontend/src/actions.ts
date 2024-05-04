@@ -337,7 +337,9 @@ export async function getMessages(username: string) {
 export async function getActionLog() {
     function parseActionLog(data: any): ActionLog {
         return {
-            action: data.attributes.action,
+            name: data.attributes.action.name,
+            description: data.attributes.action.description,
+            teamRole: data.attributes.action.teamRole,
             time: new Date(Date.parse(data.attributes.date)),
             endState: data.attributes.endState
         }
