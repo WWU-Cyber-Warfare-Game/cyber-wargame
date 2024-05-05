@@ -5,7 +5,7 @@ import { emailRegex, usernameRegex, passwordRegex } from "./regex";
 import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole, Node, Edge, Target, Graph } from "./types";
+import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole, Node, Edge, Target, Graph, PendingAction } from "./types";
 import qs from "qs";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
@@ -403,102 +403,111 @@ export async function getActionPageData() {
     }
     const res = await sendGraphQLQuery(`
     query(
-        $user: String = "${user.username}"
-        $team: String = "${user.team}"
-        $teamRole: String = "${user.teamRole}"
+      $user: String = "${user.username}"
+      $team: String = "${user.team}"
+      $teamRole: String = "${user.teamRole}"
+    ) {
+      actionLog: resolvedActions(
+        pagination: { limit: 100 }
+        sort: "date:desc"
+        filters: { user: { eq: $user } }
       ) {
-        actionLog: resolvedActions(
-          pagination: { limit: 100 }
-          sort: "date:desc"
-          filters: { user: { eq: $user } }
-        ) {
-          data {
-            attributes {
-              action {
-                name
-                description
-                teamRole
-              }
-              date
-              endState
-            }
-          }
-        }
-      
-        actions(filters: { action: { teamRole: { eq: $teamRole } } }) {
-          data {
-            id
-            attributes {
-              action {
-                name
-                duration
-                description
-                teamRole
-                type
-                successRate
-                targets {
-                  target
-                  myTeam
-                }
-              }
-            }
-          }
-        }
-      
-        modifiers: teams(filters: { name: { eq: $team } }) {
-          data {
-            attributes {
-                ${user.teamRole}Modifiers {
-                offense
-                defense
-                buff
-              }
-            }
-          }
-        }
-      
-        nodes(filters: {}) {
-          data {
-            id
-            attributes {
+        data {
+          attributes {
+            action {
               name
-              team {
-                data {
-                  attributes {
-                    name
-                  }
-                }
-              }
-              defense
-              isCoreNode
-              visible
+              description
+              teamRole
             }
+            date
+            endState
           }
         }
-      
-        edges(filters: {}) {
-          data {
-            id
-            attributes {
-              source {
-                data {
-                  id
-                }
+      }
+    
+      actions(filters: { action: { teamRole: { eq: $teamRole } } }) {
+        data {
+          id
+          attributes {
+            action {
+              name
+              duration
+              description
+              teamRole
+              type
+              successRate
+              targets {
+                target
+                myTeam
               }
-              target {
-                data {
-                  id
-                }
-              }
-              defense
             }
           }
         }
       }
+    
+      pendingActions(filters: { user: { eq: $user } }) {
+        data {
+          attributes {
+            date
+          }
+        }
+      }
+    
+      modifiers: teams(filters: { name: { eq: $team } }) {
+        data {
+          attributes {
+            ${user.teamRole}Modifiers {
+              offense
+              defense
+              buff
+            }
+          }
+        }
+      }
+    
+      nodes(filters: {}) {
+        data {
+          id
+          attributes {
+            name
+            team {
+              data {
+                attributes {
+                  name
+                }
+              }
+            }
+            defense
+            isCoreNode
+            visible
+          }
+        }
+      }
+    
+      edges(filters: {}) {
+        data {
+          id
+          attributes {
+            source {
+              data {
+                id
+              }
+            }
+            target {
+              data {
+                id
+              }
+            }
+            defense
+          }
+        }
+      }
+    }    
     `);
     const data = await res.json();
     const actionLogData: any[] = data.data.actionLog.data;
     const actionsData: any[] = data.data.actions.data;
+    const pendingActionsData: any[] = data.data.pendingActions.data;
     const modifiersData: any[] = data.data.modifiers.data;
     const nodesData: any[] = data.data.nodes.data;
     const edgesData: any[] = data.data.edges.data;
@@ -530,6 +539,9 @@ export async function getActionPageData() {
         return ret;
     });
 
+    // get end time
+    const endTime = pendingActionsData.length > 0 ? new Date(Date.parse(pendingActionsData[0].attributes.date)) : null;
+
     // parse modifiers
     const modifiers: Modifiers = {
         offense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].offense,
@@ -543,9 +555,10 @@ export async function getActionPageData() {
     return {
         actionLog: actionLog,
         actions: actions,
+        endTime: endTime,
         modifiers: modifiers,
         teamGraph: teamGraph,
-        opponentGraph: opponentGraph
+        opponentGraph: opponentGraph,
     };
 }
 

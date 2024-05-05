@@ -25,9 +25,11 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
     const [error, setError] = useState<string | null>(null);
     const [actionLog, setActionLog] = useState<ActionLog[]>([]);
     const [actions, setActions] = useState<Action[]>([]);
+    const [endTime, setEndTime] = useState<Date | null>(null);
     const [modifiers, setModifiers] = useState<Modifiers>({ offense: 0, defense: 0, buff: 0 });
     const [teamGraph, setTeamGraph] = useState<Graph>({ nodes: [], edges: [] });
     const [opponentGraph, setOpponentGraph] = useState<Graph>({ nodes: [], edges: [] });
+    const [buttonDisabled, setButtonDisabled] = useState(true);
 
     useEffect(() => {
         const newSocket = io(STRAPI_URL, {
@@ -37,8 +39,9 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
         });
         setSocket(newSocket);
 
-        newSocket.on("actionCompleted", (data) => {
+        newSocket.on("actionComplete", (data) => {
             refreshData();
+            setButtonDisabled(false);
         });
 
         newSocket.on("connect_error", (err) => {
@@ -56,9 +59,11 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
             if (res) {
                 setActionLog(res.actionLog);
                 setActions(res.actions);
+                setEndTime(res.endTime);
                 setModifiers(res.modifiers);
                 setTeamGraph(res.teamGraph);
                 setOpponentGraph(res.opponentGraph);
+                if (!res.endTime) setButtonDisabled(false);
             } else {
                 setError("Error fetching action page data");
             }
@@ -85,8 +90,12 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
                 socket={socket}
                 modifiers={modifiers}
                 actions={actions}
+                endTime={endTime}
+                setEndTime={setEndTime}
                 teamGraph={teamGraph}
                 opponentGraph={opponentGraph}
+                buttonDisabled={buttonDisabled}
+                setButtonDisabled={setButtonDisabled}
             />
             <ActionLogFrame actionLog={actionLog} />
         </>
