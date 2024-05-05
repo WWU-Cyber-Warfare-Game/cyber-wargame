@@ -733,9 +733,9 @@ export async function getActionPageData() {
 
     // parse modifiers
     const modifiers: Modifiers = {
-        offense: modifiersData[0].attributes.offense,
-        defense: modifiersData[0].attributes.defense,
-        buff: modifiersData[0].attributes.buff
+        offense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].offense,
+        defense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].defense,
+        buff: modifiersData[0].attributes[`${user.teamRole}Modifiers`].buff
     };
 
     // parse graph
