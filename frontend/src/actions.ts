@@ -593,6 +593,67 @@ export async function getGraphData(target: Target) {
 // }
 
 /**
+ * Parses the graph data for the network graph.
+ * @param nodesData All of the nodes
+ * @param edgesData All of the edges
+ * @param user The current user
+ * @returns The two graphs
+ */
+function parseGraphData(nodesData: any[], edgesData: any[], user: User) {
+    const nodes = nodesData
+        .filter((node: any) => {
+            if (node.attributes.team.data.attributes.name === user.team) return true;
+            else if (node.attributes.team.data.attributes.name !== user.team && node.attributes.visible) return true;
+            return false;
+        })
+        .map((unParsedNode: any) => {
+            const node: Node = {
+                id: unParsedNode.id,
+                name: unParsedNode.attributes.name,
+                defense: unParsedNode.attributes.defense,
+                isCoreNode: unParsedNode.attributes.isCoreNode,
+            };
+            return {
+                node: node,
+                isTeam: unParsedNode.attributes.team.data.attributes.name === user.team
+            };
+        });
+
+    const edges: Edge[] = edgesData
+        .map((edge: any) => {
+            const ret: Edge = {
+                id: edge.id,
+                sourceId: edge.attributes.source.data.id,
+                targetId: edge.attributes.target.data.id,
+            };
+            return ret;
+        })
+        .filter((edge) =>
+            nodes.map((node) => node.node.id)
+                .includes(edge.sourceId)
+            && nodes.map((node) => node.node.id).includes(edge.targetId)
+        );
+
+    const teamNodes = nodes.filter((node) => node.isTeam).map((node) => node.node);
+    const opponentNodes = nodes.filter((node) => !node.isTeam).map((node) => node.node);
+    const teamEdges = edges.filter((edge) => teamNodes.map((node) => node.id).includes(edge.sourceId) && teamNodes.map((node) => node.id).includes(edge.targetId));
+    const opponentEdges = edges.filter((edge) => opponentNodes.map((node) => node.id).includes(edge.sourceId) && opponentNodes.map((node) => node.id).includes(edge.targetId));
+    const teamGraph: Graph = {
+        nodes: teamNodes,
+        edges: teamEdges
+    };
+    const opponentGraph: Graph = {
+        nodes: opponentNodes,
+        edges: opponentEdges
+    };
+
+    return {
+        teamGraph: teamGraph,
+        opponentGraph: opponentGraph
+    };
+}
+
+/**
  * Fetches all of the data needed for the action page.
  * @returns Action log, actions, modifiers, and the two graphs; or `null` if there is an error
  */
@@ -739,52 +800,7 @@ export async function getActionPageData() {
     };
 
     // parse graph
-    const nodes = nodesData
-        .filter((node: any) => {
-            if (node.attributes.team.data.attributes.name === user.team) return true;
-            else if (node.attributes.team.data.attributes.name !== user.team && node.attributes.visible) return true;
-            return false;
-        })
-        .map((unParsedNode: any) => {
-            const node: Node = {
-                id: unParsedNode.id,
-                name: unParsedNode.attributes.name,
-                defense: unParsedNode.attributes.defense,
-                isCoreNode: unParsedNode.attributes.isCoreNode,
-            };
-            return {
-                node: node,
-                isTeam: unParsedNode.attributes.team.data.attributes.name === user.team
-            };
-        });
-
-    const edges: Edge[] = edgesData
-        .map((edge: any) => {
-            const ret: Edge = {
-                id: edge.id,
-                sourceId: edge.attributes.source.data.id,
-                targetId: edge.attributes.target.data.id,
-            };
-            return ret;
-        })
-        .filter((edge) =>
-            nodes.map((node) => node.node.id)
-                .includes(edge.sourceId)
-            && nodes.map((node) => node.node.id).includes(edge.targetId)
-        );
-
-    const teamNodes = nodes.filter((node) => node.isTeam).map((node) => node.node);
-    const opponentNodes = nodes.filter((node) => !node.isTeam).map((node) => node.node);
-    const teamEdges = edges.filter((edge) => teamNodes.map((node) => node.id).includes(edge.sourceId) && teamNodes.map((node) => node.id).includes(edge.targetId));
-    const opponentEdges = edges.filter((edge) => opponentNodes.map((node) => node.id).includes(edge.sourceId) && opponentNodes.map((node) => node.id).includes(edge.targetId));
-    const teamGraph: Graph = {
-        nodes: teamNodes,
-        edges: teamEdges
-    };
-    const opponentGraph: Graph = {
-        nodes: opponentNodes,
-        edges: opponentEdges
-    };
+    const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
 
     return {
         actionLog: actionLog,
