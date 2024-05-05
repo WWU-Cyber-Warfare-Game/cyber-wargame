@@ -444,85 +444,85 @@ export async function getMessages(username: string) {
 //     }
 // }
 
-/**
- * Gets the graph data for the network graph
- * @param target The target of the action (team or opponent)
- * @returns An object containing the nodes and edges, or null if there is an error
- */
-export async function getGraphData(target: Target) {
-    function parseNodes(data: any) {
-        let nodes: Node[] = [];
-        data.forEach(function (n: any) {
-            const newNode: Node = {
-                id: n.id.toString(),
-                name: n.attributes.name,
-                defense: n.attributes.defense,
-                isCoreNode: n.attributes.isCoreNode
-            }
-            nodes.push(newNode);
-        });
-        return nodes;
-    }
+// /**
+//  * Gets the graph data for the network graph
+//  * @param target The target of the action (team or opponent)
+//  * @returns An object containing the nodes and edges, or null if there is an error
+//  */
+// export async function getGraphData(target: Target) {
+//     function parseNodes(data: any) {
+//         let nodes: Node[] = [];
+//         data.forEach(function (n: any) {
+//             const newNode: Node = {
+//                 id: n.id.toString(),
+//                 name: n.attributes.name,
+//                 defense: n.attributes.defense,
+//                 isCoreNode: n.attributes.isCoreNode
+//             }
+//             nodes.push(newNode);
+//         });
+//         return nodes;
+//     }
 
-    function parseEdges(data: any) {
-        let edges: Edge[] = [];
-        data.forEach(function (e: any) {
-            const newEdge: Edge = {
-                id: e.id.toString(),
-                sourceId: e.attributes.source.data.id.toString(),
-                targetId: e.attributes.target.data.id.toString()
-            }
-            edges.push(newEdge);
-        });
-        return edges;
-    }
+//     function parseEdges(data: any) {
+//         let edges: Edge[] = [];
+//         data.forEach(function (e: any) {
+//             const newEdge: Edge = {
+//                 id: e.id.toString(),
+//                 sourceId: e.attributes.source.data.id.toString(),
+//                 targetId: e.attributes.target.data.id.toString()
+//             }
+//             edges.push(newEdge);
+//         });
+//         return edges;
+//     }
 
-    try {
-        const user = await validateUser();
-        if (!user) {
-            console.error("User not validated.");
-            return null;
-        }
+//     try {
+//         const user = await validateUser();
+//         if (!user) {
+//             console.error("User not validated.");
+//             return null;
+//         }
 
-        // fetch nodes
-        let fetchedNodes;
-        if (target === "opponent") {
-            fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$ne]=${user.team}&filters[visible][$eq]=true&populate=*`, {
-                headers: {
-                    Authorization: `Bearer ${STRAPI_API_TOKEN}`
-                }
-            });
-        } else {
-            fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$eq]=${user.team}&populate=*`, {
-                headers: {
-                    Authorization: `Bearer ${STRAPI_API_TOKEN}`
-                }
-            });
-        }
-        const unparsedNodes = await fetchedNodes.json();
-        const parsedNodes = parseNodes(unparsedNodes.data);
+//         // fetch nodes
+//         let fetchedNodes;
+//         if (target === "opponent") {
+//             fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$ne]=${user.team}&filters[visible][$eq]=true&populate=*`, {
+//                 headers: {
+//                     Authorization: `Bearer ${STRAPI_API_TOKEN}`
+//                 }
+//             });
+//         } else {
+//             fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$eq]=${user.team}&populate=*`, {
+//                 headers: {
+//                     Authorization: `Bearer ${STRAPI_API_TOKEN}`
+//                 }
+//             });
+//         }
+//         const unparsedNodes = await fetchedNodes.json();
+//         const parsedNodes = parseNodes(unparsedNodes.data);
 
-        // fetch edges
-        const fetchedEdges = await fetch(`${STRAPI_URL}/api/edges?populate=*`, {
-            headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
-            }
-        });
-        const unparsedEdges = await fetchedEdges.json();
-        const parsedEdges = parseEdges(unparsedEdges.data)
-            .filter((edge) => parsedNodes.map((node) => node.id).includes(edge.sourceId) && parsedNodes.map((node) => node.id).includes(edge.targetId));
+//         // fetch edges
+//         const fetchedEdges = await fetch(`${STRAPI_URL}/api/edges?populate=*`, {
+//             headers: {
+//                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
+//             }
+//         });
+//         const unparsedEdges = await fetchedEdges.json();
+//         const parsedEdges = parseEdges(unparsedEdges.data)
+//             .filter((edge) => parsedNodes.map((node) => node.id).includes(edge.sourceId) && parsedNodes.map((node) => node.id).includes(edge.targetId));
 
-        // return object with nodes and edges
-        const graph: Graph = {
-            nodes: parsedNodes,
-            edges: parsedEdges
-        };
-        return graph;
-    } catch (error) {
-        console.error('Error fetching nodes:', error);
-        return null;
-    }
-}
+//         // return object with nodes and edges
+//         const graph: Graph = {
+//             nodes: parsedNodes,
+//             edges: parsedEdges
+//         };
+//         return graph;
+//     } catch (error) {
+//         console.error('Error fetching nodes:', error);
+//         return null;
+//     }
+// }
 
 // /**
 //  * Gets the current modifiers that the user has.
@@ -806,6 +806,67 @@ export async function getActionPageData() {
         actionLog: actionLog,
         actions: actions,
         modifiers: modifiers,
+        teamGraph: teamGraph,
+        opponentGraph: opponentGraph
+    };
+}
+
+/**
+ * Gets the team and opponent graphs for the network graph.
+ * @returns The team and opponent graphs, or `null` if there is an error
+ */
+export async function getGraphData() {
+    const user = await validateUser();
+    if (!user) {
+        console.error("User not validated.");
+        return null;
+    }
+    const res = await sendGraphQLQuery(`
+    {
+        nodes(filters: {}) {
+          data {
+            id
+            attributes {
+              name
+              team {
+                data {
+                  attributes {
+                    name
+                  }
+                }
+              }
+              defense
+              isCoreNode
+              visible
+            }
+          }
+        }
+      
+        edges(filters: {}) {
+          data {
+            id
+            attributes {
+              source {
+                data {
+                  id
+                }
+              }
+              target {
+                data {
+                  id
+                }
+              }
+              defense
+            }
+          }
+        }
+      }
+    `);
+    const data = await res.json();
+    const nodesData: any[] = data.data.nodes.data;
+    const edgesData: any[] = data.data.edges.data;
+    const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
+    return {
         teamGraph: teamGraph,
         opponentGraph: opponentGraph
     };

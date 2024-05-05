@@ -19,28 +19,12 @@ export default function NetworkFrame() {
     }
 
     useEffect(() => {
-        getGraphData("team").then((graph) => {
-            if (graph === null) {
-                console.error("Error: graph is null");
-                return;
-            }
-            setTeamGraph(graph);
-        });
-        getGraphData("opponent").then((graph) => {
-            if (graph === null) {
-                console.error("Error: graph is null");
-                return;
-            }
-            setOpponentGraph(graph);
+        getGraphData().then((data) => {
+            if (!data) return;
+            setTeamGraph(data.teamGraph);
+            setOpponentGraph(data.opponentGraph);
         });
     }, []);
-
-    // for testing, remove
-    useEffect(() => {
-        getActionPageData().then((data) => {
-            console.log(data);
-        });
-    }, [])
 
     return(
         <div className={styles.networkContainer}>
