@@ -33,8 +33,10 @@ export interface Action {
     teamRole: TeamRole;
     type: ActionType;
     successRate: number;
-    targetsNode?: Target;
-    targetsEdge?: Target;
+    targets?: {
+        target: "node" | "edge";
+        myTeam: boolean;
+    }
 }
 
 export type Target = "team" | "opponent";

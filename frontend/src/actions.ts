@@ -330,119 +330,119 @@ export async function getMessages(username: string) {
     return parsedData.sort((a, b) => a.date.getTime() - b.date.getTime());
 }
 
-/**
- * Gets all the actions that have been performed.
- * @returns An array of ActionLog objects, or null if there is an error
- */
-export async function getActionLog() {
-    function parseActionLog(data: any): ActionLog {
-        return {
-            name: data.attributes.action.name,
-            description: data.attributes.action.description,
-            teamRole: data.attributes.action.teamRole,
-            time: new Date(Date.parse(data.attributes.date)),
-            endState: data.attributes.endState
-        }
-    }
+// /**
+//  * Gets all the actions that have been performed.
+//  * @returns An array of ActionLog objects, or null if there is an error
+//  */
+// export async function getActionLog() {
+//     function parseActionLog(data: any): ActionLog {
+//         return {
+//             name: data.attributes.action.name,
+//             description: data.attributes.action.description,
+//             teamRole: data.attributes.action.teamRole,
+//             time: new Date(Date.parse(data.attributes.date)),
+//             endState: data.attributes.endState
+//         }
+//     }
 
-    const user = await validateUser();
-    if (!user) {
-        console.error("User not validated.");
-        return null;
-    }
-    try {
-        // creates a query that gets the last 100 resolved actions for the current user
-        const query = qs.stringify({
-            pagination: {
-                limit: 100
-            },
-            sort: "date:desc",
-            populate: "*",
-            filters: {
-                user: user.username
-            }
-        });
-        // NOTE: right now this only fetches the resolved actions for the current user, not the whole team
-        const res = await fetch(`${STRAPI_URL}/api/resolved-actions?${query}`, {
-            headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
-            }
-        });
+//     const user = await validateUser();
+//     if (!user) {
+//         console.error("User not validated.");
+//         return null;
+//     }
+//     try {
+//         // creates a query that gets the last 100 resolved actions for the current user
+//         const query = qs.stringify({
+//             pagination: {
+//                 limit: 100
+//             },
+//             sort: "date:desc",
+//             populate: "*",
+//             filters: {
+//                 user: user.username
+//             }
+//         });
+//         // NOTE: right now this only fetches the resolved actions for the current user, not the whole team
+//         const res = await fetch(`${STRAPI_URL}/api/resolved-actions?${query}`, {
+//             headers: {
+//                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
+//             }
+//         });
 
-        if (res.ok) {
-            const data = await res.json();
-            return data.data.map((action: any) => parseActionLog(action));
-        } else {
-            console.error('Failed to fetch action log:', res.status, res.statusText);
-            return null;
-        }
-    } catch (error) {
-        console.error('Error fetching action log:', error);
-        return null;
-    }
-}
+//         if (res.ok) {
+//             const data = await res.json();
+//             return data.data.map((action: any) => parseActionLog(action));
+//         } else {
+//             console.error('Failed to fetch action log:', res.status, res.statusText);
+//             return null;
+//         }
+//     } catch (error) {
+//         console.error('Error fetching action log:', error);
+//         return null;
+//     }
+// }
 
-/**
- * Gets all the actions that can be performed.
- * @returns An array of Action objects, or null if there is an error
- */
-export async function getActions() {
-    function parseAction(data: any): Action {
-        return {
-            id: data.id,
-            name: data.attributes.action.name,
-            duration: data.attributes.action.duration,
-            description: data.attributes.action.description,
-            teamRole: data.attributes.action.teamRole,
-            type: data.attributes.action.type,
-            successRate: data.attributes.action.successRate,
-            targetsNode: data.attributes.action.targetsNode && data.attributes.action.targetsNode,
-            targetsEdge: data.attributes.action.targetsEdge && data.attributes.action.targetsEdge
-        };
-    }
+// /**
+//  * Gets all the actions that can be performed.
+//  * @returns An array of Action objects, or null if there is an error
+//  */
+// export async function getActions() {
+//     function parseAction(data: any): Action {
+//         return {
+//             id: data.id,
+//             name: data.attributes.action.name,
+//             duration: data.attributes.action.duration,
+//             description: data.attributes.action.description,
+//             teamRole: data.attributes.action.teamRole,
+//             type: data.attributes.action.type,
+//             successRate: data.attributes.action.successRate,
+//             targetsNode: data.attributes.action.targetsNode && data.attributes.action.targetsNode,
+//             targetsEdge: data.attributes.action.targetsEdge && data.attributes.action.targetsEdge
+//         };
+//     }
 
-    const user = await validateUser();
-    if (!user) {
-        console.error("User not validated.");
-        return null;
-    }
+//     const user = await validateUser();
+//     if (!user) {
+//         console.error("User not validated.");
+//         return null;
+//     }
 
-    try {
-        const actionsRes = await fetch(`${STRAPI_URL}/api/actions?populate=*&filters[action][teamRole][$eq]=${user.teamRole}`, {
-            headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
-            }
-        });
+//     try {
+//         const actionsRes = await fetch(`${STRAPI_URL}/api/actions?populate=*&filters[action][teamRole][$eq]=${user.teamRole}`, {
+//             headers: {
+//                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
+//             }
+//         });
 
-        const currentActionRes = await fetch(`${STRAPI_URL}/api/pending-actions?filters[user][$eq]=${user.username}`, {
-            headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
-            }
-        });
+//         const currentActionRes = await fetch(`${STRAPI_URL}/api/pending-actions?filters[user][$eq]=${user.username}`, {
+//             headers: {
+//                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
+//             }
+//         });
 
-        if (actionsRes.ok && currentActionRes.ok) {
-            const actions = await actionsRes.json();
-            const currentAction = await currentActionRes.json();
+//         if (actionsRes.ok && currentActionRes.ok) {
+//             const actions = await actionsRes.json();
+//             const currentAction = await currentActionRes.json();
 
-            let endTime: Date | null = null;
-            if (currentAction.data.length > 0) {
-                endTime = new Date(Date.parse(currentAction.data[0].attributes.date));
-            }
+//             let endTime: Date | null = null;
+//             if (currentAction.data.length > 0) {
+//                 endTime = new Date(Date.parse(currentAction.data[0].attributes.date));
+//             }
 
-            return {
-                actions: actions.data.map((action: any) => parseAction(action)),
-                endTime: endTime
-            } as ActionResponse;
-        } else {
-            const errorRes = actionsRes.ok ? currentActionRes : actionsRes;
-            console.error('Failed to fetch actions:', errorRes.status, errorRes.statusText);
-            return null;
-        }
-    } catch (error) {
-        console.error('Error fetching actions:', error);
-        return null;
-    }
-}
+//             return {
+//                 actions: actions.data.map((action: any) => parseAction(action)),
+//                 endTime: endTime
+//             } as ActionResponse;
+//         } else {
+//             const errorRes = actionsRes.ok ? currentActionRes : actionsRes;
+//             console.error('Failed to fetch actions:', errorRes.status, errorRes.statusText);
+//             return null;
+//         }
+//     } catch (error) {
+//         console.error('Error fetching actions:', error);
+//         return null;
+//     }
+// }
 
 /**
  * Gets the graph data for the network graph
@@ -524,74 +524,78 @@ export async function getGraphData(target: Target) {
     }
 }
 
+// /**
+//  * Gets the current modifiers that the user has.
+//  * @returns the modifiers, or `null` if there is an error
+//  */
+// export async function getModifiers() {
+//     const user = await validateUser();
+//     if (!user) {
+//         console.error("User not validated.");
+//         return null;
+//     }
+//     try {
+//         const res = await fetch(`${STRAPI_URL}/api/teams?filters[name][$eq]=${user.team}&populate=*`, {
+//             headers: {
+//                 Authorization: `Bearer ${STRAPI_API_TOKEN}`
+//             }
+//         });
+
+//         if (res.ok) {
+//             const data = await res.json();
+//             let modifiers: Modifiers;
+//             switch (user.teamRole) {
+//                 case TeamRole.Leader:
+//                     modifiers = {
+//                         offense: data.data[0].attributes.leaderModifiers.offense,
+//                         defense: data.data[0].attributes.leaderModifiers.defense,
+//                         buff: data.data[0].attributes.leaderModifiers.buff
+//                     };
+//                     break;
+//                 case TeamRole.Intelligence:
+//                     modifiers = {
+//                         offense: data.data[0].attributes.intelligenceModifiers.offense,
+//                         defense: data.data[0].attributes.intelligenceModifiers.defense,
+//                         buff: data.data[0].attributes.intelligenceModifiers.buff
+//                     };
+//                     break;
+//                 case TeamRole.Military:
+//                     modifiers = {
+//                         offense: data.data[0].attributes.militaryModifiers.offense,
+//                         defense: data.data[0].attributes.militaryModifiers.defense,
+//                         buff: data.data[0].attributes.militaryModifiers.buff
+//                     };
+//                     break;
+//                 case TeamRole.Diplomat:
+//                     modifiers = {
+//                         offense: data.data[0].attributes.diplomatModifiers.offense,
+//                         defense: data.data[0].attributes.diplomatModifiers.defense,
+//                         buff: data.data[0].attributes.diplomatModifiers.buff
+//                     };
+//                     break;
+//                 case TeamRole.Media:
+//                     modifiers = {
+//                         offense: data.data[0].attributes.mediaModifiers.offense,
+//                         defense: data.data[0].attributes.mediaModifiers.defense,
+//                         buff: data.data[0].attributes.mediaModifiers.buff
+//                     };
+//                     break;
+//             }
+//             return modifiers;
+//         } else {
+//             console.error('Failed to fetch buff:', res.status, res.statusText);
+//             return null;
+//         }
+//     } catch (error) {
+//         console.error('Error fetching buff:', error);
+//         return null;
+//     }
+// }
+
 /**
- * Gets the current modifiers that the user has.
- * @returns the modifiers, or `null` if there is an error
+ * Fetches all of the data needed for the action page.
+ * @returns Action log, actions, modifiers, and the two graphs; or `null` if there is an error
  */
-export async function getModifiers() {
-    const user = await validateUser();
-    if (!user) {
-        console.error("User not validated.");
-        return null;
-    }
-    try {
-        const res = await fetch(`${STRAPI_URL}/api/teams?filters[name][$eq]=${user.team}&populate=*`, {
-            headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
-            }
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            let modifiers: Modifiers;
-            switch (user.teamRole) {
-                case TeamRole.Leader:
-                    modifiers = {
-                        offense: data.data[0].attributes.leaderModifiers.offense,
-                        defense: data.data[0].attributes.leaderModifiers.defense,
-                        buff: data.data[0].attributes.leaderModifiers.buff
-                    };
-                    break;
-                case TeamRole.Intelligence:
-                    modifiers = {
-                        offense: data.data[0].attributes.intelligenceModifiers.offense,
-                        defense: data.data[0].attributes.intelligenceModifiers.defense,
-                        buff: data.data[0].attributes.intelligenceModifiers.buff
-                    };
-                    break;
-                case TeamRole.Military:
-                    modifiers = {
-                        offense: data.data[0].attributes.militaryModifiers.offense,
-                        defense: data.data[0].attributes.militaryModifiers.defense,
-                        buff: data.data[0].attributes.militaryModifiers.buff
-                    };
-                    break;
-                case TeamRole.Diplomat:
-                    modifiers = {
-                        offense: data.data[0].attributes.diplomatModifiers.offense,
-                        defense: data.data[0].attributes.diplomatModifiers.defense,
-                        buff: data.data[0].attributes.diplomatModifiers.buff
-                    };
-                    break;
-                case TeamRole.Media:
-                    modifiers = {
-                        offense: data.data[0].attributes.mediaModifiers.offense,
-                        defense: data.data[0].attributes.mediaModifiers.defense,
-                        buff: data.data[0].attributes.mediaModifiers.buff
-                    };
-                    break;
-            }
-            return modifiers;
-        } else {
-            console.error('Failed to fetch buff:', res.status, res.statusText);
-            return null;
-        }
-    } catch (error) {
-        console.error('Error fetching buff:', error);
-        return null;
-    }
-}
-
 export async function getActionPageData() {
     const user = await validateUser();
     if (!user) {
@@ -645,7 +649,7 @@ export async function getActionPageData() {
         modifiers: teams(filters: { name: { eq: $team } }) {
           data {
             attributes {
-              leaderModifiers {
+                ${user.teamRole}Modifiers {
                 offense
                 defense
                 buff
@@ -659,6 +663,13 @@ export async function getActionPageData() {
             id
             attributes {
               name
+              team {
+                data {
+                  attributes {
+                    name
+                  }
+                }
+              }
               defense
               isCoreNode
               visible
@@ -687,4 +698,95 @@ export async function getActionPageData() {
       }
     `);
     const data = await res.json();
+    const actionLogData: any[] = data.data.actionLog.data;
+    const actionsData: any[] = data.data.actions.data;
+    const modifiersData: any[] = data.data.modifiers.data;
+    const nodesData: any[] = data.data.nodes.data;
+    const edgesData: any[] = data.data.edges.data;
+
+    // parse action log
+    const actionLog: ActionLog[] = actionLogData.map((action: any) => {
+        const ret: ActionLog = {
+            name: action.attributes.action.name,
+            description: action.attributes.action.description,
+            teamRole: action.attributes.action.teamRole,
+            time: new Date(Date.parse(action.attributes.date)),
+            endState: action.attributes.endState
+        }
+        return ret;
+    });
+
+    // parse actions
+    const actions: Action[] = actionsData.map((action: any) => {
+        const ret: Action = {
+            id: action.id,
+            name: action.attributes.action.name,
+            duration: action.attributes.action.duration,
+            description: action.attributes.action.description,
+            teamRole: action.attributes.action.teamRole,
+            type: action.attributes.action.type,
+            successRate: action.attributes.action.successRate,
+            targets: action.attributes.action.targets
+        };
+        return ret;
+    });
+
+    // parse modifiers
+    const modifiers: Modifiers = {
+        offense: modifiersData[0].attributes.offense,
+        defense: modifiersData[0].attributes.defense,
+        buff: modifiersData[0].attributes.buff
+    };
+
+    // parse graph
+    const nodes = nodesData
+        .filter((node: any) => node.attributes.team.data.attributes.name !== user.team && !node.attributes.visible)
+        .map((unParsedNode: any) => {
+            const node: Node = {
+                id: unParsedNode.id,
+                name: unParsedNode.attributes.name,
+                defense: unParsedNode.attributes.defense,
+                isCoreNode: unParsedNode.attributes.isCoreNode,
+            };
+            return {
+                node: node,
+                isTeam: unParsedNode.attributes.team.data.attributes.name === user.team
+            };
+        });
+
+    const edges: Edge[] = edgesData
+        .map((edge: any) => {
+            const ret: Edge = {
+                id: edge.id,
+                sourceId: edge.attributes.source.data.id,
+                targetId: edge.attributes.target.data.id,
+            };
+            return ret;
+        })
+        .filter((edge) =>
+            nodes.map((node) => node.node.id)
+                .includes(edge.sourceId)
+            && nodes.map((node) => node.node.id).includes(edge.targetId)
+        );
+
+    const teamNodes = nodes.filter((node) => node.isTeam).map((node) => node.node);
+    const opponentNodes = nodes.filter((node) => !node.isTeam).map((node) => node.node);
+    const teamEdges = edges.filter((edge) => teamNodes.map((node) => node.id).includes(edge.sourceId) && teamNodes.map((node) => node.id).includes(edge.targetId));
+    const opponentEdges = edges.filter((edge) => opponentNodes.map((node) => node.id).includes(edge.sourceId) && opponentNodes.map((node) => node.id).includes(edge.targetId));
+    const teamGraph: Graph = {
+        nodes: teamNodes,
+        edges: teamEdges
+    };
+    const opponentGraph: Graph = {
+        nodes: opponentNodes,
+        edges: opponentEdges
+    };
+
+    return {
+        actionLog: actionLog,
+        actions: actions,
+        modifiers: modifiers,
+        teamGraph: teamGraph,
+        opponentGraph: opponentGraph
+    };
 }

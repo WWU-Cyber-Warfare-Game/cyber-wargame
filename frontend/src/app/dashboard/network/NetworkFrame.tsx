@@ -3,7 +3,7 @@ import styles from "./_components/Network.module.css";
 import NetworkGraph from "./_components/NetworkGraph";
 import { useState, useEffect } from "react";
 import { Graph, Target } from "@/types";
-import { getGraphData } from "@/actions";
+import { getActionPageData, getGraphData } from "@/actions";
 
 export default function NetworkFrame() {
     const [target, setTarget] = useState<Target>("team");
@@ -34,6 +34,13 @@ export default function NetworkFrame() {
             setOpponentGraph(graph);
         });
     }, []);
+
+    // for testing, remove
+    useEffect(() => {
+        getActionPageData().then((data) => {
+            console.log(data);
+        });
+    }, [])
 
     return(
         <div className={styles.networkContainer}>
