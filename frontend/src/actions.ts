@@ -591,3 +591,100 @@ export async function getModifiers() {
         return null;
     }
 }
+
+export async function getActionPageData() {
+    const user = await validateUser();
+    if (!user) {
+        console.error("User not validated.");
+        return null;
+    }
+    const res = await sendGraphQLQuery(`
+    query(
+        $user: String = "${user.username}"
+        $team: String = "${user.team}"
+        $teamRole: String = "${user.teamRole}"
+      ) {
+        actionLog: resolvedActions(
+          pagination: { limit: 100 }
+          sort: "date:desc"
+          filters: { user: { eq: $user } }
+        ) {
+          data {
+            attributes {
+              action {
+                name
+                description
+                teamRole
+              }
+              date
+              endState
+            }
+          }
+        }
+      
+        actions(filters: { action: { teamRole: { eq: $teamRole } } }) {
+          data {
+            id
+            attributes {
+              action {
+                name
+                duration
+                description
+                teamRole
+                type
+                successRate
+                targets {
+                  target
+                  myTeam
+                }
+              }
+            }
+          }
+        }
+      
+        modifiers: teams(filters: { name: { eq: $team } }) {
+          data {
+            attributes {
+              leaderModifiers {
+                offense
+                defense
+                buff
+              }
+            }
+          }
+        }
+      
+        nodes(filters: {}) {
+          data {
+            id
+            attributes {
+              name
+              defense
+              isCoreNode
+              visible
+            }
+          }
+        }
+      
+        edges(filters: {}) {
+          data {
+            id
+            attributes {
+              source {
+                data {
+                  id
+                }
+              }
+              target {
+                data {
+                  id
+                }
+              }
+              defense
+            }
+          }
+        }
+      }
+    `);
+    const data = await res.json();
+}
