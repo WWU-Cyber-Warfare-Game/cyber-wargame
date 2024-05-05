@@ -23,8 +23,18 @@ export interface ActionsPlaceholderAction extends Schema.Component {
         max: 100;
       }> &
       Attribute.DefaultTo<50>;
-    targetsNode: Attribute.Enumeration<['team', 'opponent']>;
-    targetsEdge: Attribute.Enumeration<['team', 'opponent']>;
+    targets: Attribute.Component<'actions.targets'>;
+  };
+}
+
+export interface ActionsTargets extends Schema.Component {
+  collectionName: 'components_actions_targets';
+  info: {
+    displayName: 'targets';
+  };
+  attributes: {
+    target: Attribute.Enumeration<['node', 'edge']> & Attribute.Required;
+    myTeam: Attribute.Boolean & Attribute.Required;
   };
 }
 
@@ -152,6 +162,7 @@ declare module '@strapi/types' {
   export module Shared {
     export interface Components {
       'actions.placeholder-action': ActionsPlaceholderAction;
+      'actions.targets': ActionsTargets;
       'effects.add-victory-points': EffectsAddVictoryPoints;
       'effects.attack-node': EffectsAttackNode;
       'effects.buff-debuff': EffectsBuffDebuff;

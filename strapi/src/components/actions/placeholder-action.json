@@ -44,19 +44,11 @@
       "min": 0,
       "default": 50
     },
-    "targetsNode": {
-      "type": "enumeration",
-      "enum": [
-        "team",
-        "opponent"
-      ]
-    },
-    "targetsEdge": {
-      "type": "enumeration",
-      "enum": [
-        "team",
-        "opponent"
-      ]
+    "targets": {
+      "displayName": "targets",
+      "type": "component",
+      "repeatable": false,
+      "component": "actions.targets"
     }
   }
 }
