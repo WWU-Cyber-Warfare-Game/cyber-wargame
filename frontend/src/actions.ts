@@ -740,7 +740,11 @@ export async function getActionPageData() {
 
     // parse graph
     const nodes = nodesData
-        .filter((node: any) => node.attributes.team.data.attributes.name !== user.team && !node.attributes.visible)
+        .filter((node: any) => {
+            if (node.attributes.team.data.attributes.name === user.team) return true;
+            else if (node.attributes.team.data.attributes.name !== user.team && node.attributes.visible) return true;
+            return false;
+        })
         .map((unParsedNode: any) => {
             const node: Node = {
                 id: unParsedNode.id,
