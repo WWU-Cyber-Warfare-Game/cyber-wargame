@@ -3,7 +3,7 @@ import styles from "./_components/Network.module.css";
 import NetworkGraph from "./_components/NetworkGraph";
 import { useState, useEffect } from "react";
 import { Graph, Target } from "@/types";
-import { getGraphData } from "@/actions";
+import { getActionPageData, getGraphData } from "@/actions";
 
 export default function NetworkFrame() {
     const [target, setTarget] = useState<Target>("team");
@@ -19,19 +19,10 @@ export default function NetworkFrame() {
     }
 
     useEffect(() => {
-        getGraphData("team").then((graph) => {
-            if (graph === null) {
-                console.error("Error: graph is null");
-                return;
-            }
-            setTeamGraph(graph);
-        });
-        getGraphData("opponent").then((graph) => {
-            if (graph === null) {
-                console.error("Error: graph is null");
-                return;
-            }
-            setOpponentGraph(graph);
+        getGraphData().then((data) => {
+            if (!data) return;
+            setTeamGraph(data.teamGraph);
+            setOpponentGraph(data.opponentGraph);
         });
     }, []);
 

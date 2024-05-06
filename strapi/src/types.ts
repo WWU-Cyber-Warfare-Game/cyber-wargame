@@ -26,15 +26,17 @@ export interface Message {
 }
 
 export interface Action {
-    id: number;
+    id: number; // NOTE: this is the id or the action entry, not the action component
     name: string;
     duration: number;
     description: string;
     teamRole: TeamRole;
     type: ActionType;
     successRate: number;
-    targetsNode?: Target;
-    targetsEdge?: Target;
+    targets?: {
+        target: "node" | "edge";
+        myTeam: boolean;
+    }
 }
 
 export type Target = "team" | "opponent";

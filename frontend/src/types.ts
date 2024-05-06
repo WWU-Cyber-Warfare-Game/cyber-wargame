@@ -33,8 +33,10 @@ export interface Action {
     teamRole: TeamRole;
     type: ActionType;
     successRate: number;
-    targetsNode?: Target;
-    targetsEdge?: Target;
+    targets?: {
+        target: "node" | "edge";
+        myTeam: boolean;
+    }
 }
 
 export type Target = "team" | "opponent";
@@ -46,7 +48,9 @@ export enum ActionEndState {
 }
 
 export interface ActionLog {
-    action: Action;
+    name: string;
+    description: string;
+    teamRole: TeamRole;
     time: Date;
     endState: ActionEndState;
 }

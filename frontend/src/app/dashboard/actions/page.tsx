@@ -17,7 +17,7 @@ export default async function ActionPage() {
 
     return (
         <div>
-            <h2>Action Log</h2>
+            <h2>Actions</h2>
             <Link href="/dashboard/chat">Go to Chat</Link>
             <br />
             <Link href="/dashboard">Go to Dashboard</Link>

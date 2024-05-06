@@ -39,6 +39,7 @@ export default function ChatFrame({ user, jwt }: Readonly<ChatFrameProps>) {
     const [teamUsers, setTeamUsers] = useState<User[]>([]);
     const [socket, setSocket] = useState<Socket | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const fetched = useRef(false);
 
     // get the team members when the component mounts
     useEffect(() => {
