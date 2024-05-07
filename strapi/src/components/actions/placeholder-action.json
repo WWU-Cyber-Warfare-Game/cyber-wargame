@@ -49,6 +49,11 @@
       "type": "component",
       "repeatable": false,
       "component": "actions.targets"
+    },
+    "cost": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
     }
   }
 }

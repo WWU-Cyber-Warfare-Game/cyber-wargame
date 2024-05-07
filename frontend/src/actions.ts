@@ -42,7 +42,8 @@ function parseUser(user: any) {
         username: user.attributes.username,
         email: user.attributes.email,
         teamRole: user.attributes.teamRole,
-        team: team
+        team: team,
+        funds: user.attributes.funds
     };
     return ret;
 }
@@ -155,7 +156,8 @@ export async function validateUser() {
                 username: unparsedData.username,
                 email: unparsedData.email,
                 teamRole: unparsedData.teamRole,
-                team: unparsedData.team ? unparsedData.team.name : null
+                team: unparsedData.team ? unparsedData.team.name : null,
+                funds: unparsedData.funds
             };
             return ret;
         }
@@ -436,6 +438,7 @@ export async function getActionPageData() {
               teamRole
               type
               successRate
+              cost
               targets {
                 target
                 myTeam
@@ -534,7 +537,8 @@ export async function getActionPageData() {
             teamRole: action.attributes.action.teamRole,
             type: action.attributes.action.type,
             successRate: action.attributes.action.successRate,
-            targets: action.attributes.action.targets
+            targets: action.attributes.action.targets,
+            cost: action.attributes.action.cost
         };
         return ret;
     });

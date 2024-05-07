@@ -2,6 +2,7 @@
 
 import ActionLogFrame from "./ActionLogFrame";
 import ActionSelectorFrame from "./ActionSelectorFrame";
+import ResourceFrame from "./ActionSelectorFrame/ResourceCount";
 import { User, ActionLog, Action, Modifiers, Graph } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import io, { Socket } from "socket.io-client";
@@ -85,6 +86,7 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
 
     return (
         <>
+            <ResourceFrame user={user}></ResourceFrame>
             <ActionSelectorFrame
                 user={user}
                 socket={socket}

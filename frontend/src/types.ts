@@ -11,6 +11,7 @@ export interface User {
     email: string;
     teamRole: TeamRole;
     team: string;
+    funds: number
 }
 
 export interface Message {
@@ -33,6 +34,7 @@ export interface Action {
     teamRole: TeamRole;
     type: ActionType;
     successRate: number;
+    cost: number;
     targets?: {
         target: "node" | "edge";
         myTeam: boolean;

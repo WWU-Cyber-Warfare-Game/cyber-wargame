@@ -70,6 +70,7 @@ export default function ActionButton({ action, onClick, disabled, modifiers, set
             onClick={handleClick}
         >
             <p className={classNames(styles.actionName, styles.actionButtonLine)}>{action.name}</p>
+            <p className={styles.actionButtonLine}>Cost: {action.cost}</p>
             <p className={styles.actionButtonLine}>{action.description}</p>
             <p className={styles.actionButtonLine}>Type: {action.type}</p>
             <p className={styles.actionButtonLine}>{action.duration} minutes</p>
