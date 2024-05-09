@@ -3,7 +3,6 @@ import { getGameState } from "@/actions";
 export default async function DashboardLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     try {
         const gameState = await getGameState();
-        console.log(gameState);
         if (!gameState.gameRunning) {
             return <div>Game has not started yet.</div>;
         } else {
