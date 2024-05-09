@@ -25,7 +25,8 @@ async function sendGraphQLQuery(query: string) {
         },
         body: JSON.stringify({
             query: query
-        })
+        }),
+        cache: "no-cache"
     });
 }
 
@@ -620,5 +621,27 @@ export async function getGraphData() {
     return {
         teamGraph: teamGraph,
         opponentGraph: opponentGraph
+    };
+}
+
+/**
+ * Gets the current game state.
+ * @returns The current game state
+ */
+export async function getGameState() {
+    const res = await sendGraphQLQuery(`
+    {
+        game {
+          data {
+            attributes {
+              gameRunning
+            }
+          }
+        }
+      }
+    `);
+    const data = await res.json();
+    return {
+        gameRunning: data.data.game.data.attributes.gameRunning
     };
 }
