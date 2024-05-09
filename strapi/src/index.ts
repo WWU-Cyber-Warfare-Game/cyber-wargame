@@ -287,6 +287,36 @@ async function startAction(pendingActionReq: PendingActionRequest, socket: Socke
   actionQueue.addAction(pendingAction);
 }
 
+interface GameState {
+  initialized: boolean;
+  gameRunning: boolean;
+}
+
+/**
+ * Gets the game state
+ * @returns The game state
+ */
+async function getGameState() {
+  const game = await strapi.services['api::game.game'].find();
+  return {
+    initialized: game.initialized as boolean,
+    gameRunning: game.gameRunning as boolean
+  };
+}
+
+/**
+ * Sets the game state
+ * @param field The field to set
+ * @param value The value to set
+ */
+async function setGameState(field: 'initialized' | 'gameRunning', value: any) {
+  strapi.services['api::game.game'].createOrUpdate({
+    data: {
+      [field]: value
+    }
+  });
+}
+
 export default {
   /**
    * An asynchronous register function that runs before
@@ -306,6 +336,13 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ /* strapi */ }) {
+    // initialize game if not already initialized
+    if (!(await getGameState()).initialized) {
+      console.log('Initializing game...');
+      setGameState('initialized', true);
+    }
+
+    // create socket server
     const frontend = new Server(strapi.server.httpServer, {
       cors: {
         origin: [`${FRONTEND_URL}`], //dashboard, can add other origins

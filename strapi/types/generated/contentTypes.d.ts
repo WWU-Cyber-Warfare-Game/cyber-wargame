@@ -842,6 +842,33 @@ export interface ApiEdgeEdge extends Schema.CollectionType {
   };
 }
 
+export interface ApiGameGame extends Schema.SingleType {
+  collectionName: 'games';
+  info: {
+    singularName: 'game';
+    pluralName: 'games';
+    displayName: 'Game';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    initialized: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
+    gameRunning: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::game.game', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::game.game', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
 export interface ApiMessageMessage extends Schema.CollectionType {
   collectionName: 'messages';
   info: {
@@ -1035,6 +1062,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'api::action.action': ApiActionAction;
       'api::edge.edge': ApiEdgeEdge;
+      'api::game.game': ApiGameGame;
       'api::message.message': ApiMessageMessage;
       'api::node.node': ApiNodeNode;
       'api::pending-action.pending-action': ApiPendingActionPendingAction;
