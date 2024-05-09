@@ -287,11 +287,6 @@ async function startAction(pendingActionReq: PendingActionRequest, socket: Socke
   actionQueue.addAction(pendingAction);
 }
 
-interface GameState {
-  initialized: boolean;
-  gameRunning: boolean;
-}
-
 /**
  * Gets the game state
  * @returns The game state
@@ -340,6 +335,7 @@ export default {
     if (!(await getGameState()).initialized) {
       console.log('Initializing game...');
       setGameState('initialized', true);
+      // TODO: initialize actions and set permissions
     }
 
     // create socket server
