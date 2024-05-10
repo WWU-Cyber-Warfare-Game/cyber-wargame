@@ -1,9 +1,10 @@
 import Link from "next/link";
 import ActionFrame from "./_components/ActionFrame";
-import { validateUser } from "@/actions";
+import { validateUser, getGameState } from "@/actions";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { SocketProvider } from "@/components/SocketContext";
+import Timer from "@/components/Timer";
 
 /**
  * The action page for the application. Displays the action log and the action selector.
@@ -15,6 +16,7 @@ export default async function ActionPage() {
     if (!user || !jwt) {
         redirect("/login");
     }
+    const gameState = await getGameState();
 
     return (
         <div>
@@ -24,6 +26,12 @@ export default async function ActionPage() {
             <Link href="/dashboard">Go to Dashboard</Link>
             <br />
             <SocketProvider jwt={jwt}>
+                {gameState && gameState.endTime && 
+                <>
+                    <p>Time left:</p>
+                    <Timer time={gameState.endTime} />
+                </>
+                }
                 <ActionFrame user={user} />
             </SocketProvider>
         </div>

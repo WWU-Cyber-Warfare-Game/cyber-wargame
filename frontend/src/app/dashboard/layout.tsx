@@ -1,3 +1,5 @@
+"use server";
+
 import { getGameState } from "@/actions";
 import { GameState } from "@/types";
 
