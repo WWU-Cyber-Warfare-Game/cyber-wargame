@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { validateUser } from "@/actions";
 import { redirect } from "next/navigation";
-import styles from "./ChatPage.module.css";
-import { User } from "@/types";
-import { useEffect, useRef, useState } from "react";
 import ChatFrame from "./_components/ChatFrame";
 import { cookies } from "next/headers";
+import { SocketProvider } from "@/components/SocketContext";
 
 /**
  * The chat page for the application. Displays a welcome message and a list of team members to chat with.
@@ -24,7 +22,9 @@ export default async function ChatPage() {
             <h2>Chat Page</h2>
             <Link href="/dashboard">Back to dashboard</Link>
             <p>Welcome to the chat page!</p>
-            <ChatFrame user={user} jwt={jwt} />
+            <SocketProvider jwt={jwt}>
+                <ChatFrame user={user} />
+            </SocketProvider>
         </div>
     );
 };

@@ -3,6 +3,7 @@ import ActionFrame from "./_components/ActionFrame";
 import { validateUser } from "@/actions";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { SocketProvider } from "@/components/SocketContext";
 
 /**
  * The action page for the application. Displays the action log and the action selector.
@@ -22,7 +23,9 @@ export default async function ActionPage() {
             <br />
             <Link href="/dashboard">Go to Dashboard</Link>
             <br />
-            <ActionFrame user={user} jwt={jwt} />
+            <SocketProvider jwt={jwt}>
+                <ActionFrame user={user} />
+            </SocketProvider>
         </div>
     );
 }
