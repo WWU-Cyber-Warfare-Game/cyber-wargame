@@ -9,6 +9,7 @@ type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap,
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 let actionQueue: ActionQueue;
+let gameEndCheckerInterval: NodeJS.Timeout;
 
 /**
  * Converts minutes to milliseconds
@@ -295,7 +296,8 @@ async function getGameState() {
   const game = await strapi.services['api::game.game'].find();
   return {
     initialized: game.initialized as boolean,
-    gameRunning: game.gameRunning as boolean
+    gameRunning: game.gameRunning as boolean,
+    endTime: new Date(Date.parse(game.endTime as string))
   };
 }
 
@@ -304,12 +306,27 @@ async function getGameState() {
  * @param field The field to set
  * @param value The value to set
  */
-async function setGameState(field: 'initialized' | 'gameRunning', value: any) {
+function setGameState(field: 'initialized' | 'gameRunning' | 'endTime' | 'winner', value: any) {
   strapi.services['api::game.game'].createOrUpdate({
     data: {
       [field]: value
     }
   });
+}
+
+/**
+ * Checks every 5 seconds if the game has ended
+ * @returns The interval
+ */
+function startGameEndChecker() {
+  const interval = setInterval(async () => {
+    const game = await getGameState();
+    if (game.gameRunning && new Date() >= game.endTime) {
+      setGameState('gameRunning', false);
+      console.log('game ended');
+    }
+  }, 5000);
+  return interval;
 }
 
 export default {
@@ -337,6 +354,9 @@ export default {
       setGameState('initialized', true);
       // TODO: initialize actions and set permissions
     }
+
+    // start game end checker
+    gameEndCheckerInterval = startGameEndChecker();
 
     // create socket server
     const frontend = new Server(strapi.server.httpServer, {
@@ -377,7 +397,12 @@ export default {
     });
   },
 
+  /**
+   * A function that runs when the application is closing
+   * This includes fast reloads
+   */
   destroy() {
     actionQueue.stopQueue();
+    clearInterval(gameEndCheckerInterval);
   }
 };
