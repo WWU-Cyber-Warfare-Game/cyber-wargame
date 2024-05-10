@@ -71,3 +71,9 @@ export enum ActionEndState {
 export interface ActionCompleteRequest {
     pendingActionId: number;
 }
+
+export enum GameState {
+    NotStarted = "notstarted",
+    Running = "running",
+    Ended = "ended"
+}

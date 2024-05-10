@@ -27,6 +27,7 @@ export function SocketProvider({ jwt, children }: SocketProviderProps) {
         newSocket.on("connect", () => {
             setSocket(newSocket);
         });
+        newSocket.on("gameEnd", () => window.location.reload());
 
         return () => {
             newSocket.disconnect();

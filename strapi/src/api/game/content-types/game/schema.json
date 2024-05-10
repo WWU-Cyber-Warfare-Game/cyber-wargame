@@ -17,11 +17,6 @@
       "default": false,
       "required": true
     },
-    "gameRunning": {
-      "type": "boolean",
-      "default": false,
-      "required": true
-    },
     "winner": {
       "type": "relation",
       "relation": "oneToOne",
@@ -29,6 +24,16 @@
     },
     "endTime": {
       "type": "datetime"
+    },
+    "gameState": {
+      "type": "enumeration",
+      "enum": [
+        "notstarted",
+        "running",
+        "ended"
+      ],
+      "required": true,
+      "default": "notstarted"
     }
   }
 }

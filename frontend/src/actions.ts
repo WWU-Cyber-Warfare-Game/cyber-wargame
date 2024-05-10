@@ -5,7 +5,7 @@ import { emailRegex, usernameRegex, passwordRegex } from "./regex";
 import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole, Node, Edge, Target, Graph, PendingAction } from "./types";
+import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole, Node, Edge, Target, Graph, PendingAction, GameState } from "./types";
 import qs from "qs";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
@@ -630,7 +630,7 @@ export async function getGraphData() {
  */
 export async function getGameState() {
   try {
-    const res = await fetch(`${STRAPI_URL}/api/game`, {
+    const res = await fetch(`${STRAPI_URL}/api/game?populate=*`, {
       headers: {
         Authorization: `Bearer ${STRAPI_API_TOKEN}`
       },
@@ -642,8 +642,9 @@ export async function getGameState() {
     }
     const data = await res.json();
     return {
-      gameRunning: data.data.attributes.gameRunning as boolean,
-      endTime: data.data.attributes.endTime ? new Date(Date.parse(data.data.attributes.endTime)) : null
+      gameState: data.data.attributes.gameState as GameState,
+      endTime: data.data.attributes.endTime ? new Date(Date.parse(data.data.attributes.endTime)) : null,
+      winner: data.data.attributes.winner.data ? data.data.attributes.winner.data.attributes.name : null
     };
   } catch (error) {
     console.error(error);
