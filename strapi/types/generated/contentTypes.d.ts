@@ -860,6 +860,8 @@ export interface ApiGameGame extends Schema.SingleType {
     gameRunning: Attribute.Boolean &
       Attribute.Required &
       Attribute.DefaultTo<false>;
+    winner: Attribute.Relation<'api::game.game', 'oneToOne', 'api::team.team'>;
+    endTime: Attribute.DateTime;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::game.game', 'oneToOne', 'admin::user'> &

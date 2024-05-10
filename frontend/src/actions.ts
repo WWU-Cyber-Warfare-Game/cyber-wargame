@@ -17,17 +17,17 @@ const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
  * @returns A response from the Strapi API
  */
 async function sendGraphQLQuery(query: string) {
-    return await fetch(`${STRAPI_URL}/graphql`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${STRAPI_API_TOKEN}`
-        },
-        body: JSON.stringify({
-            query: query
-        }),
-        cache: "no-cache"
-    });
+  return await fetch(`${STRAPI_URL}/graphql`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${STRAPI_API_TOKEN}`
+    },
+    body: JSON.stringify({
+      query: query
+    }),
+    cache: "no-cache"
+  });
 }
 
 /**
@@ -36,16 +36,16 @@ async function sendGraphQLQuery(query: string) {
  * @returns The parsed user data
  */
 function parseUser(user: any) {
-    let team;
-    if (!user.attributes.team) team = null;
-    else team = user.attributes.team.data.attributes.name;
-    const ret: User = {
-        username: user.attributes.username,
-        email: user.attributes.email,
-        teamRole: user.attributes.teamRole,
-        team: team
-    };
-    return ret;
+  let team;
+  if (!user.attributes.team) team = null;
+  else team = user.attributes.team.data.attributes.name;
+  const ret: User = {
+    username: user.attributes.username,
+    email: user.attributes.email,
+    teamRole: user.attributes.teamRole,
+    team: team
+  };
+  return ret;
 }
 
 /**
@@ -55,35 +55,35 @@ function parseUser(user: any) {
  * @returns null if there is no error, or an error message
  */
 export async function logIn(prevState: string | null, formData: FormData) {
-    const formSchema = z.object({
-        identifier: z.string(),
-        password: z.string()
-    });
+  const formSchema = z.object({
+    identifier: z.string(),
+    password: z.string()
+  });
 
-    const validataedFormData = formSchema.safeParse({
-        identifier: formData.get("email"),
-        password: formData.get("password")
-    });
+  const validataedFormData = formSchema.safeParse({
+    identifier: formData.get("email"),
+    password: formData.get("password")
+  });
 
-    if (!validataedFormData.success) return "Server-side validation failed";
+  if (!validataedFormData.success) return "Server-side validation failed";
 
-    try {
-        const res = await axios.post(`${STRAPI_URL}/api/auth/local`, validataedFormData.data);
-        if (res.data.jwt) {
-            cookies().set("jwt", res.data.jwt);
-        }
-    } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-            return error.response.data.error.message;
-        } else if (isAxiosError(error) && error.message) {
-            return error.message;
-        } else if (isAxiosError(error) && error.code == "ECONNREFUSED") {
-            return "Connection refused. Is the Strapi server running?";
-        } else {
-            return "An unknown error occurred";
-        }
+  try {
+    const res = await axios.post(`${STRAPI_URL}/api/auth/local`, validataedFormData.data);
+    if (res.data.jwt) {
+      cookies().set("jwt", res.data.jwt);
     }
-    redirect("/dashboard");
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data.error.message;
+    } else if (isAxiosError(error) && error.message) {
+      return error.message;
+    } else if (isAxiosError(error) && error.code == "ECONNREFUSED") {
+      return "Connection refused. Is the Strapi server running?";
+    } else {
+      return "An unknown error occurred";
+    }
+  }
+  redirect("/dashboard");
 }
 
 /**
@@ -93,46 +93,46 @@ export async function logIn(prevState: string | null, formData: FormData) {
  * @returns null if there is no error, or an error message
  */
 export async function signUp(prevState: string | null, formData: FormData) {
-    const formSchema = z.object({
-        email: z.string().regex(emailRegex),
-        username: z.string().regex(usernameRegex),
-        password: z.string().regex(passwordRegex),
-    });
+  const formSchema = z.object({
+    email: z.string().regex(emailRegex),
+    username: z.string().regex(usernameRegex),
+    password: z.string().regex(passwordRegex),
+  });
 
-    const validataedFormData = formSchema.safeParse({
-        email: formData.get("email"),
-        username: formData.get("username"),
-        password: formData.get("password"),
-    });
+  const validataedFormData = formSchema.safeParse({
+    email: formData.get("email"),
+    username: formData.get("username"),
+    password: formData.get("password"),
+  });
 
-    if (!validataedFormData.success) return "Server-side validation failed";
-    if (validataedFormData.data.password !== formData.get("confirmPassword")) return "Passwords do not match";
+  if (!validataedFormData.success) return "Server-side validation failed";
+  if (validataedFormData.data.password !== formData.get("confirmPassword")) return "Passwords do not match";
 
-    try {
-        const res = await axios.post(`${STRAPI_URL}/api/auth/local/register`, validataedFormData.data);
-        if (res.data.jwt) {
-            cookies().set("jwt", res.data.jwt);
-        }
-    } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-            return error.response.data.error.message;
-        } else if (isAxiosError(error) && error.message) {
-            return error.message;
-        } else if (isAxiosError(error) && error.code == "ECONNREFUSED") {
-            return "Connection refused. Is the Strapi server running?";
-        } else {
-            return "An unknown error occurred";
-        }
+  try {
+    const res = await axios.post(`${STRAPI_URL}/api/auth/local/register`, validataedFormData.data);
+    if (res.data.jwt) {
+      cookies().set("jwt", res.data.jwt);
     }
-    redirect("/dashboard");
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data.error.message;
+    } else if (isAxiosError(error) && error.message) {
+      return error.message;
+    } else if (isAxiosError(error) && error.code == "ECONNREFUSED") {
+      return "Connection refused. Is the Strapi server running?";
+    } else {
+      return "An unknown error occurred";
+    }
+  }
+  redirect("/dashboard");
 }
 
 /**
  * Logs the user out by deleting the JWT cookie, then redirects back to the home page.
  */
 export async function logOut() {
-    cookies().delete("jwt");
-    redirect("/");
+  cookies().delete("jwt");
+  redirect("/");
 }
 
 /**
@@ -140,31 +140,31 @@ export async function logOut() {
  * @returns A User object if the user is validated, or null if they are not.
  */
 export async function validateUser() {
-    try {
-        let jwt = cookies().get("jwt")?.value;
-        if (!jwt) return null;
+  try {
+    let jwt = cookies().get("jwt")?.value;
+    if (!jwt) return null;
 
-        const res = await fetch(`${STRAPI_URL}/api/users/me?populate=*`, {
-            headers: {
-                Authorization: `Bearer ${jwt}`
-            }
-        });
+    const res = await fetch(`${STRAPI_URL}/api/users/me?populate=*`, {
+      headers: {
+        Authorization: `Bearer ${jwt}`
+      }
+    });
 
-        if (res.ok) {
-            const unparsedData = await res.json();
-            const ret: User = {
-                username: unparsedData.username,
-                email: unparsedData.email,
-                teamRole: unparsedData.teamRole,
-                team: unparsedData.team ? unparsedData.team.name : null
-            };
-            return ret;
-        }
-        return null;
-    } catch (error) {
-        console.error(error);
-        return null;
+    if (res.ok) {
+      const unparsedData = await res.json();
+      const ret: User = {
+        username: unparsedData.username,
+        email: unparsedData.email,
+        teamRole: unparsedData.teamRole,
+        team: unparsedData.team ? unparsedData.team.name : null
+      };
+      return ret;
     }
+    return null;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
 /**
@@ -173,8 +173,8 @@ export async function validateUser() {
  * @returns An array of User objects
  */
 export async function getTeamUsers(team: string) {
-    try {
-        const res = await sendGraphQLQuery(`
+  try {
+    const res = await sendGraphQLQuery(`
         {
             usersPermissionsUsers(filters: {
               team: {
@@ -201,18 +201,18 @@ export async function getTeamUsers(team: string) {
           }
         `);
 
-        if (res.ok) {
-            const data = await res.json();
-            const parsedData: User[] = data.data.usersPermissionsUsers.data.map((user: any) => parseUser(user));
-            return parsedData;
-        } else {
-            console.error(res);
-            return [] as User[];
-        }
-    } catch (error) {
-        console.error(error);
-        return [] as User[];
+    if (res.ok) {
+      const data = await res.json();
+      const parsedData: User[] = data.data.usersPermissionsUsers.data.map((user: any) => parseUser(user));
+      return parsedData;
+    } else {
+      console.error(res);
+      return [] as User[];
     }
+  } catch (error) {
+    console.error(error);
+    return [] as User[];
+  }
 }
 
 /**
@@ -221,8 +221,8 @@ export async function getTeamUsers(team: string) {
  * @returns A User object if the user exists, or null if they do not.
  */
 export async function getUser(username: string) {
-    try {
-        const res = await sendGraphQLQuery(`
+  try {
+    const res = await sendGraphQLQuery(`
         {
             usersPermissionsUsers(filters: {
               username: {
@@ -247,18 +247,18 @@ export async function getUser(username: string) {
           }
         `);
 
-        if (res.ok) {
-            const unparsedData = await res.json();
-            const user = unparsedData[0];
-            if (!user) return null;
-            return parseUser(user);
-        }
-        console.error(res);
-        return null;
-    } catch (error) {
-        console.error(error);
-        return null;
+    if (res.ok) {
+      const unparsedData = await res.json();
+      const user = unparsedData[0];
+      if (!user) return null;
+      return parseUser(user);
     }
+    console.error(res);
+    return null;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
 /**
@@ -267,13 +267,13 @@ export async function getUser(username: string) {
  * @returns An array of Message objects, or null if there is an error
  */
 export async function getMessages(username: string) {
-    const user = await validateUser();
-    if (!user) {
-        console.error("User not validated.");
-        return null;
-    }
+  const user = await validateUser();
+  if (!user) {
+    console.error("User not validated.");
+    return null;
+  }
 
-    const res = await sendGraphQLQuery(`
+  const res = await sendGraphQLQuery(`
     {
         messages(
           pagination: {
@@ -313,22 +313,22 @@ export async function getMessages(username: string) {
       }
     `);
 
-    if (!res.ok) {
-        console.error(res);
-        return null;
-    }
-    const data = await res.json();
-    const parsedData: Message[] = data.data.messages.data
-        .map((message: any) => {
-            const ret: Message = {
-                message: message.attributes.message,
-                date: new Date(Date.parse(message.attributes.date)),
-                sender: message.attributes.sender,
-                receiver: message.attributes.receiver
-            };
-            return ret;
-        });
-    return parsedData.sort((a, b) => a.date.getTime() - b.date.getTime());
+  if (!res.ok) {
+    console.error(res);
+    return null;
+  }
+  const data = await res.json();
+  const parsedData: Message[] = data.data.messages.data
+    .map((message: any) => {
+      const ret: Message = {
+        message: message.attributes.message,
+        date: new Date(Date.parse(message.attributes.date)),
+        sender: message.attributes.sender,
+        receiver: message.attributes.receiver
+      };
+      return ret;
+    });
+  return parsedData.sort((a, b) => a.date.getTime() - b.date.getTime());
 }
 
 /**
@@ -339,57 +339,57 @@ export async function getMessages(username: string) {
  * @returns The two graphs
  */
 function parseGraphData(nodesData: any[], edgesData: any[], user: User) {
-    const nodes = nodesData
-        .filter((node: any) => {
-            if (node.attributes.team.data.attributes.name === user.team) return true;
-            else if (node.attributes.team.data.attributes.name !== user.team && node.attributes.visible) return true;
-            return false;
-        })
-        .map((unParsedNode: any) => {
-            const node: Node = {
-                id: unParsedNode.id,
-                name: unParsedNode.attributes.name,
-                defense: unParsedNode.attributes.defense,
-                isCoreNode: unParsedNode.attributes.isCoreNode,
-            };
-            return {
-                node: node,
-                isTeam: unParsedNode.attributes.team.data.attributes.name === user.team
-            };
-        });
+  const nodes = nodesData
+    .filter((node: any) => {
+      if (node.attributes.team.data.attributes.name === user.team) return true;
+      else if (node.attributes.team.data.attributes.name !== user.team && node.attributes.visible) return true;
+      return false;
+    })
+    .map((unParsedNode: any) => {
+      const node: Node = {
+        id: unParsedNode.id,
+        name: unParsedNode.attributes.name,
+        defense: unParsedNode.attributes.defense,
+        isCoreNode: unParsedNode.attributes.isCoreNode,
+      };
+      return {
+        node: node,
+        isTeam: unParsedNode.attributes.team.data.attributes.name === user.team
+      };
+    });
 
-    const edges: Edge[] = edgesData
-        .map((edge: any) => {
-            const ret: Edge = {
-                id: edge.id,
-                sourceId: edge.attributes.source.data.id,
-                targetId: edge.attributes.target.data.id,
-            };
-            return ret;
-        })
-        .filter((edge) =>
-            nodes.map((node) => node.node.id)
-                .includes(edge.sourceId)
-            && nodes.map((node) => node.node.id).includes(edge.targetId)
-        );
+  const edges: Edge[] = edgesData
+    .map((edge: any) => {
+      const ret: Edge = {
+        id: edge.id,
+        sourceId: edge.attributes.source.data.id,
+        targetId: edge.attributes.target.data.id,
+      };
+      return ret;
+    })
+    .filter((edge) =>
+      nodes.map((node) => node.node.id)
+        .includes(edge.sourceId)
+      && nodes.map((node) => node.node.id).includes(edge.targetId)
+    );
 
-    const teamNodes = nodes.filter((node) => node.isTeam).map((node) => node.node);
-    const opponentNodes = nodes.filter((node) => !node.isTeam).map((node) => node.node);
-    const teamEdges = edges.filter((edge) => teamNodes.map((node) => node.id).includes(edge.sourceId) && teamNodes.map((node) => node.id).includes(edge.targetId));
-    const opponentEdges = edges.filter((edge) => opponentNodes.map((node) => node.id).includes(edge.sourceId) && opponentNodes.map((node) => node.id).includes(edge.targetId));
-    const teamGraph: Graph = {
-        nodes: teamNodes,
-        edges: teamEdges
-    };
-    const opponentGraph: Graph = {
-        nodes: opponentNodes,
-        edges: opponentEdges
-    };
+  const teamNodes = nodes.filter((node) => node.isTeam).map((node) => node.node);
+  const opponentNodes = nodes.filter((node) => !node.isTeam).map((node) => node.node);
+  const teamEdges = edges.filter((edge) => teamNodes.map((node) => node.id).includes(edge.sourceId) && teamNodes.map((node) => node.id).includes(edge.targetId));
+  const opponentEdges = edges.filter((edge) => opponentNodes.map((node) => node.id).includes(edge.sourceId) && opponentNodes.map((node) => node.id).includes(edge.targetId));
+  const teamGraph: Graph = {
+    nodes: teamNodes,
+    edges: teamEdges
+  };
+  const opponentGraph: Graph = {
+    nodes: opponentNodes,
+    edges: opponentEdges
+  };
 
-    return {
-        teamGraph: teamGraph,
-        opponentGraph: opponentGraph
-    };
+  return {
+    teamGraph: teamGraph,
+    opponentGraph: opponentGraph
+  };
 }
 
 /**
@@ -397,12 +397,12 @@ function parseGraphData(nodesData: any[], edgesData: any[], user: User) {
  * @returns Action log, actions, modifiers, and the two graphs; or `null` if there is an error
  */
 export async function getActionPageData() {
-    const user = await validateUser();
-    if (!user) {
-        console.error("User not validated.");
-        return null;
-    }
-    const res = await sendGraphQLQuery(`
+  const user = await validateUser();
+  if (!user) {
+    console.error("User not validated.");
+    return null;
+  }
+  const res = await sendGraphQLQuery(`
     query(
       $user: String = "${user.username}"
       $team: String = "${user.team}"
@@ -505,62 +505,62 @@ export async function getActionPageData() {
       }
     }    
     `);
-    const data = await res.json();
-    const actionLogData: any[] = data.data.actionLog.data;
-    const actionsData: any[] = data.data.actions.data;
-    const pendingActionsData: any[] = data.data.pendingActions.data;
-    const modifiersData: any[] = data.data.modifiers.data;
-    const nodesData: any[] = data.data.nodes.data;
-    const edgesData: any[] = data.data.edges.data;
+  const data = await res.json();
+  const actionLogData: any[] = data.data.actionLog.data;
+  const actionsData: any[] = data.data.actions.data;
+  const pendingActionsData: any[] = data.data.pendingActions.data;
+  const modifiersData: any[] = data.data.modifiers.data;
+  const nodesData: any[] = data.data.nodes.data;
+  const edgesData: any[] = data.data.edges.data;
 
-    // parse action log
-    const actionLog: ActionLog[] = actionLogData.map((action: any) => {
-        const ret: ActionLog = {
-            name: action.attributes.action.name,
-            description: action.attributes.action.description,
-            teamRole: action.attributes.action.teamRole,
-            time: new Date(Date.parse(action.attributes.date)),
-            endState: action.attributes.endState
-        }
-        return ret;
-    });
+  // parse action log
+  const actionLog: ActionLog[] = actionLogData.map((action: any) => {
+    const ret: ActionLog = {
+      name: action.attributes.action.name,
+      description: action.attributes.action.description,
+      teamRole: action.attributes.action.teamRole,
+      time: new Date(Date.parse(action.attributes.date)),
+      endState: action.attributes.endState
+    }
+    return ret;
+  });
 
-    // parse actions
-    const actions: Action[] = actionsData.map((action: any) => {
-        const ret: Action = {
-            id: action.id,
-            name: action.attributes.action.name,
-            duration: action.attributes.action.duration,
-            description: action.attributes.action.description,
-            teamRole: action.attributes.action.teamRole,
-            type: action.attributes.action.type,
-            successRate: action.attributes.action.successRate,
-            targets: action.attributes.action.targets
-        };
-        return ret;
-    });
-
-    // get end time
-    const endTime = pendingActionsData.length > 0 ? new Date(Date.parse(pendingActionsData[0].attributes.date)) : null;
-
-    // parse modifiers
-    const modifiers: Modifiers = {
-        offense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].offense,
-        defense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].defense,
-        buff: modifiersData[0].attributes[`${user.teamRole}Modifiers`].buff
+  // parse actions
+  const actions: Action[] = actionsData.map((action: any) => {
+    const ret: Action = {
+      id: action.id,
+      name: action.attributes.action.name,
+      duration: action.attributes.action.duration,
+      description: action.attributes.action.description,
+      teamRole: action.attributes.action.teamRole,
+      type: action.attributes.action.type,
+      successRate: action.attributes.action.successRate,
+      targets: action.attributes.action.targets
     };
+    return ret;
+  });
 
-    // parse graph
-    const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
+  // get end time
+  const endTime = pendingActionsData.length > 0 ? new Date(Date.parse(pendingActionsData[0].attributes.date)) : null;
 
-    return {
-        actionLog: actionLog,
-        actions: actions,
-        endTime: endTime,
-        modifiers: modifiers,
-        teamGraph: teamGraph,
-        opponentGraph: opponentGraph,
-    };
+  // parse modifiers
+  const modifiers: Modifiers = {
+    offense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].offense,
+    defense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].defense,
+    buff: modifiersData[0].attributes[`${user.teamRole}Modifiers`].buff
+  };
+
+  // parse graph
+  const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
+
+  return {
+    actionLog: actionLog,
+    actions: actions,
+    endTime: endTime,
+    modifiers: modifiers,
+    teamGraph: teamGraph,
+    opponentGraph: opponentGraph,
+  };
 }
 
 /**
@@ -568,12 +568,12 @@ export async function getActionPageData() {
  * @returns The team and opponent graphs, or `null` if there is an error
  */
 export async function getGraphData() {
-    const user = await validateUser();
-    if (!user) {
-        console.error("User not validated.");
-        return null;
-    }
-    const res = await sendGraphQLQuery(`
+  const user = await validateUser();
+  if (!user) {
+    console.error("User not validated.");
+    return null;
+  }
+  const res = await sendGraphQLQuery(`
     {
         nodes(filters: {}) {
           data {
@@ -614,14 +614,14 @@ export async function getGraphData() {
         }
       }
     `);
-    const data = await res.json();
-    const nodesData: any[] = data.data.nodes.data;
-    const edgesData: any[] = data.data.edges.data;
-    const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
-    return {
-        teamGraph: teamGraph,
-        opponentGraph: opponentGraph
-    };
+  const data = await res.json();
+  const nodesData: any[] = data.data.nodes.data;
+  const edgesData: any[] = data.data.edges.data;
+  const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
+  return {
+    teamGraph: teamGraph,
+    opponentGraph: opponentGraph
+  };
 }
 
 /**
@@ -629,19 +629,24 @@ export async function getGraphData() {
  * @returns The current game state
  */
 export async function getGameState() {
-    const res = await sendGraphQLQuery(`
-    {
-        game {
-          data {
-            attributes {
-              gameRunning
-            }
-          }
-        }
-      }
-    `);
+  try {
+    const res = await fetch(`${STRAPI_URL}/api/game`, {
+      headers: {
+        Authorization: `Bearer ${STRAPI_API_TOKEN}`
+      },
+      cache: "no-cache"
+    });
+    if (!res.ok) {
+      console.error(res);
+      return null;
+    }
     const data = await res.json();
     return {
-        gameRunning: data.data.game.data.attributes.gameRunning
+      gameRunning: data.data.attributes.gameRunning as boolean,
+      endTime: data.data.attributes.endTime ? new Date(Date.parse(data.data.attributes.endTime)) : null
     };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }

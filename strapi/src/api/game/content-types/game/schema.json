@@ -21,6 +21,14 @@
       "type": "boolean",
       "default": false,
       "required": true
+    },
+    "winner": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::team.team"
+    },
+    "endTime": {
+      "type": "datetime"
     }
   }
 }
