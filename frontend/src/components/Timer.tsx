@@ -17,6 +17,7 @@ export default function Timer({ time }: Readonly<TimerProps>) {
     const [seconds, setSeconds] = useState(0);
     const [minutes, setMinutes] = useState(0);
     const [hours, setHours] = useState(0);
+    const [days, setDays] = useState(0);
 
     // Update the time left every second
     useEffect(() => {
@@ -32,7 +33,8 @@ export default function Timer({ time }: Readonly<TimerProps>) {
         setSeconds(Math.floor((timeLeft / 1000) % 60));
         setMinutes(Math.floor((timeLeft / 1000 / 60) % 60));
         setHours(Math.floor(timeLeft / 1000 / 60 / 60));
+        setDays(Math.floor(timeLeft / 1000 / 60 / 60 / 24));
     }, [timeLeft]);
 
-    return <p>{hours}h {minutes}m {seconds}s</p>
+    return <p>{days > 0 && `${days}d`} {days > 0 && `${hours}h`} {minutes}m {seconds}s</p>
 }
