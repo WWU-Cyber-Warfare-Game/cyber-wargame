@@ -36,7 +36,9 @@
       "required": true
     },
     "compromised": {
-      "type": "boolean"
+      "type": "boolean",
+      "required": true,
+      "default": false
     }
   }
 }

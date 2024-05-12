@@ -923,7 +923,9 @@ export interface ApiNodeNode extends Schema.CollectionType {
     visible: Attribute.Boolean &
       Attribute.Required &
       Attribute.DefaultTo<false>;
-    compromised: Attribute.Boolean;
+    compromised: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &
