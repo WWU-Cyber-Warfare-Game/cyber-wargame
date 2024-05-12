@@ -32,7 +32,7 @@ export default function Timer({ time }: Readonly<TimerProps>) {
         if (timeLeft <= 0) return;
         setSeconds(Math.floor((timeLeft / 1000) % 60));
         setMinutes(Math.floor((timeLeft / 1000 / 60) % 60));
-        setHours(Math.floor(timeLeft / 1000 / 60 / 60));
+        setHours(Math.floor(timeLeft / 1000 / 60 / 60) % 24);
         setDays(Math.floor(timeLeft / 1000 / 60 / 60 / 24));
     }, [timeLeft]);
 
