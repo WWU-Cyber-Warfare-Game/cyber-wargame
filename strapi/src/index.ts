@@ -293,7 +293,18 @@ async function startAction(pendingActionReq: PendingActionRequest, socket: Socke
  * @returns The game state
  */
 async function getGameState() {
+  // initialize the game data if not initialized
+  if ((await strapi.services['api::game.game'].find()) === null) {
+    await strapi.services['api::game.game'].createOrUpdate({
+      data: {
+        initialized: false,
+        gameState: 'notstarted'
+      }
+    });
+  }
+
   const game = await strapi.services['api::game.game'].find();
+
   return {
     initialized: game.initialized as boolean,
     gameState: game.gameState as GameState,
@@ -306,8 +317,8 @@ async function getGameState() {
  * @param field The field to set
  * @param value The value to set
  */
-function setGameState(field: 'initialized' | 'gameState' | 'endTime' | 'winner', value: any) {
-  strapi.services['api::game.game'].createOrUpdate({
+async function setGameState(field: 'initialized' | 'gameState' | 'endTime' | 'winner', value: any) {
+  await strapi.services['api::game.game'].createOrUpdate({
     data: {
       [field]: value
     }
