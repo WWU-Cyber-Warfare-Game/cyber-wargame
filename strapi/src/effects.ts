@@ -199,7 +199,14 @@ export default async function applyEffects(actionId: number, user: User, actionQ
 
             // attack a node
             case 'effects.attack-node':
-                // TODO
+                console.log('EFFECT: attacking node');
+                if (!targetNodeId) console.error('No target node ID provided for attack-node effect');
+                const targetNodeForAttack = await strapi.entityService.findOne('api::node.node', targetNodeId);
+                await strapi.entityService.update('api::node.node', targetNodeId, {
+                    data: {
+                        compromised: true
+                    }
+                });
                 break;
 
             // defend a node
