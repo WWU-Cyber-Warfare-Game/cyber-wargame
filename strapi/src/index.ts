@@ -376,6 +376,11 @@ export default {
         return;
       }
 
+      // reject connection if game is not running
+      const gameState = await getGameState();
+      if (gameState.gameState !== GameState.Running)
+        socket.disconnect();
+
       // join user to their own room
       const user = await strapi.entityService.findOne('plugin::users-permissions.user', userId);
       socket.join(user.username);
