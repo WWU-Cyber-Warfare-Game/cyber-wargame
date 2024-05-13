@@ -1,3 +1,6 @@
+import { Server, Namespace } from "socket.io";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
+
 export enum TeamRole {
     Leader = "leader",
     Intelligence = "intelligence",
@@ -71,3 +74,11 @@ export enum ActionEndState {
 export interface ActionCompleteRequest {
     pendingActionId: number;
 }
+
+export enum GameState {
+    NotStarted = "notstarted",
+    Running = "running",
+    Ended = "ended"
+}
+
+export type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> | Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;

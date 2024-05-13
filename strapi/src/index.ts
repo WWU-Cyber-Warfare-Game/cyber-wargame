@@ -1,14 +1,26 @@
 import { Server, Namespace, Socket } from 'socket.io';
-import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType, ActionCompleteRequest, Message, Target } from './types';
+import {
+  PendingAction,
+  Action,
+  TeamRole,
+  User,
+  PendingActionRequest,
+  ActionType,
+  ActionCompleteRequest,
+  Message,
+  GameState,
+  SocketServer
+} from './types';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { getUser } from './utilities';
 import applyEffects from './effects';
 import { MODIFIER_RATE } from './consts';
 import ActionQueue from './queue';
-type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> | Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
+import { getGameState, setGameState, setWinner } from './game-state';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 let actionQueue: ActionQueue;
+let gameEndCheckerInterval: NodeJS.Timeout;
 
 /**
  * Converts minutes to milliseconds
@@ -187,6 +199,7 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
       pendingActionRes.actionId,
       user,
       actionQueue,
+      frontend,
       pendingActionRes.targetNode && pendingActionRes.targetNode.id as number,
       pendingActionRes.targetEdge && pendingActionRes.targetEdge.id as number
     );
@@ -287,6 +300,31 @@ async function startAction(pendingActionReq: PendingActionRequest, socket: Socke
   actionQueue.addAction(pendingAction);
 }
 
+/**
+ * Checks every 5 seconds if the game has ended
+ * @returns The interval
+ */
+function startGameEndChecker(frontend: SocketServer) {
+  const interval = setInterval(async () => {
+    const game = await getGameState();
+    if (game.gameState === GameState.Running && new Date() >= game.endTime) {
+      const teams = await strapi.entityService.findMany('api::team.team');
+      if (teams.length < 2) {
+        console.error('too few teams to end game');
+        return;
+      }
+      if (teams[0].victoryPoints > teams[1].victoryPoints) {
+        setWinner(teams[0].id as number, frontend);
+      } else if (teams[0].victoryPoints < teams[1].victoryPoints) {
+        setWinner(teams[1].id as number, frontend);
+      } else {
+        setWinner(null, frontend);
+      }
+    }
+  }, 5000);
+  return interval;
+}
+
 export default {
   /**
    * An asynchronous register function that runs before
@@ -306,12 +344,23 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ /* strapi */ }) {
+    // initialize game if not already initialized
+    if (!(await getGameState()).initialized) {
+      console.log('Initializing game...');
+      setGameState('initialized', true);
+      // TODO: initialize actions and set permissions
+    }
+
+    // create socket server
     const frontend = new Server(strapi.server.httpServer, {
       cors: {
         origin: [`${FRONTEND_URL}`], //dashboard, can add other origins
         methods: ['GET', 'POST'],
       },
     });
+
+    // start game end checker
+    gameEndCheckerInterval = startGameEndChecker(frontend);
 
     // listen for action complete
     actionQueue.eventEmitter.on('actionComplete', async (actionCompleteRequest: ActionCompleteRequest) =>
@@ -326,6 +375,11 @@ export default {
         socket.disconnect();
         return;
       }
+
+      // reject connection if game is not running
+      const gameState = await getGameState();
+      if (gameState.gameState !== GameState.Running)
+        socket.disconnect();
 
       // join user to their own room
       const user = await strapi.entityService.findOne('plugin::users-permissions.user', userId);
@@ -344,7 +398,12 @@ export default {
     });
   },
 
+  /**
+   * A function that runs when the application is closing
+   * This includes fast reloads
+   */
   destroy() {
     actionQueue.stopQueue();
+    clearInterval(gameEndCheckerInterval);
   }
 };
