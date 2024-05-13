@@ -4,15 +4,19 @@ import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { Server, Namespace } from 'socket.io';
 import ActionQueue from './queue';
 import { DEFENSE_RATE } from './consts';
+import { setWinner } from './game-state';
 type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> | Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
 
 /**
  * Applies the effects of an action
  * @param actionId The ID of the action to apply effects for
  * @param user The user who performed the action
- * @param gameLogic The socket server for the game logic
+ * @param actionQueue The action queue object
+ * @param frontend The frontend socket server
+ * @param targetNodeId The ID of the node targeted by the action
+ * @param targetEdgeId The ID of the edge targeted by the action
  */
-export default async function applyEffects(actionId: number, user: User, actionQueue: ActionQueue, targetNodeId?: number, targetEdgeId?: number) {
+export default async function applyEffects(actionId: number, user: User, actionQueue: ActionQueue, frontend: SocketServer, targetNodeId?: number, targetEdgeId?: number) {
     console.log('targetNodeId:', targetNodeId);
     console.log('targetEdgeId:', targetEdgeId);
     
@@ -295,5 +299,19 @@ export default async function applyEffects(actionId: number, user: User, actionQ
                 });
                 break;
         }
+    }
+
+    // check if all core nodes have been compromised and set victory state
+    const nodes = await strapi.entityService.findMany('api::node.node', {
+        populate: '*',
+        filters: {
+            team: {
+                id: otherTeam.id,
+            },
+            isCoreNode: true
+        }
+    });
+    if (nodes.every((node) => node.compromised)) {
+        setWinner(playerTeam.id as number, frontend);
     }
 }

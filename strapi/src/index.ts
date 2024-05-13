@@ -1,11 +1,22 @@
 import { Server, Namespace, Socket } from 'socket.io';
-import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType, ActionCompleteRequest, Message, GameState } from './types';
+import {
+  PendingAction,
+  Action,
+  TeamRole,
+  User,
+  PendingActionRequest,
+  ActionType,
+  ActionCompleteRequest,
+  Message,
+  GameState,
+  SocketServer
+} from './types';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { getUser } from './utilities';
 import applyEffects from './effects';
 import { MODIFIER_RATE } from './consts';
 import ActionQueue from './queue';
-type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> | Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
+import { getGameState, setGameState, setWinner } from './game-state';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 let actionQueue: ActionQueue;
@@ -188,6 +199,7 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
       pendingActionRes.actionId,
       user,
       actionQueue,
+      frontend,
       pendingActionRes.targetNode && pendingActionRes.targetNode.id as number,
       pendingActionRes.targetEdge && pendingActionRes.targetEdge.id as number
     );
@@ -289,43 +301,6 @@ async function startAction(pendingActionReq: PendingActionRequest, socket: Socke
 }
 
 /**
- * Gets the game state
- * @returns The game state
- */
-async function getGameState() {
-  // initialize the game data if not initialized
-  if ((await strapi.services['api::game.game'].find()) === null) {
-    await strapi.services['api::game.game'].createOrUpdate({
-      data: {
-        initialized: false,
-        gameState: 'notstarted'
-      }
-    });
-  }
-
-  const game = await strapi.services['api::game.game'].find();
-
-  return {
-    initialized: game.initialized as boolean,
-    gameState: game.gameState as GameState,
-    endTime: new Date(Date.parse(game.endTime as string))
-  };
-}
-
-/**
- * Sets the game state
- * @param field The field to set
- * @param value The value to set
- */
-async function setGameState(field: 'initialized' | 'gameState' | 'endTime' | 'winner', value: any) {
-  await strapi.services['api::game.game'].createOrUpdate({
-    data: {
-      [field]: value
-    }
-  });
-}
-
-/**
  * Checks every 5 seconds if the game has ended
  * @returns The interval
  */
@@ -339,14 +314,12 @@ function startGameEndChecker(frontend: SocketServer) {
         return;
       }
       if (teams[0].victoryPoints > teams[1].victoryPoints) {
-        setGameState('winner', teams[0].id);
+        setWinner(teams[0].id as number, frontend);
       } else if (teams[0].victoryPoints < teams[1].victoryPoints) {
-        setGameState('winner', teams[1].id);
+        setWinner(teams[1].id as number, frontend);
+      } else {
+        setWinner(null, frontend);
       }
-
-      setGameState('gameState', GameState.Ended);
-      console.log('game ended');
-      frontend.emit('gameEnd');
     }
   }, 5000);
   return interval;
