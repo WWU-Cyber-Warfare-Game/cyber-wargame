@@ -12,12 +12,20 @@ interface TimerProps {
  * @returns 
  */
 export default function Timer({ time }: Readonly<TimerProps>) {
-    // FIXME: timer initially starts at 0 then updates to the correct time
     const [timeLeft, setTimeLeft] = useState(0);
     const [seconds, setSeconds] = useState(0);
     const [minutes, setMinutes] = useState(0);
     const [hours, setHours] = useState(0);
     const [days, setDays] = useState(0);
+
+    // set initial time left
+    useEffect(() => {
+        setTimeLeft(time.getTime() - Date.now());
+        setSeconds(Math.floor((timeLeft / 1000) % 60));
+        setMinutes(Math.floor((timeLeft / 1000 / 60) % 60));
+        setHours(Math.floor(timeLeft / 1000 / 60 / 60) % 24);
+        setDays(Math.floor(timeLeft / 1000 / 60 / 60 / 24));
+    }, [])
 
     // Update the time left every second
     useEffect(() => {
@@ -29,7 +37,7 @@ export default function Timer({ time }: Readonly<TimerProps>) {
 
     // update the hours, minutes, and seconds
     useEffect(() => {
-        if (timeLeft <= 0) return;
+        if (timeLeft < 0) return;
         setSeconds(Math.floor((timeLeft / 1000) % 60));
         setMinutes(Math.floor((timeLeft / 1000 / 60) % 60));
         setHours(Math.floor(timeLeft / 1000 / 60 / 60) % 24);
