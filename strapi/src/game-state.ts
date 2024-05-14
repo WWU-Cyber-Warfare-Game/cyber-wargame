@@ -9,7 +9,6 @@ export async function getGameState() {
     if ((await strapi.services['api::game.game'].find()) === null) {
         await strapi.services['api::game.game'].createOrUpdate({
             data: {
-                initialized: false,
                 gameState: 'notstarted'
             }
         });
@@ -18,9 +17,8 @@ export async function getGameState() {
     const game = await strapi.services['api::game.game'].find();
 
     return {
-        initialized: game.initialized as boolean,
         gameState: game.gameState as GameState,
-        endTime: new Date(Date.parse(game.endTime as string))
+        endTime: new Date(Date.parse(game.endTime as string)),
     };
 }
 
@@ -29,7 +27,7 @@ export async function getGameState() {
  * @param field The field to set
  * @param value The value to set
  */
-export async function setGameState(field: 'initialized' | 'gameState' | 'endTime' | 'winner', value: any) {
+export async function setGameState(field: 'gameState' | 'endTime' | 'winner', value: any) {
     await strapi.services['api::game.game'].createOrUpdate({
         data: {
             [field]: value

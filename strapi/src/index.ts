@@ -17,6 +17,7 @@ import applyEffects from './effects';
 import { MODIFIER_RATE } from './consts';
 import ActionQueue from './queue';
 import { getGameState, setGameState, setWinner } from './game-state';
+import { existsSync, openSync, closeSync } from 'node:fs';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 let actionQueue: ActionQueue;
@@ -345,9 +346,9 @@ export default {
    */
   async bootstrap({ /* strapi */ }) {
     // initialize game if not already initialized
-    if (!(await getGameState()).initialized) {
+    if (!existsSync('.init')) {
       console.log('Initializing game...');
-      setGameState('initialized', true);
+      closeSync(openSync('.init', 'w'));
       // TODO: initialize actions and set permissions
     }
 

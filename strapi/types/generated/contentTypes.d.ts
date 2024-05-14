@@ -854,9 +854,6 @@ export interface ApiGameGame extends Schema.SingleType {
     draftAndPublish: false;
   };
   attributes: {
-    initialized: Attribute.Boolean &
-      Attribute.Required &
-      Attribute.DefaultTo<false>;
     winner: Attribute.Relation<'api::game.game', 'oneToOne', 'api::team.team'>;
     endTime: Attribute.DateTime;
     gameState: Attribute.Enumeration<['notstarted', 'running', 'ended']> &
