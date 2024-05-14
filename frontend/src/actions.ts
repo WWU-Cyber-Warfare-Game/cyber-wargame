@@ -273,7 +273,8 @@ export async function getMessages(username: string) {
     return null;
   }
 
-  const res = await sendGraphQLQuery(`
+  try {
+    const res = await sendGraphQLQuery(`
     {
         messages(
           pagination: {
@@ -313,22 +314,26 @@ export async function getMessages(username: string) {
       }
     `);
 
-  if (!res.ok) {
-    console.error(res);
+    if (!res.ok) {
+      console.error(res);
+      return null;
+    }
+    const data = await res.json();
+    const parsedData: Message[] = data.data.messages.data
+      .map((message: any) => {
+        const ret: Message = {
+          message: message.attributes.message,
+          date: new Date(Date.parse(message.attributes.date)),
+          sender: message.attributes.sender,
+          receiver: message.attributes.receiver
+        };
+        return ret;
+      });
+    return parsedData.sort((a, b) => a.date.getTime() - b.date.getTime());
+  } catch (error) {
+    console.error(error);
     return null;
   }
-  const data = await res.json();
-  const parsedData: Message[] = data.data.messages.data
-    .map((message: any) => {
-      const ret: Message = {
-        message: message.attributes.message,
-        date: new Date(Date.parse(message.attributes.date)),
-        sender: message.attributes.sender,
-        receiver: message.attributes.receiver
-      };
-      return ret;
-    });
-  return parsedData.sort((a, b) => a.date.getTime() - b.date.getTime());
 }
 
 /**
@@ -402,7 +407,8 @@ export async function getActionPageData() {
     console.error("User not validated.");
     return null;
   }
-  const res = await sendGraphQLQuery(`
+  try {
+    const res = await sendGraphQLQuery(`
     query(
       $user: String = "${user.username}"
       $team: String = "${user.team}"
@@ -505,62 +511,66 @@ export async function getActionPageData() {
       }
     }    
     `);
-  const data = await res.json();
-  const actionLogData: any[] = data.data.actionLog.data;
-  const actionsData: any[] = data.data.actions.data;
-  const pendingActionsData: any[] = data.data.pendingActions.data;
-  const modifiersData: any[] = data.data.modifiers.data;
-  const nodesData: any[] = data.data.nodes.data;
-  const edgesData: any[] = data.data.edges.data;
+    const data = await res.json();
+    const actionLogData: any[] = data.data.actionLog.data;
+    const actionsData: any[] = data.data.actions.data;
+    const pendingActionsData: any[] = data.data.pendingActions.data;
+    const modifiersData: any[] = data.data.modifiers.data;
+    const nodesData: any[] = data.data.nodes.data;
+    const edgesData: any[] = data.data.edges.data;
 
-  // parse action log
-  const actionLog: ActionLog[] = actionLogData.map((action: any) => {
-    const ret: ActionLog = {
-      name: action.attributes.action.name,
-      description: action.attributes.action.description,
-      teamRole: action.attributes.action.teamRole,
-      time: new Date(Date.parse(action.attributes.date)),
-      endState: action.attributes.endState
-    }
-    return ret;
-  });
+    // parse action log
+    const actionLog: ActionLog[] = actionLogData.map((action: any) => {
+      const ret: ActionLog = {
+        name: action.attributes.action.name,
+        description: action.attributes.action.description,
+        teamRole: action.attributes.action.teamRole,
+        time: new Date(Date.parse(action.attributes.date)),
+        endState: action.attributes.endState
+      }
+      return ret;
+    });
 
-  // parse actions
-  const actions: Action[] = actionsData.map((action: any) => {
-    const ret: Action = {
-      id: action.id,
-      name: action.attributes.action.name,
-      duration: action.attributes.action.duration,
-      description: action.attributes.action.description,
-      teamRole: action.attributes.action.teamRole,
-      type: action.attributes.action.type,
-      successRate: action.attributes.action.successRate,
-      targets: action.attributes.action.targets
+    // parse actions
+    const actions: Action[] = actionsData.map((action: any) => {
+      const ret: Action = {
+        id: action.id,
+        name: action.attributes.action.name,
+        duration: action.attributes.action.duration,
+        description: action.attributes.action.description,
+        teamRole: action.attributes.action.teamRole,
+        type: action.attributes.action.type,
+        successRate: action.attributes.action.successRate,
+        targets: action.attributes.action.targets
+      };
+      return ret;
+    });
+
+    // get end time
+    const endTime = pendingActionsData.length > 0 ? new Date(Date.parse(pendingActionsData[0].attributes.date)) : null;
+
+    // parse modifiers
+    const modifiers: Modifiers = {
+      offense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].offense,
+      defense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].defense,
+      buff: modifiersData[0].attributes[`${user.teamRole}Modifiers`].buff
     };
-    return ret;
-  });
 
-  // get end time
-  const endTime = pendingActionsData.length > 0 ? new Date(Date.parse(pendingActionsData[0].attributes.date)) : null;
+    // parse graph
+    const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
 
-  // parse modifiers
-  const modifiers: Modifiers = {
-    offense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].offense,
-    defense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].defense,
-    buff: modifiersData[0].attributes[`${user.teamRole}Modifiers`].buff
-  };
-
-  // parse graph
-  const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
-
-  return {
-    actionLog: actionLog,
-    actions: actions,
-    endTime: endTime,
-    modifiers: modifiers,
-    teamGraph: teamGraph,
-    opponentGraph: opponentGraph,
-  };
+    return {
+      actionLog: actionLog,
+      actions: actions,
+      endTime: endTime,
+      modifiers: modifiers,
+      teamGraph: teamGraph,
+      opponentGraph: opponentGraph,
+    };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
 /**
@@ -573,7 +583,8 @@ export async function getGraphData() {
     console.error("User not validated.");
     return null;
   }
-  const res = await sendGraphQLQuery(`
+  try {
+    const res = await sendGraphQLQuery(`
     {
         nodes(filters: {}) {
           data {
@@ -614,14 +625,18 @@ export async function getGraphData() {
         }
       }
     `);
-  const data = await res.json();
-  const nodesData: any[] = data.data.nodes.data;
-  const edgesData: any[] = data.data.edges.data;
-  const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
-  return {
-    teamGraph: teamGraph,
-    opponentGraph: opponentGraph
-  };
+    const data = await res.json();
+    const nodesData: any[] = data.data.nodes.data;
+    const edgesData: any[] = data.data.edges.data;
+    const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
+    return {
+      teamGraph: teamGraph,
+      opponentGraph: opponentGraph
+    };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
 /**
