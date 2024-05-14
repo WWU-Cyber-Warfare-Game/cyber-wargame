@@ -12,7 +12,7 @@ import {
   SocketServer
 } from './types';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { getUser } from './utilities';
+import { getUser, checkAction } from './utilities';
 import applyEffects from './effects';
 import { MODIFIER_RATE } from './consts';
 import ActionQueue from './queue';
@@ -130,37 +130,6 @@ async function checkReceiver(userId: number, receiver: string) {
     }
   });
   return teammates.length > 0;
-}
-
-/**
- * Checks if user can perform action and returns the action if they can
- * @param username The user's username
- * @param actionId The ID of the action to check
- * @returns The action if the user can perform it, otherwise `null`
- */
-async function checkAction(username: string, actionId: number) {
-  const user = await getUser(username);
-  const res = await strapi.entityService.findOne('api::action.action', actionId, {
-    populate: '*'
-  });
-  if (!res) {
-    console.error('user ' + username + ' attempted to perform action ' + actionId + ' that does not exist');
-    return null;
-  }
-  const action: Action = {
-    id: res.id as number,
-    name: res.action.name,
-    duration: res.action.duration,
-    description: res.action.description,
-    teamRole: res.action.teamRole as TeamRole,
-    type: res.action.type as ActionType,
-    successRate: res.action.successRate
-  };
-  if (user.teamRole !== action.teamRole) {
-    console.error('user ' + username + ' attempted to perform action ' + action.name + ' that does not match their team role');
-    return null;
-  }
-  return action;
 }
 
 /**
@@ -333,9 +302,7 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/*{ strapi }*/) {
-    actionQueue = new ActionQueue();
-  },
+  register(/*{ strapi }*/) {},
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -360,8 +327,9 @@ export default {
       },
     });
 
-    // start game end checker
+    // start game end checker and action queue
     gameEndCheckerInterval = startGameEndChecker(frontend);
+    actionQueue = new ActionQueue();
 
     // listen for action complete
     actionQueue.eventEmitter.on('actionComplete', async (actionCompleteRequest: ActionCompleteRequest) =>
