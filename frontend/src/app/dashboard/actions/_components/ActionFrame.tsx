@@ -31,6 +31,7 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
     const [teamGraph, setTeamGraph] = useState<Graph>({ nodes: [], edges: [] });
     const [opponentGraph, setOpponentGraph] = useState<Graph>({ nodes: [], edges: [] });
     const [buttonDisabled, setButtonDisabled] = useState(true);
+    const [userFunds, setUserFunds] = useState(user.funds);
 
     useEffect(() => {
         const newSocket = io(STRAPI_URL, {
@@ -64,6 +65,7 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
                 setModifiers(res.modifiers);
                 setTeamGraph(res.teamGraph);
                 setOpponentGraph(res.opponentGraph);
+                setUserFunds(res.userFunds);
                 if (!res.endTime) setButtonDisabled(false);
             } else {
                 setError("Error fetching action page data");
@@ -86,7 +88,7 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
 
     return (
         <>
-            <ResourceFrame user={user}></ResourceFrame>
+            <ResourceFrame funds={userFunds}></ResourceFrame>
             <ActionSelectorFrame
                 user={user}
                 socket={socket}
@@ -98,6 +100,8 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
                 opponentGraph={opponentGraph}
                 buttonDisabled={buttonDisabled}
                 setButtonDisabled={setButtonDisabled}
+                setUserFunds={setUserFunds}
+                userFunds={userFunds}
             />
             <ActionLogFrame actionLog={actionLog} />
         </>

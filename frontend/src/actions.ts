@@ -563,6 +563,7 @@ export async function getActionPageData() {
         modifiers: modifiers,
         teamGraph: teamGraph,
         opponentGraph: opponentGraph,
+        userFunds: user.funds,
     };
 }
 
