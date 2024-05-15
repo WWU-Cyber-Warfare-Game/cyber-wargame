@@ -12,11 +12,6 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "initialized": {
-      "type": "boolean",
-      "default": false,
-      "required": true
-    },
     "winner": {
       "type": "relation",
       "relation": "oneToOne",
