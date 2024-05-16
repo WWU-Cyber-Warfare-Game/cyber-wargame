@@ -1,13 +1,25 @@
-export function createActions() {
-    createLeaderActions();
-    createIntelligenceActions();
-    createMilitaryActions();
+/**
+ * Loads actions into Strapi.
+ */
+export async function createActions() {
+    await createLeaderActions();
+    await createIntelligenceActions();
+    await createMilitaryActions();
 }
 
-function createLeaderActions() {
+/**
+ * Loads the teams and their networks into Strapi.
+ */
+export async function createTeams() {
+    await createTeam('Team 1');
+    await createTeam('Team 2');
+    // TODO: Create networks for each team
+}
+
+async function createLeaderActions() {
     const teamRole = 'leader';
     // Buff Intelligence
-    strapi.entityService.create('api::action.action', {
+    await strapi.entityService.create('api::action.action', {
         data: {
             action: {
                 name: 'Buff Intelligence',
@@ -29,7 +41,7 @@ function createLeaderActions() {
     });
 
     // Buff Military
-    strapi.entityService.create('api::action.action', {
+    await strapi.entityService.create('api::action.action', {
         data: {
             action: {
                 name: 'Buff Intelligence',
@@ -51,11 +63,11 @@ function createLeaderActions() {
     });
 }
 
-function createIntelligenceActions() {
+async function createIntelligenceActions() {
     const teamRole = 'intelligence';
 
     // Reveal Node
-    strapi.entityService.create('api::action.action', {
+    await strapi.entityService.create('api::action.action', {
         data: {
             action: {
                 name: 'Reveal Node',
@@ -74,7 +86,7 @@ function createIntelligenceActions() {
     });
 
     // Stop Military Action
-    strapi.entityService.create('api::action.action', {
+    await strapi.entityService.create('api::action.action', {
         data: {
             action: {
                 name: 'Stop Military Action',
@@ -94,11 +106,11 @@ function createIntelligenceActions() {
     });
 }
 
-function createMilitaryActions() {
+async function createMilitaryActions() {
     const teamRole = 'military';
 
     // Attack Node
-    strapi.entityService.create('api::action.action', {
+    await strapi.entityService.create('api::action.action', {
         data: {
             action: {
                 name: 'Attack Node',
@@ -121,7 +133,7 @@ function createMilitaryActions() {
     });
 
     // Defend Node
-    strapi.entityService.create('api::action.action', {
+    await strapi.entityService.create('api::action.action', {
         data: {
             action: {
                 name: 'Defend Node',
@@ -144,7 +156,7 @@ function createMilitaryActions() {
     });
 
     // Stop Intelligence Action
-    strapi.entityService.create('api::action.action', {
+    await strapi.entityService.create('api::action.action', {
         data: {
             action: {
                 name: 'Stop Intelligence Action',
@@ -164,7 +176,7 @@ function createMilitaryActions() {
     });
 
     // Firewall
-    strapi.entityService.create('api::action.action', {
+    await strapi.entityService.create('api::action.action', {
         data: {
             action: {
                 name: 'Firewall',
@@ -187,7 +199,7 @@ function createMilitaryActions() {
     });
 
     // Compromise Firewall
-    strapi.entityService.create('api::action.action', {
+    await strapi.entityService.create('api::action.action', {
         data: {
             action: {
                 name: 'Compromise Firewall',
@@ -206,6 +218,40 @@ function createMilitaryActions() {
                     __component: 'effects.attack-edge'
                 }
             ]
+        }
+    });
+}
+
+async function createTeam(name: string) {
+    await strapi.entityService.create('api::team.team', {
+        data: {
+            name: name,
+            victoryPoints: 0,
+            leaderModifiers: {
+                offense: 0,
+                defense: 0,
+                buff: 0,
+            },
+            intelligenceModifiers: {
+                offense: 0,
+                defense: 0,
+                buff: 0,
+            },
+            militaryModifiers: {
+                offense: 0,
+                defense: 0,
+                buff: 0,
+            },
+            mediaModifiers: {
+                offense: 0,
+                defense: 0,
+                buff: 0,
+            },
+            diplomatModifiers: {
+                offense: 0,
+                defense: 0,
+                buff: 0,
+            },
         }
     });
 }

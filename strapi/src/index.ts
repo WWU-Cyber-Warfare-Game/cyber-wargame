@@ -18,7 +18,7 @@ import { MODIFIER_RATE } from './consts';
 import ActionQueue from './queue';
 import { getGameState, setGameState, setWinner } from './game-state';
 import { existsSync, openSync, closeSync } from 'node:fs';
-import { createActions } from './init';
+import { createActions, createTeams } from './init';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 let actionQueue: ActionQueue;
@@ -317,8 +317,8 @@ export default {
     if (!existsSync('.init')) {
       console.log('Initializing game...');
       closeSync(openSync('.init', 'w'));
-      createActions();
-      // TODO: create teams and networks
+      await createActions();
+      await createTeams();
     }
 
     // create socket server
