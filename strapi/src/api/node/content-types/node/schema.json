@@ -18,9 +18,8 @@
     },
     "team": {
       "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::team.team",
-      "inversedBy": "team"
+      "relation": "oneToOne",
+      "target": "api::team.team"
     },
     "defense": {
       "type": "integer",

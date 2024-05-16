@@ -914,7 +914,7 @@ export interface ApiNodeNode extends Schema.CollectionType {
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
-    team: Attribute.Relation<'api::node.node', 'manyToOne', 'api::team.team'>;
+    team: Attribute.Relation<'api::node.node', 'oneToOne', 'api::team.team'>;
     defense: Attribute.Integer & Attribute.Required;
     isCoreNode: Attribute.Boolean & Attribute.Required;
     visible: Attribute.Boolean &
@@ -1034,7 +1034,6 @@ export interface ApiTeamTeam extends Schema.CollectionType {
     mediaModifiers: Attribute.Component<'modifiers.modifiers'> &
       Attribute.Required;
     diplomatModifiers: Attribute.Component<'modifiers.modifiers'>;
-    team: Attribute.Relation<'api::team.team', 'oneToMany', 'api::node.node'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::team.team', 'oneToOne', 'admin::user'> &
