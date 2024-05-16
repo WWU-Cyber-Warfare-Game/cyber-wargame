@@ -144,7 +144,7 @@ export async function validateUser() {
     let jwt = cookies().get("jwt")?.value;
     if (!jwt) return null;
 
-    const res = await fetch(`${STRAPI_URL}/api/users/me?populate=*`, {
+    const res = await fetch(`${STRAPI_URL}/api/users/me`, {
       headers: {
         Authorization: `Bearer ${jwt}`
       }
@@ -152,13 +152,33 @@ export async function validateUser() {
 
     if (res.ok) {
       const unparsedData = await res.json();
-      const ret: User = {
+      const tmp = {
         username: unparsedData.username,
         email: unparsedData.email,
         teamRole: unparsedData.teamRole,
-        team: unparsedData.team ? unparsedData.team.name : null
       };
-      return ret;
+      try {
+        const res = await fetch(`${STRAPI_URL}/api/users?populate=team&filters[username][$eq]=${tmp.username}`, {
+          headers: {
+            Authorization: `Bearer ${STRAPI_API_TOKEN}`
+          }
+        });
+        if (!res.ok) {
+          console.error(res);
+          return null;
+        }
+        const unparsedData = await res.json();
+        const ret: User = {
+          username: tmp.username,
+          email: tmp.email,
+          teamRole: tmp.teamRole,
+          team: unparsedData[0].team ? unparsedData[0].team.name : null
+        };
+        return ret;
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
     }
     return null;
   } catch (error) {
