@@ -191,6 +191,10 @@ function createMilitaryActions() {
                 teamRole: 'military',
                 type: 'offense',
                 successRate: 50,
+                targets: {
+                    target: 'edge',
+                    myTeam: false,
+                }
             },
             effects: [
                 {
