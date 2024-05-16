@@ -5,6 +5,7 @@ export function createActions() {
 }
 
 function createLeaderActions() {
+    const teamRole = 'leader';
     // Buff Intelligence
     strapi.entityService.create('api::action.action', {
         data: {
@@ -12,7 +13,7 @@ function createLeaderActions() {
                 name: 'Buff Intelligence',
                 description: 'Increase the chance of success for all actions that the intelligence role performs.',
                 duration: 30,
-                teamRole: 'leader',
+                teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
             },
@@ -34,7 +35,7 @@ function createLeaderActions() {
                 name: 'Buff Intelligence',
                 description: 'Increase the chance of success for all actions that the intelligence role performs.',
                 duration: 30,
-                teamRole: 'leader',
+                teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
             },
@@ -51,6 +52,8 @@ function createLeaderActions() {
 }
 
 function createIntelligenceActions() {
+    const teamRole = 'intelligence';
+
     // Reveal Node
     strapi.entityService.create('api::action.action', {
         data: {
@@ -58,7 +61,7 @@ function createIntelligenceActions() {
                 name: 'Reveal Node',
                 description: 'Reveal a node in the enemy team\'s network.',
                 duration: 30,
-                teamRole: 'intelligence',
+                teamRole: teamRole,
                 type: 'offense',
                 successRate: 50,
             },
@@ -77,7 +80,7 @@ function createIntelligenceActions() {
                 name: 'Stop Military Action',
                 description: 'If the enemy military is running an offensive action, stop it from succeeding.',
                 duration: 30,
-                teamRole: 'intelligence',
+                teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
             },
@@ -92,6 +95,8 @@ function createIntelligenceActions() {
 }
 
 function createMilitaryActions() {
+    const teamRole = 'military';
+
     // Attack Node
     strapi.entityService.create('api::action.action', {
         data: {
@@ -99,7 +104,7 @@ function createMilitaryActions() {
                 name: 'Attack Node',
                 description: 'Attack a node in the enemy team\'s network.',
                 duration: 30,
-                teamRole: 'military',
+                teamRole: teamRole,
                 type: 'offense',
                 successRate: 50,
                 targets: {
@@ -122,7 +127,7 @@ function createMilitaryActions() {
                 name: 'Defend Node',
                 description: 'Defend a node in your team\'s network.',
                 duration: 30,
-                teamRole: 'military',
+                teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
                 targets: {
@@ -145,7 +150,7 @@ function createMilitaryActions() {
                 name: 'Stop Intelligence Action',
                 description: 'If the enemy intelligence is running an offensive action, stop it from succeeding.',
                 duration: 30,
-                teamRole: 'military',
+                teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
             },
@@ -165,7 +170,7 @@ function createMilitaryActions() {
                 name: 'Firewall',
                 description: 'Protect a network connection and make it harder for the enemy to attack it.',
                 duration: 30,
-                teamRole: 'military',
+                teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
                 targets: {
@@ -188,7 +193,7 @@ function createMilitaryActions() {
                 name: 'Compromise Firewall',
                 description: 'Weaken a firewall on the enemy team\'s network.',
                 duration: 30,
-                teamRole: 'military',
+                teamRole: teamRole,
                 type: 'offense',
                 successRate: 50,
                 targets: {
