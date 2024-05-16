@@ -149,19 +149,8 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
     }
   );
   const successRate = pendingActionRes.action.successRate;
-  const endState = await getSuccess(successRate, pendingActionRes.user, pendingActionRes.action.type as ActionType) ? 'success' : 'fail';
-  console.log('end state: ' + endState);
-  await strapi.entityService.create('api::resolved-action.resolved-action', {
-    data: {
-      user: pendingActionRes.user,
-      date: new Date(),
-      action: pendingActionRes.action,
-      endState: endState
-    }
-  });
-
-  // remove action from pending queue
-  await strapi.entityService.delete('api::pending-action.pending-action', actionCompleteRequest.pendingActionId);
+  let endState: 'success' | 'fail' | 'partialfail' =
+    await getSuccess(successRate, pendingActionRes.user, pendingActionRes.action.type as ActionType) ? 'success' : 'fail';
 
   // parse and apply action effects
   if (endState === 'success') {
@@ -173,8 +162,20 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
       frontend,
       pendingActionRes.targetNode && pendingActionRes.targetNode.id as number,
       pendingActionRes.targetEdge && pendingActionRes.targetEdge.id as number
-    );
+    ) ? endState = 'success' : endState = 'partialfail';
   }
+
+  await strapi.entityService.create('api::resolved-action.resolved-action', {
+    data: {
+      user: pendingActionRes.user,
+      date: new Date(),
+      action: pendingActionRes.action,
+      endState: endState
+    }
+  });
+
+  // remove action from pending queue
+  await strapi.entityService.delete('api::pending-action.pending-action', actionCompleteRequest.pendingActionId);
 
   // emit action complete to user
   frontend.emit('actionComplete');
@@ -303,7 +304,7 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/*{ strapi }*/) {},
+  register(/*{ strapi }*/) { },
 
   /**
    * An asynchronous bootstrap function that runs before

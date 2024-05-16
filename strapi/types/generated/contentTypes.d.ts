@@ -992,7 +992,9 @@ export interface ApiResolvedActionResolvedAction extends Schema.CollectionType {
     user: Attribute.String;
     date: Attribute.DateTime;
     action: Attribute.Component<'actions.placeholder-action'>;
-    endState: Attribute.Enumeration<['success', 'fail', 'stopped']> &
+    endState: Attribute.Enumeration<
+      ['success', 'fail', 'partialfail', 'stopped']
+    > &
       Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

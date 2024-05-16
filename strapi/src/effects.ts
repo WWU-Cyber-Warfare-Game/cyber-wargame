@@ -15,11 +15,14 @@ type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap,
  * @param frontend The frontend socket server
  * @param targetNodeId The ID of the node targeted by the action
  * @param targetEdgeId The ID of the edge targeted by the action
+ * @returns A boolean indicating whether the action failed
  */
 export default async function applyEffects(actionId: number, user: User, actionQueue: ActionQueue, frontend: SocketServer, targetNodeId?: number, targetEdgeId?: number) {
+    let fail: boolean = false;
+
     console.log('targetNodeId:', targetNodeId);
     console.log('targetEdgeId:', targetEdgeId);
-    
+
     const effects = (await strapi.entityService.findOne('api::action.action', actionId, {
         populate: ['effects']
     })).effects;
@@ -160,6 +163,7 @@ export default async function applyEffects(actionId: number, user: User, actionQ
                 break;
 
             // reveal a node
+            // if it fails, decrease the defense of the edge
             case 'effects.reveal-node':
                 // get player team's nodes and edges
                 const nodes = await strapi.entityService.findMany('api::node.node', {
@@ -193,26 +197,46 @@ export default async function applyEffects(actionId: number, user: User, actionQ
                 } else {
                     // reveal a node that is not visible that is connected to a visible node
                     const connectedEdges = edges.filter((edge) => edge.source.visible && !edge.target.visible);
-                    if (connectedEdges.length > 0)
-                        await strapi.entityService.update('api::node.node',
-                            connectedEdges[Math.floor(Math.random() * connectedEdges.length)].target.id,
-                            {
+                    if (connectedEdges.length > 0) {
+                        const randomEdge = connectedEdges[Math.floor(Math.random() * connectedEdges.length)];
+                        if ((Math.random() * 11) >= randomEdge.defense) {
+                            await strapi.entityService.update('api::node.node', randomEdge.target.id, {
+                                    data: {
+                                        visible: true
+                                    }
+                                });
+                        } else {
+                            fail = true;
+                            await strapi.entityService.update('api::edge.edge', randomEdge.id, {
                                 data: {
-                                    visible: true
+                                    defense: randomEdge.defense - DEFENSE_RATE
                                 }
                             });
+                        }
+                    }
                 }
                 break;
 
             // compromise a node
+            // if it fails, decrease the defense of the node
             case 'effects.attack-node':
                 console.log('EFFECT: attacking node');
                 if (!targetNodeId) console.error('No target node ID provided for attack-node effect');
-                await strapi.entityService.update('api::node.node', targetNodeId, {
-                    data: {
-                        compromised: true
-                    }
-                });
+
+                if ((Math.random() * 11) >= targetNode.defense) {
+                    await strapi.entityService.update('api::node.node', targetNodeId, {
+                        data: {
+                            compromised: true
+                        }
+                    });
+                } else {
+                    fail = true;
+                    await strapi.entityService.update('api::node.node', targetNodeId, {
+                        data: {
+                            defense: targetNode.defense - DEFENSE_RATE
+                        }
+                    });
+                }
                 break;
 
             // increase a node's defense
@@ -247,7 +271,7 @@ export default async function applyEffects(actionId: number, user: User, actionQ
                     }
                 });
                 break;
-            
+
             // decreases the defense of an edge
             case 'effects.attack-edge':
                 console.log('EFFECT: attacking edge');
@@ -258,7 +282,7 @@ export default async function applyEffects(actionId: number, user: User, actionQ
                     }
                 });
                 break;
-            }
+        }
     });
 
     // reset the buff to 0 if there is no buff/debuff effect
@@ -336,4 +360,6 @@ export default async function applyEffects(actionId: number, user: User, actionQ
     if (nodes.every((node) => node.compromised)) {
         setWinner(playerTeam.id as number, frontend);
     }
+
+    return fail;
 }
