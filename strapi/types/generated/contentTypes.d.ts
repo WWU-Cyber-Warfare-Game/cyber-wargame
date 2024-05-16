@@ -797,7 +797,9 @@ export interface ApiActionAction extends Schema.CollectionType {
         'effects.reveal-node',
         'effects.attack-node',
         'effects.defend-node',
-        'effects.defend-edge'
+        'effects.defend-edge',
+        'effects.secure-node',
+        'effects.attack-edge'
       ]
     >;
     createdAt: Attribute.DateTime;

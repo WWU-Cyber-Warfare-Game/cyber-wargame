@@ -1,12 +1,9 @@
 {
   "collectionName": "components_effects_defend_edges",
   "info": {
-    "displayName": "Defend Edge"
+    "displayName": "Defend Edge",
+    "description": ""
   },
   "options": {},
-  "attributes": {
-    "placeholder": {
-      "type": "string"
-    }
-  }
+  "attributes": {}
 }

@@ -40,6 +40,9 @@ export default async function applyEffects(actionId: number, user: User, actionQ
         populate: '*'
     }))[0];
 
+    const targetNode = targetNodeId ? await strapi.entityService.findOne('api::node.node', targetNodeId) : null;
+    const targetEdge = targetEdgeId ? await strapi.entityService.findOne('api::edge.edge', targetEdgeId) : null;
+
     effects.forEach(async (effect) => {
         switch (effect.__component) {
 
@@ -201,11 +204,10 @@ export default async function applyEffects(actionId: number, user: User, actionQ
                 }
                 break;
 
-            // attack a node
+            // compromise a node
             case 'effects.attack-node':
                 console.log('EFFECT: attacking node');
                 if (!targetNodeId) console.error('No target node ID provided for attack-node effect');
-                const targetNodeForAttack = await strapi.entityService.findOne('api::node.node', targetNodeId);
                 await strapi.entityService.update('api::node.node', targetNodeId, {
                     data: {
                         compromised: true
@@ -213,11 +215,10 @@ export default async function applyEffects(actionId: number, user: User, actionQ
                 });
                 break;
 
-            // defend a node
+            // increase a node's defense
             case 'effects.defend-node':
                 console.log('EFFECT: defending node');
                 if (!targetNodeId) console.error('No target node ID provided for defend-node effect');
-                const targetNode = await strapi.entityService.findOne('api::node.node', targetNodeId);
                 await strapi.entityService.update('api::node.node', targetNodeId, {
                     data: {
                         defense: targetNode.defense + DEFENSE_RATE
@@ -225,18 +226,39 @@ export default async function applyEffects(actionId: number, user: User, actionQ
                 });
                 break;
 
-            // defend an edge
+            // increase an edge's defense
             case 'effects.defend-edge':
                 console.log('EFFECT: defending edge');
                 if (!targetEdgeId) console.error('No target edge ID provided for defend-edge effect');
-                const targetEdge = await strapi.entityService.findOne('api::edge.edge', targetEdgeId);
                 await strapi.entityService.update('api::edge.edge', targetEdgeId, {
                     data: {
                         defense: targetEdge.defense + DEFENSE_RATE
                     }
                 });
                 break;
-        }
+
+            // uncompromise a node
+            case 'effects.secure-node':
+                console.log('EFFECT: securing node');
+                if (!targetNodeId) console.error('No target node ID provided for secure-node effect');
+                await strapi.entityService.update('api::node.node', targetNodeId, {
+                    data: {
+                        compromised: false
+                    }
+                });
+                break;
+            
+            // decreases the defense of an edge
+            case 'effects.attack-edge':
+                console.log('EFFECT: attacking edge');
+                if (!targetEdgeId) console.error('No target edge ID provided for attack-edge effect');
+                await strapi.entityService.update('api::node.node', targetNodeId, {
+                    data: {
+                        defense: targetNode.defense - DEFENSE_RATE
+                    }
+                });
+                break;
+            }
     });
 
     // reset the buff to 0 if there is no buff/debuff effect
