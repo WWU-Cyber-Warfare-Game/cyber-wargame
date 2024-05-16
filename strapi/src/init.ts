@@ -180,4 +180,23 @@ function createMilitaryActions() {
             ]
         }
     });
+
+    // Compromise Firewall
+    strapi.entityService.create('api::action.action', {
+        data: {
+            action: {
+                name: 'Compromise Firewall',
+                description: 'Weaken a firewall on the enemy team\'s network.',
+                duration: 30,
+                teamRole: 'military',
+                type: 'offense',
+                successRate: 50,
+            },
+            effects: [
+                {
+                    __component: 'effects.attack-edge'
+                }
+            ]
+        }
+    });
 }
