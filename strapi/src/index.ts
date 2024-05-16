@@ -155,14 +155,17 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
   // parse and apply action effects
   if (endState === 'success') {
     const user = await getUser(pendingActionRes.user);
-    await applyEffects(
+    const partialFail = await applyEffects(
       pendingActionRes.actionId,
       user,
       actionQueue,
       frontend,
       pendingActionRes.targetNode && pendingActionRes.targetNode.id as number,
       pendingActionRes.targetEdge && pendingActionRes.targetEdge.id as number
-    ) ? endState = 'success' : endState = 'partialfail';
+    );
+    if (partialFail) {
+      endState = 'partialfail';
+    }
   }
 
   await strapi.entityService.create('api::resolved-action.resolved-action', {
