@@ -131,38 +131,6 @@ async function checkReceiver(userId: number, receiver: string) {
   });
   return teammates.length > 0;
 }
-
-/**
- * Checks if user can perform action and returns the action if they can
- * @param username The user's username
- * @param actionId The ID of the action to check
- * @returns The action if the user can perform it, otherwise `null`
- */
-async function checkAction(username: string, actionId: number) {
-  const user = await getUser(username);
-  const res = await strapi.entityService.findOne('api::action.action', actionId, {
-    populate: '*'
-  });
-  if (!res) {
-    console.error('user ' + username + ' attempted to perform action ' + actionId + ' that does not exist');
-    return null;
-  }
-  const action: Action = {
-    id: res.id as number,
-    name: res.action.name,
-    duration: res.action.duration,
-    description: res.action.description,
-    teamRole: res.action.teamRole as TeamRole,
-    type: res.action.type as ActionType,
-    successRate: res.action.successRate,
-    cost: res.action.cost,
-  };
-  if (user.teamRole !== action.teamRole) {
-    console.error('user ' + username + ' attempted to perform action ' + action.name + ' that does not match their team role');
-    return null;
-  }
-  return action;
-}
 /**
  * updates the users funds parameter
  * @param userId The id of the target user
