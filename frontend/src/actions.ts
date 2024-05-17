@@ -36,16 +36,17 @@ async function sendGraphQLQuery(query: string) {
  * @returns The parsed user data
  */
 function parseUser(user: any) {
-  let team;
-  if (!user.attributes.team) team = null;
-  else team = user.attributes.team.data.attributes.name;
-  const ret: User = {
-    username: user.attributes.username,
-    email: user.attributes.email,
-    teamRole: user.attributes.teamRole,
-    team: team
-  };
-  return ret;
+    let team;
+    if (!user.attributes.team) team = null;
+    else team = user.attributes.team.data.attributes.name;
+    const ret: User = {
+        username: user.attributes.username,
+        email: user.attributes.email,
+        teamRole: user.attributes.teamRole,
+        team: team,
+        funds: user.attributes.funds
+    };
+    return ret;
 }
 
 /**
@@ -150,21 +151,22 @@ export async function validateUser() {
       }
     });
 
-    if (res.ok) {
-      const unparsedData = await res.json();
-      const ret: User = {
-        username: unparsedData.username,
-        email: unparsedData.email,
-        teamRole: unparsedData.teamRole,
-        team: unparsedData.team ? unparsedData.team.name : null
-      };
-      return ret;
+        if (res.ok) {
+            const unparsedData = await res.json();
+            const ret: User = {
+                username: unparsedData.username,
+                email: unparsedData.email,
+                teamRole: unparsedData.teamRole,
+                team: unparsedData.team ? unparsedData.team.name : null,
+                funds: unparsedData.funds
+            };
+            return ret;
+        }
+        return null;
+    } catch (error) {
+        console.error(error);
+        return null;
     }
-    return null;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
 }
 
 /**
@@ -443,6 +445,7 @@ export async function getActionPageData() {
               teamRole
               type
               successRate
+              cost
               targets {
                 target
                 myTeam
@@ -533,17 +536,18 @@ export async function getActionPageData() {
 
     // parse actions
     const actions: Action[] = actionsData.map((action: any) => {
-      const ret: Action = {
-        id: action.id,
-        name: action.attributes.action.name,
-        duration: action.attributes.action.duration,
-        description: action.attributes.action.description,
-        teamRole: action.attributes.action.teamRole,
-        type: action.attributes.action.type,
-        successRate: action.attributes.action.successRate,
-        targets: action.attributes.action.targets
-      };
-      return ret;
+        const ret: Action = {
+            id: action.id,
+            name: action.attributes.action.name,
+            duration: action.attributes.action.duration,
+            description: action.attributes.action.description,
+            teamRole: action.attributes.action.teamRole,
+            type: action.attributes.action.type,
+            successRate: action.attributes.action.successRate,
+            targets: action.attributes.action.targets,
+            cost: action.attributes.action.cost
+        };
+        return ret;
     });
 
     // get end time
@@ -560,12 +564,13 @@ export async function getActionPageData() {
     const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
 
     return {
-      actionLog: actionLog,
-      actions: actions,
-      endTime: endTime,
-      modifiers: modifiers,
-      teamGraph: teamGraph,
-      opponentGraph: opponentGraph,
+        actionLog: actionLog,
+        actions: actions,
+        endTime: endTime,
+        modifiers: modifiers,
+        teamGraph: teamGraph,
+        opponentGraph: opponentGraph,
+        userFunds: user.funds,
     };
   } catch (error) {
     console.error(error);

@@ -19,6 +19,7 @@ export interface User {
     email: string;
     teamRole: TeamRole;
     team: string;
+    funds: number;
 }
 
 export interface Message {
@@ -40,6 +41,7 @@ export interface Action {
         target: "node" | "edge";
         myTeam: boolean;
     }
+    cost: number;
 }
 
 export type Target = "team" | "opponent";

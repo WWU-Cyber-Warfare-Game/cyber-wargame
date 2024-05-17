@@ -20,7 +20,8 @@ export async function getUser(username: string) {
         username: res[0].username,
         email: res[0].email,
         teamRole: res[0].teamRole as TeamRole,
-        team: res[0].team.name
+        team: res[0].team.name,
+        funds: res[0].funds
     };
     return user;
 }
