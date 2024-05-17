@@ -1,5 +1,5 @@
 .actionButton {
-    border: 1px lawngreen;
+    border: 2px solid lawngreen;
     padding: 5px;
     width: 25%;
     display: flex;
@@ -15,7 +15,7 @@
 }
 
 .actionButtonDisabled {
-    border: 1px lawngreen;
+    border: 2px solid lawngreen;
     padding: 5px;
     width: 25%;
     display: flex;

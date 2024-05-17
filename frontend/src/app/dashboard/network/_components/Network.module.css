@@ -1,4 +1,5 @@
 .networkContainer {
+    flex-direction: column;
     border: solid 1px black;
     padding: 5px;
     display: flex;

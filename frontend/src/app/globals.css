@@ -21,7 +21,10 @@
   }
   
   body {
-    background-color: rgba(0, 0, 0, 0.921);
+    background-color: black;
+    background-image: radial-gradient(
+    rgba(17, 186, 17, 0.478), black 120%
+    );
     color: lawngreen;
     font-family: 'VT323', monospace;
     font-size: 20px; 

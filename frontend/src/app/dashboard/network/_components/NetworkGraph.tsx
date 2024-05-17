@@ -64,7 +64,7 @@ export default function NetworkGraph() {
 
     return (
         // must be inside div
-        <div style={{ width: '100%', height: '500px', border: 'solid 1px red', }}>
+        <div style={{ width: '200%', height: '500px', border: 'solid 1px orange', display: "flex", margin: "auto" }}>
             <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} fitView />
         </div>
     )
