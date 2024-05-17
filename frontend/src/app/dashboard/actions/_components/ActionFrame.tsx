@@ -4,13 +4,12 @@ import ActionLogFrame from "./ActionLogFrame";
 import ActionSelectorFrame from "./ActionSelectorFrame";
 import ResourceFrame from "./ActionSelectorFrame/ResourceCount";
 import { User, ActionLog, Action, Modifiers, Graph } from "@/types";
-import { useEffect, useRef, useState } from "react";
-import io, { Socket } from "socket.io-client";
+import { useContext, useEffect, useState } from "react";
 import { getActionPageData } from "@/actions";
+import { SocketContext } from "@/components/SocketContext";
 
 interface ActionFrameProps {
     readonly user: User;
-    readonly jwt: string;
 }
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
@@ -19,9 +18,7 @@ const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
  * The action frame for the application. Displays the action selector and the action log.
  * @returns
  */
-export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
-    // const socket = useRef<Socket | null>(null);
-    const [socket, setSocket] = useState<Socket | null>(null);
+export default function ActionFrame({ user }: Readonly<ActionFrameProps>) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [actionLog, setActionLog] = useState<ActionLog[]>([]);
@@ -32,29 +29,7 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
     const [opponentGraph, setOpponentGraph] = useState<Graph>({ nodes: [], edges: [] });
     const [buttonDisabled, setButtonDisabled] = useState(true);
     const [userFunds, setUserFunds] = useState(user.funds);
-
-    useEffect(() => {
-        const newSocket = io(STRAPI_URL, {
-            auth: {
-                token: jwt
-            }
-        });
-        setSocket(newSocket);
-
-        newSocket.on("actionComplete", (data) => {
-            refreshData();
-            setButtonDisabled(false);
-        });
-
-        newSocket.on("connect_error", (err) => {
-            setError("Socket error");
-        });
-
-        // Clean up the socket connection on component unmount
-        return () => {
-            newSocket.disconnect();
-        };
-    }, [jwt]);
+    const { socket } = useContext(SocketContext);
 
     function refreshData() {
         getActionPageData().then((res) => {
@@ -77,6 +52,10 @@ export default function ActionFrame({ user, jwt }: Readonly<ActionFrameProps>) {
     useEffect(() => {
         refreshData();
     }, []);
+
+    useEffect(() => {
+        if (socket) socket.on("actionComplete", refreshData);
+    }, [socket]);
 
     if (!socket || loading) {
         return <p>Loading...</p>;

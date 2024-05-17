@@ -92,3 +92,9 @@ export interface Modifiers {
     defense: number;
     buff: number;
 }
+
+export enum GameState {
+    NotStarted = "notstarted",
+    Running = "running",
+    Ended = "ended"
+}

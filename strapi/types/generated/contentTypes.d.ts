@@ -848,6 +848,32 @@ export interface ApiEdgeEdge extends Schema.CollectionType {
   };
 }
 
+export interface ApiGameGame extends Schema.SingleType {
+  collectionName: 'games';
+  info: {
+    singularName: 'game';
+    pluralName: 'games';
+    displayName: 'Game';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    winner: Attribute.Relation<'api::game.game', 'oneToOne', 'api::team.team'>;
+    endTime: Attribute.DateTime;
+    gameState: Attribute.Enumeration<['notstarted', 'running', 'ended']> &
+      Attribute.Required &
+      Attribute.DefaultTo<'notstarted'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::game.game', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::game.game', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
 export interface ApiMessageMessage extends Schema.CollectionType {
   collectionName: 'messages';
   info: {
@@ -898,6 +924,9 @@ export interface ApiNodeNode extends Schema.CollectionType {
     defense: Attribute.Integer & Attribute.Required;
     isCoreNode: Attribute.Boolean & Attribute.Required;
     visible: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
+    compromised: Attribute.Boolean &
       Attribute.Required &
       Attribute.DefaultTo<false>;
     createdAt: Attribute.DateTime;
@@ -1041,6 +1070,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'api::action.action': ApiActionAction;
       'api::edge.edge': ApiEdgeEdge;
+      'api::game.game': ApiGameGame;
       'api::message.message': ApiMessageMessage;
       'api::node.node': ApiNodeNode;
       'api::pending-action.pending-action': ApiPendingActionPendingAction;

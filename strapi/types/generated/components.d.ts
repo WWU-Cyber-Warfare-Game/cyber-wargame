@@ -61,9 +61,7 @@ export interface EffectsAttackNode extends Schema.Component {
     displayName: 'Attack Node';
     description: '';
   };
-  attributes: {
-    placeholder: Attribute.String;
-  };
+  attributes: {};
 }
 
 export interface EffectsBuffDebuff extends Schema.Component {
