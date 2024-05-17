@@ -1,0 +1,13 @@
+body {
+    display: flex;
+    width: fit-content;
+    justify-content: left; 
+    align-items: left; 
+}
+div {
+    width: 150%;
+    align-items: center; 
+}
+.dashnav {
+    align-items: center;
+}

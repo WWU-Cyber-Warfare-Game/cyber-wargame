@@ -1,0 +1,9 @@
+
+.loginNav {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+    align-items: baseline;
+}

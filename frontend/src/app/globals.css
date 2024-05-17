@@ -1,7 +1,28 @@
 /* Put all your global styles here */
-
-header {
+@font-face {
+    font-family: 'VT323';
+    src: url('../fonts/VT323-Regular.ttf') format('truetype');
+  }
+  header {
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
+* {
+    margin: 0%;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  html, body, #root {
+    height: 100%;
+  }
+  
+  body {
+    background-color: rgba(0, 0, 0, 0.921);
+    color: lawngreen;
+    font-family: 'VT323', monospace;
+    font-size: 20px; 
+  }
