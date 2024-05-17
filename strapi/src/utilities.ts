@@ -20,7 +20,8 @@ export async function getUser(username: string) {
         username: res[0].username,
         email: res[0].email,
         teamRole: res[0].teamRole as TeamRole,
-        team: res[0].team.name
+        team: res[0].team.name,
+        funds: res[0].funds
     };
     return user;
 }
@@ -47,7 +48,8 @@ export async function checkAction(username: string, actionId: number) {
       description: res.action.description,
       teamRole: res.action.teamRole as TeamRole,
       type: res.action.type as ActionType,
-      successRate: res.action.successRate
+      successRate: res.action.successRate,
+      cost: res.action.cost
     };
     if (user.teamRole !== action.teamRole) {
       console.error('user ' + username + ' attempted to perform action ' + action.name + ' that does not match their team role');

@@ -36,16 +36,17 @@ async function sendGraphQLQuery(query: string) {
  * @returns The parsed user data
  */
 function parseUser(user: any) {
-  let team;
-  if (!user.attributes.team) team = null;
-  else team = user.attributes.team.data.attributes.name;
-  const ret: User = {
-    username: user.attributes.username,
-    email: user.attributes.email,
-    teamRole: user.attributes.teamRole,
-    team: team
-  };
-  return ret;
+    let team;
+    if (!user.attributes.team) team = null;
+    else team = user.attributes.team.data.attributes.name;
+    const ret: User = {
+        username: user.attributes.username,
+        email: user.attributes.email,
+        teamRole: user.attributes.teamRole,
+        team: team,
+        funds: user.attributes.funds
+    };
+    return ret;
 }
 
 /**
@@ -156,6 +157,7 @@ export async function validateUser() {
         username: unparsedData.username,
         email: unparsedData.email,
         teamRole: unparsedData.teamRole,
+        funds: unparsedData.funds
       };
       try {
         const res = await fetch(`${STRAPI_URL}/api/users?populate=team&filters[username][$eq]=${tmp.username}`, {
@@ -172,7 +174,8 @@ export async function validateUser() {
           username: tmp.username,
           email: tmp.email,
           teamRole: tmp.teamRole,
-          team: unparsedData[0].team ? unparsedData[0].team.name : null
+          funds: tmp.funds,
+          team: unparsedData[0].team ? unparsedData[0].team.name : null,
         };
         return ret;
       } catch (error) {
@@ -463,6 +466,7 @@ export async function getActionPageData() {
               teamRole
               type
               successRate
+              cost
               targets {
                 target
                 myTeam
@@ -553,17 +557,18 @@ export async function getActionPageData() {
 
     // parse actions
     const actions: Action[] = actionsData.map((action: any) => {
-      const ret: Action = {
-        id: action.id,
-        name: action.attributes.action.name,
-        duration: action.attributes.action.duration,
-        description: action.attributes.action.description,
-        teamRole: action.attributes.action.teamRole,
-        type: action.attributes.action.type,
-        successRate: action.attributes.action.successRate,
-        targets: action.attributes.action.targets
-      };
-      return ret;
+        const ret: Action = {
+            id: action.id,
+            name: action.attributes.action.name,
+            duration: action.attributes.action.duration,
+            description: action.attributes.action.description,
+            teamRole: action.attributes.action.teamRole,
+            type: action.attributes.action.type,
+            successRate: action.attributes.action.successRate,
+            targets: action.attributes.action.targets,
+            cost: action.attributes.action.cost
+        };
+        return ret;
     });
 
     // get end time
@@ -580,12 +585,13 @@ export async function getActionPageData() {
     const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
 
     return {
-      actionLog: actionLog,
-      actions: actions,
-      endTime: endTime,
-      modifiers: modifiers,
-      teamGraph: teamGraph,
-      opponentGraph: opponentGraph,
+        actionLog: actionLog,
+        actions: actions,
+        endTime: endTime,
+        modifiers: modifiers,
+        teamGraph: teamGraph,
+        opponentGraph: opponentGraph,
+        userFunds: user.funds,
     };
   } catch (error) {
     console.error(error);

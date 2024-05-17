@@ -24,6 +24,11 @@ export interface ActionsPlaceholderAction extends Schema.Component {
       }> &
       Attribute.DefaultTo<50>;
     targets: Attribute.Component<'actions.targets'>;
+    cost: Attribute.Integer &
+      Attribute.SetMinMax<{
+        min: 0;
+      }> &
+      Attribute.DefaultTo<0>;
   };
 }
 

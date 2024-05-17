@@ -17,6 +17,8 @@ interface ActionSelectorFrameProps {
     readonly opponentGraph: Graph;
     readonly buttonDisabled: boolean;
     readonly setButtonDisabled: (disabled: boolean) => void;
+    readonly setUserFunds: (funds: number) => void;
+    readonly userFunds: number;
 }
 
 export default function ActionSelectorFrame({
@@ -29,7 +31,9 @@ export default function ActionSelectorFrame({
     teamGraph,
     opponentGraph,
     buttonDisabled,
-    setButtonDisabled
+    setButtonDisabled,
+    setUserFunds,
+    userFunds,
 }: Readonly<ActionSelectorFrameProps>) {
     function handleActionClick(action: Action, nodeId?: number, edgeId?: number) {
         const pendingAction = {
@@ -56,6 +60,8 @@ export default function ActionSelectorFrame({
                     onClick={handleActionClick}
                     disabled={buttonDisabled}
                     modifiers={modifiers}
+                    userFunds={userFunds}
+                    setUserFunds={setUserFunds}
                     setButtonDisabled={setButtonDisabled}
                     teamGraph={teamGraph}
                     opponentGraph={opponentGraph}

@@ -132,6 +132,42 @@ async function checkReceiver(userId: number, receiver: string) {
   });
   return teammates.length > 0;
 }
+/**
+ * updates the users funds parameter
+ * @param userId The id of the target user
+ * @param actionCost cost of the action requested by the user
+ */
+async function updateUserFunds(userId: number, actionCost: number) {
+  try {
+    const user = await strapi.entityService.findOne('plugin::users-permissions.user', userId, {
+      fields: ['funds'],
+    });
+
+    if (!user) {
+      console.error("User not found");
+      return false;
+    }
+
+    if (user.funds < actionCost) {
+      console.error("User has invalid funds");
+      return false;
+    }
+
+    const newFunds = user.funds - actionCost;
+
+    await strapi.entityService.update('plugin::users-permissions.user', userId, {
+      data: {
+        funds: newFunds,
+      }
+    });
+
+    return true;
+
+  } catch (error) {
+    console.error("error: " + error);
+    return false;
+  }
+}
 
 /**
  * Handles the completion of an action
@@ -231,7 +267,7 @@ async function joinRoom(users: string[], userId: number, socket: Socket) {
  * @param pendingActionReq The pending action request
  * @param socket The sender's socket
  */
-async function startAction(pendingActionReq: PendingActionRequest, socket: Socket) {
+async function startAction(pendingActionReq: PendingActionRequest, socket: Socket, userId: number) {
   console.log('action received');
 
   // check if action is valid
@@ -250,6 +286,13 @@ async function startAction(pendingActionReq: PendingActionRequest, socket: Socke
   if (pendingActions.length > 0) {
     socket.emit('error', 'User already performing action');
     return;
+  }
+
+  //update the users funds
+  const updated = await updateUserFunds(userId, action.cost); 
+
+  if(!updated) {
+    socket.emit('error', 'Error updating users funds');
   }
 
   // add action to pending queue
@@ -369,7 +412,7 @@ export default {
       socket.on('join-room', async (users: string[]) => await joinRoom(users, userId, socket));
 
       // listens for pending actions
-      socket.on('startAction', async (pendingActionReq: PendingActionRequest) => await startAction(pendingActionReq, socket));
+      socket.on('startAction', async (pendingActionReq: PendingActionRequest) => await startAction(pendingActionReq, socket, userId));
     });
   },
 

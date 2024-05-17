@@ -11,21 +11,23 @@ interface ActionButtonProps {
     readonly onClick: (action: Action, selectedNode?: number, selectedEdge?: number) => void;
     readonly disabled?: boolean;
     readonly modifiers: Modifiers;
+    readonly setUserFunds: (userFunds: number) => void;
     readonly setButtonDisabled: (disabled: boolean) => void;
     readonly teamGraph: Graph;
     readonly opponentGraph: Graph;
+    readonly userFunds: number;
 }
 
 interface EdgeWithName extends Edge {
     name: string;
 }
 
-export default function ActionButton({ action, onClick, disabled, modifiers, setButtonDisabled, teamGraph, opponentGraph }: Readonly<ActionButtonProps>) {
+export default function ActionButton({ action, onClick, disabled, modifiers, userFunds, setButtonDisabled, teamGraph, opponentGraph }: Readonly<ActionButtonProps>) {
     const totalModifier = modifiers.buff + (action.type === ActionType.Offense ? modifiers.offense : modifiers.defense);
     const [targetedActionSelected, setTargetedActionSelected] = useState(false);
 
     function handleClick() {
-        if (disabled) return;
+        if (disabled || userFunds < action.cost) return;
         if (action.targets) {
             setTargetedActionSelected(true);
             setButtonDisabled(true);
@@ -63,13 +65,16 @@ export default function ActionButton({ action, onClick, disabled, modifiers, set
             return { ...edge, name: `${sourceNode?.name} -> ${targetNode?.name}` };
         });
     }
-
+    // console.log(userFunds < action.cost);
+    // console.log("Name: " + action.name);
+    console.log("UserFunds: " + userFunds);
     return (
         <div
-            className={disabled ? styles.actionButtonDisabled : styles.actionButton}
+            className={disabled ? styles.actionButtonDisabled : userFunds < action.cost ? styles.actionButtonInvalidFunds: styles.actionButton}
             onClick={handleClick}
         >
             <p className={classNames(styles.actionName, styles.actionButtonLine)}>{action.name}</p>
+            <p className={styles.actionButtonLine}>Cost: {action.cost}</p>
             <p className={styles.actionButtonLine}>{action.description}</p>
             <p className={styles.actionButtonLine}>Type: {action.type}</p>
             <p className={styles.actionButtonLine}>{action.duration} minutes</p>
