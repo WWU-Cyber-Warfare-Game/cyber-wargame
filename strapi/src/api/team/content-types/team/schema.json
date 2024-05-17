@@ -50,12 +50,6 @@
       "type": "component",
       "repeatable": false,
       "component": "modifiers.modifiers"
-    },
-    "team": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::node.node",
-      "mappedBy": "team"
     }
   }
 }

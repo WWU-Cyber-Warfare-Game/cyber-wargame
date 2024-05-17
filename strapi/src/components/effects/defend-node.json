@@ -1,12 +1,9 @@
 {
   "collectionName": "components_effects_defend_nodes",
   "info": {
-    "displayName": "Defend Node"
+    "displayName": "Defend Node",
+    "description": ""
   },
   "options": {},
-  "attributes": {
-    "placeholder": {
-      "type": "string"
-    }
-  }
+  "attributes": {}
 }

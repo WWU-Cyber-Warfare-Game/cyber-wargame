@@ -46,6 +46,7 @@ export type Target = "team" | "opponent";
 export enum ActionEndState {
     Success = "success",
     Fail = "fail",
+    PartialFail = "partialfail",
     Stopped = "stopped"
 }
 

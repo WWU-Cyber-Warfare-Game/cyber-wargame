@@ -27,7 +27,9 @@
         "effects.reveal-node",
         "effects.attack-node",
         "effects.defend-node",
-        "effects.defend-edge"
+        "effects.defend-edge",
+        "effects.secure-node",
+        "effects.attack-edge"
       ]
     }
   }

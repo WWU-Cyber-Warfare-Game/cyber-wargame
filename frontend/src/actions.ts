@@ -145,28 +145,49 @@ export async function validateUser() {
     let jwt = cookies().get("jwt")?.value;
     if (!jwt) return null;
 
-    const res = await fetch(`${STRAPI_URL}/api/users/me?populate=*`, {
+    const res = await fetch(`${STRAPI_URL}/api/users/me`, {
       headers: {
         Authorization: `Bearer ${jwt}`
       }
     });
 
-        if (res.ok) {
-            const unparsedData = await res.json();
-            const ret: User = {
-                username: unparsedData.username,
-                email: unparsedData.email,
-                teamRole: unparsedData.teamRole,
-                team: unparsedData.team ? unparsedData.team.name : null,
-                funds: unparsedData.funds
-            };
-            return ret;
+    if (res.ok) {
+      const unparsedData = await res.json();
+      const tmp = {
+        username: unparsedData.username,
+        email: unparsedData.email,
+        teamRole: unparsedData.teamRole,
+        funds: unparsedData.funds
+      };
+      try {
+        const res = await fetch(`${STRAPI_URL}/api/users?populate=team&filters[username][$eq]=${tmp.username}`, {
+          headers: {
+            Authorization: `Bearer ${STRAPI_API_TOKEN}`
+          }
+        });
+        if (!res.ok) {
+          console.error(res);
+          return null;
         }
-        return null;
-    } catch (error) {
+        const unparsedData = await res.json();
+        const ret: User = {
+          username: tmp.username,
+          email: tmp.email,
+          teamRole: tmp.teamRole,
+          funds: tmp.funds,
+          team: unparsedData[0].team ? unparsedData[0].team.name : null,
+        };
+        return ret;
+      } catch (error) {
         console.error(error);
         return null;
+      }
     }
+    return null;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
 /**

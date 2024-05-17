@@ -803,7 +803,9 @@ export interface ApiActionAction extends Schema.CollectionType {
         'effects.reveal-node',
         'effects.attack-node',
         'effects.defend-node',
-        'effects.defend-edge'
+        'effects.defend-edge',
+        'effects.secure-node',
+        'effects.attack-edge'
       ]
     >;
     createdAt: Attribute.DateTime;
@@ -920,7 +922,7 @@ export interface ApiNodeNode extends Schema.CollectionType {
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
-    team: Attribute.Relation<'api::node.node', 'manyToOne', 'api::team.team'>;
+    team: Attribute.Relation<'api::node.node', 'oneToOne', 'api::team.team'>;
     defense: Attribute.Integer & Attribute.Required;
     isCoreNode: Attribute.Boolean & Attribute.Required;
     visible: Attribute.Boolean &
@@ -996,7 +998,9 @@ export interface ApiResolvedActionResolvedAction extends Schema.CollectionType {
     user: Attribute.String;
     date: Attribute.DateTime;
     action: Attribute.Component<'actions.placeholder-action'>;
-    endState: Attribute.Enumeration<['success', 'fail', 'stopped']> &
+    endState: Attribute.Enumeration<
+      ['success', 'fail', 'partialfail', 'stopped']
+    > &
       Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -1040,7 +1044,6 @@ export interface ApiTeamTeam extends Schema.CollectionType {
     mediaModifiers: Attribute.Component<'modifiers.modifiers'> &
       Attribute.Required;
     diplomatModifiers: Attribute.Component<'modifiers.modifiers'>;
-    team: Attribute.Relation<'api::team.team', 'oneToMany', 'api::node.node'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::team.team', 'oneToOne', 'admin::user'> &

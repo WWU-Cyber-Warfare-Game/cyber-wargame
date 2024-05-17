@@ -55,6 +55,15 @@ export interface EffectsAddVictoryPoints extends Schema.Component {
   };
 }
 
+export interface EffectsAttackEdge extends Schema.Component {
+  collectionName: 'components_effects_attack_edges';
+  info: {
+    displayName: 'Attack Edge';
+    description: '';
+  };
+  attributes: {};
+}
+
 export interface EffectsAttackNode extends Schema.Component {
   collectionName: 'components_modifiers_attack_nodes';
   info: {
@@ -84,30 +93,36 @@ export interface EffectsDefendEdge extends Schema.Component {
   collectionName: 'components_effects_defend_edges';
   info: {
     displayName: 'Defend Edge';
+    description: '';
   };
-  attributes: {
-    placeholder: Attribute.String;
-  };
+  attributes: {};
 }
 
 export interface EffectsDefendNode extends Schema.Component {
   collectionName: 'components_effects_defend_nodes';
   info: {
     displayName: 'Defend Node';
+    description: '';
   };
-  attributes: {
-    placeholder: Attribute.String;
-  };
+  attributes: {};
 }
 
 export interface EffectsRevealNode extends Schema.Component {
   collectionName: 'components_effects_reveal_nodes';
   info: {
     displayName: 'Reveal Node';
+    description: '';
   };
-  attributes: {
-    placeholder: Attribute.String;
+  attributes: {};
+}
+
+export interface EffectsSecureNode extends Schema.Component {
+  collectionName: 'components_effects_secure_nodes';
+  info: {
+    displayName: 'Secure Node';
+    description: '';
   };
+  attributes: {};
 }
 
 export interface EffectsStopOffenseAction extends Schema.Component {
@@ -167,11 +182,13 @@ declare module '@strapi/types' {
       'actions.placeholder-action': ActionsPlaceholderAction;
       'actions.targets': ActionsTargets;
       'effects.add-victory-points': EffectsAddVictoryPoints;
+      'effects.attack-edge': EffectsAttackEdge;
       'effects.attack-node': EffectsAttackNode;
       'effects.buff-debuff': EffectsBuffDebuff;
       'effects.defend-edge': EffectsDefendEdge;
       'effects.defend-node': EffectsDefendNode;
       'effects.reveal-node': EffectsRevealNode;
+      'effects.secure-node': EffectsSecureNode;
       'effects.stop-offense-action': EffectsStopOffenseAction;
       'modifiers.modifiers': ModifiersModifiers;
       'positioning.connections': PositioningConnections;

@@ -18,6 +18,7 @@ import { MODIFIER_RATE } from './consts';
 import ActionQueue from './queue';
 import { getGameState, setGameState, setWinner } from './game-state';
 import { existsSync, openSync, closeSync } from 'node:fs';
+import { createActions, createTeams } from './init';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 let actionQueue: ActionQueue;
@@ -184,8 +185,25 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
     }
   );
   const successRate = pendingActionRes.action.successRate;
-  const endState = await getSuccess(successRate, pendingActionRes.user, pendingActionRes.action.type as ActionType) ? 'success' : 'fail';
-  console.log('end state: ' + endState);
+  let endState: 'success' | 'fail' | 'partialfail' =
+    await getSuccess(successRate, pendingActionRes.user, pendingActionRes.action.type as ActionType) ? 'success' : 'fail';
+
+  // parse and apply action effects
+  if (endState === 'success') {
+    const user = await getUser(pendingActionRes.user);
+    const partialFail = await applyEffects(
+      pendingActionRes.actionId,
+      user,
+      actionQueue,
+      frontend,
+      pendingActionRes.targetNode && pendingActionRes.targetNode.id as number,
+      pendingActionRes.targetEdge && pendingActionRes.targetEdge.id as number
+    );
+    if (partialFail) {
+      endState = 'partialfail';
+    }
+  }
+
   await strapi.entityService.create('api::resolved-action.resolved-action', {
     data: {
       user: pendingActionRes.user,
@@ -197,19 +215,6 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
 
   // remove action from pending queue
   await strapi.entityService.delete('api::pending-action.pending-action', actionCompleteRequest.pendingActionId);
-
-  // parse and apply action effects
-  if (endState === 'success') {
-    const user = await getUser(pendingActionRes.user);
-    await applyEffects(
-      pendingActionRes.actionId,
-      user,
-      actionQueue,
-      frontend,
-      pendingActionRes.targetNode && pendingActionRes.targetNode.id as number,
-      pendingActionRes.targetEdge && pendingActionRes.targetEdge.id as number
-    );
-  }
 
   // emit action complete to user
   frontend.emit('actionComplete');
@@ -345,7 +350,7 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/*{ strapi }*/) {},
+  register(/*{ strapi }*/) { },
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -359,7 +364,8 @@ export default {
     if (!existsSync('.init')) {
       console.log('Initializing game...');
       closeSync(openSync('.init', 'w'));
-      // TODO: initialize actions and set permissions
+      await createActions();
+      await createTeams();
     }
 
     // create socket server
