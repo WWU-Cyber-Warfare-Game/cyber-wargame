@@ -6,7 +6,7 @@ interface EntryProps {
 
 export default function Entry({ entry }: Readonly<EntryProps>) {
     return (
-        <div class="buttonCollection">
+        <div className="buttonCSS">
             <p>Time: {entry.time.toLocaleString()}</p>
             <p>Action Name: {entry.action.name}</p>
             <p>Duration: {entry.action.duration}</p>

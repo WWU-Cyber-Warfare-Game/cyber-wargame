@@ -5,6 +5,7 @@ import { Action, PendingAction, User, Modifiers } from "@/types";
 import ActionButton from "./ActionButton";
 import { getActions, getModifiers } from "@/actions";
 import Timer from "./Timer";
+import "./actionSelector.css";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
@@ -89,8 +90,8 @@ export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSel
     }
 
     return (
-        <div>
-            <h3>Perform Action</h3>
+        <div className="buttonCollection">
+            <h3 style={{display: "flex", flexDirection: "column", textAlign: "center", justifyContent: "center"}}>Perform Action</h3>
             {loading && <p>Loading...</p>}
             {error && <p>{error}</p>}
             {actions.map((action, index) => (
