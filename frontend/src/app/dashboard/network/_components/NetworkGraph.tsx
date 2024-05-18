@@ -4,6 +4,7 @@ import { getGraphData } from "@/actions";
 import Dagre from '@dagrejs/dagre';
 import { Edge, Graph, Node, Target } from "@/types";
 import 'reactflow/dist/style.css';
+import styles from './Network.module.css';
 
 interface NetworkGraphProps {
     target: Target;
@@ -31,10 +32,14 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
             const reactFlowNode: ReactFlowNode = {
                 id: node.id,
                 data: {
-                    label: node.name,
+                    label: node.name + (node.isCoreNode ? " (Core)" : ""),
                     isCoreNode: node.isCoreNode
                 },
-                position: { x: x, y: y }
+                position: { x: x, y: y },
+                draggable: false,
+                selectable: false,
+                connectable: false,
+                className: node.defense < 3 ? styles.lowDefense : node.defense < 6 ? styles.mediumDefense : styles.highDefense
             };
             return reactFlowNode;
         }),

@@ -5,3 +5,27 @@
     justify-content: center;
     justify-items: center;
 }
+
+/* .lowDefense {
+    border: springgreen;
+}
+
+.mediumDefense {
+    border: yellow;
+}
+
+.highDefense {
+    border: red;
+} */
+
+.lowDefense {
+    background-color: springgreen;
+}
+
+.mediumDefense {
+    background-color: yellow;
+}
+
+.highDefense {
+    background-color: red;
+}
