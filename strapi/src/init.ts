@@ -46,8 +46,8 @@ async function createLeaderActions() {
     await strapi.entityService.create('api::action.action', {
         data: {
             action: {
-                name: 'Buff Intelligence',
-                description: 'Increase the chance of success for all actions that the intelligence role performs.',
+                name: 'Buff Military',
+                description: 'Increase the chance of success for all actions that the military role performs.',
                 duration: 30,
                 teamRole: teamRole,
                 type: 'defense',
@@ -536,7 +536,7 @@ async function createNetworkPreset2(teamId: number) {
     });
     await strapi.entityService.create('api::edge.edge', {
         data: {
-            source: pc.id,
+            source: switch2.id,
             target: productionServer.id,
             defense: 0,
         }

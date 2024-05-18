@@ -496,7 +496,7 @@ export async function getActionPageData() {
         }
       }
     
-      nodes(filters: {}) {
+      nodes(pagination: { pageSize: 100 }) {
         data {
           id
           attributes {
@@ -515,7 +515,7 @@ export async function getActionPageData() {
         }
       }
     
-      edges(filters: {}) {
+      edges(pagination: { pageSize: 100 }) {
         data {
           id
           attributes {
@@ -612,44 +612,44 @@ export async function getGraphData() {
   try {
     const res = await sendGraphQLQuery(`
     {
-        nodes(filters: {}) {
-          data {
-            id
-            attributes {
-              name
-              team {
-                data {
-                  attributes {
-                    name
-                  }
+      nodes(pagination: { pageSize: 100 }) {
+        data {
+          id
+          attributes {
+            name
+            team {
+              data {
+                attributes {
+                  name
                 }
               }
-              defense
-              isCoreNode
-              visible
             }
-          }
-        }
-      
-        edges(filters: {}) {
-          data {
-            id
-            attributes {
-              source {
-                data {
-                  id
-                }
-              }
-              target {
-                data {
-                  id
-                }
-              }
-              defense
-            }
+            defense
+            isCoreNode
+            visible
           }
         }
       }
+    
+      edges(pagination: { pageSize: 100 }) {
+        data {
+          id
+          attributes {
+            source {
+              data {
+                id
+              }
+            }
+            target {
+              data {
+                id
+              }
+            }
+            defense
+          }
+        }
+      }
+    }
     `);
     const data = await res.json();
     const nodesData: any[] = data.data.nodes.data;

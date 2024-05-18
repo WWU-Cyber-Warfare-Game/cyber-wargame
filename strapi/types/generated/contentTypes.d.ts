@@ -790,7 +790,7 @@ export interface ApiActionAction extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     action: Attribute.Component<'actions.placeholder-action'> &
@@ -810,7 +810,6 @@ export interface ApiActionAction extends Schema.CollectionType {
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::action.action',
       'oneToOne',

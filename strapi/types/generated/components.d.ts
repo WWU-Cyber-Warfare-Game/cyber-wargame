@@ -9,7 +9,7 @@ export interface ActionsPlaceholderAction extends Schema.Component {
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
-    description: Attribute.String;
+    description: Attribute.Text;
     duration: Attribute.Float & Attribute.Required;
     teamRole: Attribute.Enumeration<
       ['leader', 'intelligence', 'military', 'media', 'diplomat']
