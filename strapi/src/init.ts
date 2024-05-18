@@ -28,6 +28,7 @@ async function createLeaderActions() {
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
+                cost: 3,
             },
             effects: [
                 {
@@ -50,6 +51,7 @@ async function createLeaderActions() {
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
+                cost: 3,
             },
             effects: [
                 {
@@ -76,6 +78,7 @@ async function createIntelligenceActions() {
                 teamRole: teamRole,
                 type: 'offense',
                 successRate: 50,
+                cost: 3,
             },
             effects: [
                 {
@@ -95,6 +98,7 @@ async function createIntelligenceActions() {
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
+                cost: 3,
             },
             effects: [
                 {
@@ -122,7 +126,8 @@ async function createMilitaryActions() {
                 targets: {
                     target: 'node',
                     myTeam: false,
-                }
+                },
+                cost: 3,
             },
             effects: [
                 {
@@ -145,7 +150,8 @@ async function createMilitaryActions() {
                 targets: {
                     target: 'node',
                     myTeam: true,
-                }
+                },
+                cost: 3,
             },
             effects: [
                 {
@@ -165,6 +171,7 @@ async function createMilitaryActions() {
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
+                cost: 3,
             },
             effects: [
                 {
@@ -188,7 +195,8 @@ async function createMilitaryActions() {
                 targets: {
                     target: 'edge',
                     myTeam: true,
-                }
+                },
+                cost: 3,
             },
             effects: [
                 {
@@ -211,7 +219,8 @@ async function createMilitaryActions() {
                 targets: {
                     target: 'edge',
                     myTeam: false,
-                }
+                },
+                cost: 3,
             },
             effects: [
                 {
