@@ -11,9 +11,10 @@ export async function createActions() {
  * Loads the teams and their networks into Strapi.
  */
 export async function createTeams() {
-    await createTeam('Team 1');
-    await createTeam('Team 2');
-    // TODO: Create networks for each team
+    const team1 = await createTeam('Team 1');
+    const team2 = await createTeam('Team 2');
+    await createNetworkPreset1(team1.id as number);
+    await createNetworkPreset2(team2.id as number);
 }
 
 async function createLeaderActions() {
@@ -28,6 +29,7 @@ async function createLeaderActions() {
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
+                cost: 3,
             },
             effects: [
                 {
@@ -44,12 +46,13 @@ async function createLeaderActions() {
     await strapi.entityService.create('api::action.action', {
         data: {
             action: {
-                name: 'Buff Intelligence',
-                description: 'Increase the chance of success for all actions that the intelligence role performs.',
+                name: 'Buff Military',
+                description: 'Increase the chance of success for all actions that the military role performs.',
                 duration: 30,
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
+                cost: 3,
             },
             effects: [
                 {
@@ -76,6 +79,7 @@ async function createIntelligenceActions() {
                 teamRole: teamRole,
                 type: 'offense',
                 successRate: 50,
+                cost: 3,
             },
             effects: [
                 {
@@ -95,6 +99,7 @@ async function createIntelligenceActions() {
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
+                cost: 3,
             },
             effects: [
                 {
@@ -122,7 +127,8 @@ async function createMilitaryActions() {
                 targets: {
                     target: 'node',
                     myTeam: false,
-                }
+                },
+                cost: 3,
             },
             effects: [
                 {
@@ -145,7 +151,8 @@ async function createMilitaryActions() {
                 targets: {
                     target: 'node',
                     myTeam: true,
-                }
+                },
+                cost: 3,
             },
             effects: [
                 {
@@ -165,6 +172,7 @@ async function createMilitaryActions() {
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
+                cost: 3,
             },
             effects: [
                 {
@@ -188,7 +196,8 @@ async function createMilitaryActions() {
                 targets: {
                     target: 'edge',
                     myTeam: true,
-                }
+                },
+                cost: 3,
             },
             effects: [
                 {
@@ -211,7 +220,8 @@ async function createMilitaryActions() {
                 targets: {
                     target: 'edge',
                     myTeam: false,
-                }
+                },
+                cost: 3,
             },
             effects: [
                 {
@@ -223,7 +233,7 @@ async function createMilitaryActions() {
 }
 
 async function createTeam(name: string) {
-    await strapi.entityService.create('api::team.team', {
+    return await strapi.entityService.create('api::team.team', {
         data: {
             name: name,
             victoryPoints: 0,
@@ -252,6 +262,283 @@ async function createTeam(name: string) {
                 defense: 0,
                 buff: 0,
             },
+        }
+    });
+}
+
+async function createNetworkPreset1(teamId: number) {
+    // create nodes
+    const router1 = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Router 1',
+            team: teamId,
+            defense: 3,
+            isCoreNode: false,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const router2 = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Router 2',
+            team: teamId,
+            defense: 3,
+            isCoreNode: false,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const devServer = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Dev Server',
+            team: teamId,
+            defense: 5,
+            isCoreNode: true,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const switch1 = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Switch 1',
+            team: teamId,
+            defense: 3,
+            isCoreNode: false,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const switch2 = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Switch 2',
+            team: teamId,
+            defense: 3,
+            isCoreNode: false,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const database = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Database',
+            team: teamId,
+            defense: 5,
+            isCoreNode: true,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const switch3 = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Switch 3',
+            team: teamId,
+            defense: 3,
+            isCoreNode: false,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const productionServer = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Production Server',
+            team: teamId,
+            defense: 5,
+            isCoreNode: true,
+            visible: false,
+            compromised: false,
+        }
+    });
+
+    // create edges
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: router1.id,
+            target: devServer.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: router2.id,
+            target: devServer.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: devServer.id,
+            target: switch1.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: devServer.id,
+            target: switch2.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: switch1.id,
+            target: database.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: switch2.id,
+            target: database.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: database.id,
+            target: switch3.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: switch3.id,
+            target: productionServer.id,
+            defense: 0,
+        }
+    });
+}
+
+async function createNetworkPreset2(teamId: number) {
+    // create nodes
+    const router1 = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Router 1',
+            team: teamId,
+            defense: 3,
+            isCoreNode: false,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const router2 = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Router 2',
+            team: teamId,
+            defense: 3,
+            isCoreNode: false,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const devServer = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Dev Server',
+            team: teamId,
+            defense: 5,
+            isCoreNode: true,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const switch1 = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Switch 1',
+            team: teamId,
+            defense: 3,
+            isCoreNode: false,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const switch2 = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Switch 2',
+            team: teamId,
+            defense: 3,
+            isCoreNode: false,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const webServer = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Web Server',
+            team: teamId,
+            defense: 5,
+            isCoreNode: true,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const pc = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'PC',
+            team: teamId,
+            defense: 3,
+            isCoreNode: false,
+            visible: false,
+            compromised: false,
+        }
+    });
+    const productionServer = await strapi.entityService.create('api::node.node', {
+        data: {
+            name: 'Production Server',
+            team: teamId,
+            defense: 5,
+            isCoreNode: true,
+            visible: false,
+            compromised: false,
+        }
+    });
+
+    // create edges
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: router1.id,
+            target: devServer.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: router2.id,
+            target: devServer.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: devServer.id,
+            target: switch1.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: devServer.id,
+            target: switch2.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: switch1.id,
+            target: webServer.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: switch2.id,
+            target: pc.id,
+            defense: 0,
+        }
+    });
+    await strapi.entityService.create('api::edge.edge', {
+        data: {
+            source: switch2.id,
+            target: productionServer.id,
+            defense: 0,
         }
     });
 }
