@@ -36,7 +36,7 @@ export interface Action {
     successRate: number;
     cost: number;
     targets?: {
-        target: "node" | "edge";
+        target: "node" | "edge" | "player";
         myTeam: boolean;
     }
 }
@@ -63,6 +63,7 @@ export interface PendingAction {
     action: number;
     nodeId?: number;
     edgeId?: number;
+    userId?: number;
 }
 
 export interface ActionResponse {
@@ -99,3 +100,10 @@ export enum GameState {
     Running = "running",
     Ended = "ended"
 }
+
+export type UserTarget = {
+    id: number,
+    username: string,
+    teamRole: TeamRole,
+    myTeam: boolean
+};

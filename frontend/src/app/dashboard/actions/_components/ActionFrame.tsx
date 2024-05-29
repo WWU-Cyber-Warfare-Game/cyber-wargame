@@ -3,7 +3,7 @@
 import ActionLogFrame from "./ActionLogFrame";
 import ActionSelectorFrame from "./ActionSelectorFrame";
 import ResourceFrame from "./ActionSelectorFrame/ResourceCount";
-import { User, ActionLog, Action, Modifiers, Graph } from "@/types";
+import { User, ActionLog, Action, Modifiers, Graph, UserTarget } from "@/types";
 import { useContext, useEffect, useState } from "react";
 import { getActionPageData } from "@/actions";
 import { SocketContext } from "@/components/SocketContext";
@@ -29,6 +29,7 @@ export default function ActionFrame({ user }: Readonly<ActionFrameProps>) {
     const [opponentGraph, setOpponentGraph] = useState<Graph>({ nodes: [], edges: [] });
     const [buttonDisabled, setButtonDisabled] = useState(true);
     const [userFunds, setUserFunds] = useState(user.funds);
+    const [users, setUsers] = useState<UserTarget[]>([]);
     const { socket } = useContext(SocketContext);
 
     function refreshData() {
@@ -41,6 +42,7 @@ export default function ActionFrame({ user }: Readonly<ActionFrameProps>) {
                 setTeamGraph(res.teamGraph);
                 setOpponentGraph(res.opponentGraph);
                 setUserFunds(res.userFunds);
+                setUsers(res.users);
                 if (!res.endTime) setButtonDisabled(false);
             } else {
                 setError("Error fetching action page data");
@@ -81,6 +83,7 @@ export default function ActionFrame({ user }: Readonly<ActionFrameProps>) {
                 setButtonDisabled={setButtonDisabled}
                 setUserFunds={setUserFunds}
                 userFunds={userFunds}
+                users={users}
             />
             <ActionLogFrame actionLog={actionLog} />
         </>

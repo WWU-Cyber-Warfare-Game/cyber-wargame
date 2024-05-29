@@ -805,7 +805,8 @@ export interface ApiActionAction extends Schema.CollectionType {
         'effects.defend-node',
         'effects.defend-edge',
         'effects.secure-node',
-        'effects.attack-edge'
+        'effects.attack-edge',
+        'effects.distribute-funds'
       ]
     >;
     createdAt: Attribute.DateTime;
@@ -964,6 +965,11 @@ export interface ApiPendingActionPendingAction extends Schema.CollectionType {
       'api::pending-action.pending-action',
       'oneToOne',
       'api::edge.edge'
+    >;
+    targetUser: Attribute.Relation<
+      'api::pending-action.pending-action',
+      'oneToOne',
+      'plugin::users-permissions.user'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

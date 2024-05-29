@@ -12,7 +12,7 @@ import {
   SocketServer
 } from './types';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { getUser, checkAction } from './utilities';
+import { getUser, checkAction, updateUserFunds } from './utilities';
 import applyEffects from './effects';
 import { MODIFIER_RATE } from './consts';
 import ActionQueue from './queue';
@@ -132,42 +132,6 @@ async function checkReceiver(userId: number, receiver: string) {
   });
   return teammates.length > 0;
 }
-/**
- * updates the users funds parameter
- * @param userId The id of the target user
- * @param actionCost cost of the action requested by the user
- */
-async function updateUserFunds(userId: number, actionCost: number) {
-  try {
-    const user = await strapi.entityService.findOne('plugin::users-permissions.user', userId, {
-      fields: ['funds'],
-    });
-
-    if (!user) {
-      console.error("User not found");
-      return false;
-    }
-
-    if (user.funds < actionCost) {
-      console.error("User has invalid funds");
-      return false;
-    }
-
-    const newFunds = user.funds - actionCost;
-
-    await strapi.entityService.update('plugin::users-permissions.user', userId, {
-      data: {
-        funds: newFunds,
-      }
-    });
-
-    return true;
-
-  } catch (error) {
-    console.error("error: " + error);
-    return false;
-  }
-}
 
 /**
  * Handles the completion of an action
@@ -197,7 +161,8 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
       actionQueue,
       frontend,
       pendingActionRes.targetNode && pendingActionRes.targetNode.id as number,
-      pendingActionRes.targetEdge && pendingActionRes.targetEdge.id as number
+      pendingActionRes.targetEdge && pendingActionRes.targetEdge.id as number,
+      pendingActionRes.targetUser && pendingActionRes.targetUser.id as number
     );
     if (partialFail) {
       endState = 'partialfail';
@@ -296,6 +261,7 @@ async function startAction(pendingActionReq: PendingActionRequest, socket: Socke
   }
 
   // add action to pending queue
+  console.log(pendingActionReq.nodeId, pendingActionReq.edgeId, pendingActionReq.userId);
   const res = await strapi.entityService.create('api::pending-action.pending-action', {
     data: {
       user: pendingActionReq.user,
@@ -303,7 +269,8 @@ async function startAction(pendingActionReq: PendingActionRequest, socket: Socke
       action: action,
       actionId: action.id,
       targetNode: pendingActionReq.nodeId,
-      targetEdge: pendingActionReq.edgeId
+      targetEdge: pendingActionReq.edgeId,
+      targetUser: pendingActionReq.userId
     }
   });
 

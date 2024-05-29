@@ -1,5 +1,5 @@
 import { User } from './types';
-import { getUser } from './utilities';
+import { getUser, getUserId } from './utilities';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { Server, Namespace } from 'socket.io';
 import ActionQueue from './queue';
@@ -15,13 +15,23 @@ type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap,
  * @param frontend The frontend socket server
  * @param targetNodeId The ID of the node targeted by the action
  * @param targetEdgeId The ID of the edge targeted by the action
+ * @param targetUserId The ID of the user targeted by the action
  * @returns A boolean indicating whether the action failed
  */
-export default async function applyEffects(actionId: number, user: User, actionQueue: ActionQueue, frontend: SocketServer, targetNodeId?: number, targetEdgeId?: number) {
+export default async function applyEffects(
+    actionId: number,
+    user: User,
+    actionQueue: ActionQueue,
+    frontend: SocketServer,
+    targetNodeId?: number,
+    targetEdgeId?: number,
+    targetUserId?: number,
+) {
     let fail: boolean = false;
 
     console.log('targetNodeId:', targetNodeId);
     console.log('targetEdgeId:', targetEdgeId);
+    console.log('targetPlayerId:', targetUserId);
 
     const effects = (await strapi.entityService.findOne('api::action.action', actionId, {
         populate: ['effects']
@@ -42,6 +52,8 @@ export default async function applyEffects(actionId: number, user: User, actionQ
         },
         populate: '*'
     }))[0];
+
+    const userId = await getUserId(user.username);
 
     const targetNode = targetNodeId ? await strapi.entityService.findOne('api::node.node', targetNodeId) : null;
     const targetEdge = targetEdgeId ? await strapi.entityService.findOne('api::edge.edge', targetEdgeId) : null;
@@ -201,10 +213,10 @@ export default async function applyEffects(actionId: number, user: User, actionQ
                         const randomEdge = connectedEdges[Math.floor(Math.random() * connectedEdges.length)];
                         if ((Math.random() * 11) >= randomEdge.defense) {
                             await strapi.entityService.update('api::node.node', randomEdge.target.id, {
-                                    data: {
-                                        visible: true
-                                    }
-                                });
+                                data: {
+                                    visible: true
+                                }
+                            });
                         } else {
                             fail = true;
                             await strapi.entityService.update('api::edge.edge', randomEdge.id, {
@@ -221,7 +233,10 @@ export default async function applyEffects(actionId: number, user: User, actionQ
             // if it fails, decrease the defense of the node
             case 'effects.attack-node':
                 console.log('EFFECT: attacking node');
-                if (!targetNodeId) console.error('No target node ID provided for attack-node effect');
+                if (!targetNodeId) {
+                    console.error('No target node ID provided for attack-node effect');
+                    break;
+                }
 
                 if ((Math.random() * 11) >= targetNode.defense) {
                     await strapi.entityService.update('api::node.node', targetNodeId, {
@@ -242,7 +257,10 @@ export default async function applyEffects(actionId: number, user: User, actionQ
             // increase a node's defense
             case 'effects.defend-node':
                 console.log('EFFECT: defending node');
-                if (!targetNodeId) console.error('No target node ID provided for defend-node effect');
+                if (!targetNodeId) {
+                    console.error('No target node ID provided for defend-node effect');
+                    break;
+                }
                 await strapi.entityService.update('api::node.node', targetNodeId, {
                     data: {
                         defense: targetNode.defense + DEFENSE_RATE
@@ -253,7 +271,10 @@ export default async function applyEffects(actionId: number, user: User, actionQ
             // increase an edge's defense
             case 'effects.defend-edge':
                 console.log('EFFECT: defending edge');
-                if (!targetEdgeId) console.error('No target edge ID provided for defend-edge effect');
+                if (!targetEdgeId) {
+                    console.error('No target edge ID provided for defend-edge effect');
+                    break;
+                }
                 await strapi.entityService.update('api::edge.edge', targetEdgeId, {
                     data: {
                         defense: targetEdge.defense + DEFENSE_RATE
@@ -264,7 +285,10 @@ export default async function applyEffects(actionId: number, user: User, actionQ
             // uncompromise a node
             case 'effects.secure-node':
                 console.log('EFFECT: securing node');
-                if (!targetNodeId) console.error('No target node ID provided for secure-node effect');
+                if (!targetNodeId) {
+                    console.error('No target node ID provided for secure-node effect');
+                    break;
+                }
                 await strapi.entityService.update('api::node.node', targetNodeId, {
                     data: {
                         compromised: false
@@ -279,6 +303,26 @@ export default async function applyEffects(actionId: number, user: User, actionQ
                 await strapi.entityService.update('api::node.node', targetNodeId, {
                     data: {
                         defense: targetNode.defense - DEFENSE_RATE
+                    }
+                });
+                break;
+
+            // moves funds from one player to another
+            case 'effects.distribute-funds':
+                console.log('EFFECT: distributing funds');
+                if (!targetUserId) {
+                    console.error('No target player ID provided for distribute-funds effect');
+                    break;
+                }
+                const targetUser = await strapi.entityService.findOne('plugin::users-permissions.user', targetUserId);
+                await strapi.entityService.update('plugin::users-permissions.user', userId, {
+                    data: {
+                        funds: user.funds - effect.amount
+                    }
+                });
+                await strapi.entityService.update('plugin::users-permissions.user', targetUserId, {
+                    data: {
+                        funds: targetUser.funds + effect.amount
                     }
                 });
                 break;

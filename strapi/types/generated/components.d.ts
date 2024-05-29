@@ -37,9 +37,11 @@ export interface ActionsTargets extends Schema.Component {
   collectionName: 'components_actions_targets';
   info: {
     displayName: 'targets';
+    description: '';
   };
   attributes: {
-    target: Attribute.Enumeration<['node', 'edge']> & Attribute.Required;
+    target: Attribute.Enumeration<['node', 'edge', 'player']> &
+      Attribute.Required;
     myTeam: Attribute.Boolean & Attribute.Required;
   };
 }
@@ -106,6 +108,17 @@ export interface EffectsDefendNode extends Schema.Component {
     description: '';
   };
   attributes: {};
+}
+
+export interface EffectsDistributeFunds extends Schema.Component {
+  collectionName: 'components_effects_distribute_funds';
+  info: {
+    displayName: 'Distribute Funds';
+    description: '';
+  };
+  attributes: {
+    amount: Attribute.Integer & Attribute.Required;
+  };
 }
 
 export interface EffectsRevealNode extends Schema.Component {
@@ -188,6 +201,7 @@ declare module '@strapi/types' {
       'effects.buff-debuff': EffectsBuffDebuff;
       'effects.defend-edge': EffectsDefendEdge;
       'effects.defend-node': EffectsDefendNode;
+      'effects.distribute-funds': EffectsDistributeFunds;
       'effects.reveal-node': EffectsRevealNode;
       'effects.secure-node': EffectsSecureNode;
       'effects.stop-offense-action': EffectsStopOffenseAction;
