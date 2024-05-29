@@ -57,6 +57,7 @@ export default async function applyEffects(
 
     const targetNode = targetNodeId ? await strapi.entityService.findOne('api::node.node', targetNodeId) : null;
     const targetEdge = targetEdgeId ? await strapi.entityService.findOne('api::edge.edge', targetEdgeId) : null;
+    const targetUser = targetUserId ? await strapi.entityService.findOne('plugin::users-permissions.user', targetUserId) : null;
 
     effects.forEach(async (effect) => {
         switch (effect.__component) {
@@ -81,7 +82,74 @@ export default async function applyEffects(
                 }
                 break;
 
-            // add a buff or debuff to user
+            case 'effects.buff-debuff-targeted':
+                console.log('EFFECT: buffing/debuffing targeted');
+                if (!targetUserId) {
+                    console.error('No target player ID provided for buff-debuff-targeted effect');
+                    break;
+                }
+                
+                switch (targetUser.teamRole) {
+                    case 'leader':
+                        await strapi.entityService.update('api::team.team', playerTeam.id, {
+                            data: {
+                                leaderModifiers: {
+                                    offense: playerTeam.leaderModifiers.offense,
+                                    defense: playerTeam.leaderModifiers.defense,
+                                    buff: playerTeam.leaderModifiers.buff + effect.buff
+                                }
+                            }
+                        });
+                        break;
+                    case 'intelligence':
+                        await strapi.entityService.update('api::team.team', playerTeam.id, {
+                            data: {
+                                intelligenceModifiers: {
+                                    offense: playerTeam.intelligenceModifiers.offense,
+                                    defense: playerTeam.intelligenceModifiers.defense,
+                                    buff: playerTeam.intelligenceModifiers.buff + effect.buff
+                                }
+                            }
+                        });
+                        break;
+                    case 'military':
+                        await strapi.entityService.update('api::team.team', playerTeam.id, {
+                            data: {
+                                militaryModifiers: {
+                                    offense: playerTeam.militaryModifiers.offense,
+                                    defense: playerTeam.militaryModifiers.defense,
+                                    buff: playerTeam.militaryModifiers.buff + effect.buff
+                                }
+                            }
+                        });
+                        break;
+                    case 'diplomat':
+                        await strapi.entityService.update('api::team.team', playerTeam.id, {
+                            data: {
+                                diplomatModifiers: {
+                                    offense: playerTeam.diplomatModifiers.offense,
+                                    defense: playerTeam.diplomatModifiers.defense,
+                                    buff: playerTeam.diplomatModifiers.buff + effect.buff
+                                }
+                            }
+                        });
+                        break;
+                    case 'media':
+                        await strapi.entityService.update('api::team.team', playerTeam.id, {
+                            data: {
+                                mediaModifiers: {
+                                    offense: playerTeam.mediaModifiers.offense,
+                                    defense: playerTeam.mediaModifiers.defense,
+                                    buff: playerTeam.mediaModifiers.buff + effect.buff
+                                }
+                            }
+                        });
+                        break;
+                }
+                
+                break;
+            
+            // add a buff or debuff to a role
             case 'effects.buff-debuff':
                 console.log('EFFECT: buffing/debuffing');
                 const team = effect.myTeam ? playerTeam : otherTeam;
@@ -314,7 +382,6 @@ export default async function applyEffects(
                     console.error('No target player ID provided for distribute-funds effect');
                     break;
                 }
-                const targetUser = await strapi.entityService.findOne('plugin::users-permissions.user', targetUserId);
                 await strapi.entityService.update('plugin::users-permissions.user', userId, {
                     data: {
                         funds: user.funds - effect.amount

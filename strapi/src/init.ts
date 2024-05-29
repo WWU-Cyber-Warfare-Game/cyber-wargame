@@ -19,47 +19,26 @@ export async function createTeams() {
 
 async function createLeaderActions() {
     const teamRole = 'leader';
-    // Buff Intelligence
+    // Buff Teammate
     await strapi.entityService.create('api::action.action', {
         data: {
             action: {
-                name: 'Buff Intelligence',
-                description: 'Increase the chance of success for all actions that the intelligence role performs.',
+                name: 'Buff Teammate',
+                description: 'Increase the chance of success for all actions that the teammate performs in the future.',
                 duration: 30,
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
                 cost: 3,
-            },
-            effects: [
-                {
-                    __component: 'effects.buff-debuff',
-                    teamRole: 'intelligence',
-                    buff: 1,
+                targets: {
+                    target: 'player',
                     myTeam: true,
                 }
-            ]
-        }
-    });
-
-    // Buff Military
-    await strapi.entityService.create('api::action.action', {
-        data: {
-            action: {
-                name: 'Buff Military',
-                description: 'Increase the chance of success for all actions that the military role performs.',
-                duration: 30,
-                teamRole: teamRole,
-                type: 'defense',
-                successRate: 50,
-                cost: 3,
             },
             effects: [
                 {
-                    __component: 'effects.buff-debuff',
-                    teamRole: 'military',
+                    __component: 'effects.buff-debuff-targeted',
                     buff: 1,
-                    myTeam: true,
                 }
             ]
         }

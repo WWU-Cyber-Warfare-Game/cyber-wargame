@@ -806,7 +806,8 @@ export interface ApiActionAction extends Schema.CollectionType {
         'effects.defend-edge',
         'effects.secure-node',
         'effects.attack-edge',
-        'effects.distribute-funds'
+        'effects.distribute-funds',
+        'effects.buff-debuff-targeted'
       ]
     >;
     createdAt: Attribute.DateTime;
