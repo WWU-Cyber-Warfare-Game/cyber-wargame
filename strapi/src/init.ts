@@ -64,6 +64,90 @@ async function createLeaderActions() {
             ]
         }
     });
+
+    // Distribute Funds (1)
+    await strapi.entityService.create('api::action.action', {
+        data: {
+            action: {
+                name: 'Distribute Funds (1)',
+                description: 'Give funds to another team member to use for actions.',
+                duration: 1,
+                teamRole: teamRole,
+                type: 'defense',
+                successRate: 100,
+                cost: 0,
+            },
+            effects: [
+                {
+                    __component: 'effects.distribute-funds',
+                    amount: 1,
+                }
+            ]
+        }
+    });
+
+    // Distribute Funds (5)
+    await strapi.entityService.create('api::action.action', {
+        data: {
+            action: {
+                name: 'Distribute Funds (5)',
+                description: 'Give funds to another team member to use for actions.',
+                duration: 1,
+                teamRole: teamRole,
+                type: 'defense',
+                successRate: 100,
+                cost: 0,
+            },
+            effects: [
+                {
+                    __component: 'effects.distribute-funds',
+                    amount: 5,
+                }
+            ]
+        }
+    });
+
+    // Distribute Funds (10)
+    await strapi.entityService.create('api::action.action', {
+        data: {
+            action: {
+                name: 'Distribute Funds (10)',
+                description: 'Give funds to another team member to use for actions.',
+                duration: 1,
+                teamRole: teamRole,
+                type: 'defense',
+                successRate: 100,
+                cost: 0,
+            },
+            effects: [
+                {
+                    __component: 'effects.distribute-funds',
+                    amount: 10,
+                }
+            ]
+        }
+    });
+
+    // Distribute Funds (20)
+    await strapi.entityService.create('api::action.action', {
+        data: {
+            action: {
+                name: 'Distribute Funds (20)',
+                description: 'Give funds to another team member to use for actions.',
+                duration: 1,
+                teamRole: teamRole,
+                type: 'defense',
+                successRate: 100,
+                cost: 0,
+            },
+            effects: [
+                {
+                    __component: 'effects.distribute-funds',
+                    amount: 20,
+                }
+            ]
+        }
+    });
 }
 
 async function createIntelligenceActions() {
