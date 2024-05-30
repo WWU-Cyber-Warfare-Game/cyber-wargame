@@ -18,17 +18,23 @@ export interface ActionsPlaceholderAction extends Schema.Component {
     type: Attribute.Enumeration<['offense', 'defense']> & Attribute.Required;
     successRate: Attribute.Integer &
       Attribute.Required &
-      Attribute.SetMinMax<{
-        min: 0;
-        max: 100;
-      }> &
+      Attribute.SetMinMax<
+        {
+          min: 0;
+          max: 100;
+        },
+        number
+      > &
       Attribute.DefaultTo<50>;
     targets: Attribute.Component<'actions.targets'>;
     cost: Attribute.Integer &
       Attribute.Required &
-      Attribute.SetMinMax<{
-        min: 0;
-      }> &
+      Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
       Attribute.DefaultTo<0>;
   };
 }
