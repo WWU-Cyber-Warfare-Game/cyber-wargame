@@ -25,10 +25,10 @@ async function createLeaderActions() {
             action: {
                 name: 'Buff Teammate',
                 description: 'Increase the chance of success for all actions that the teammate performs in the future.',
-                duration: 30,
+                duration: 5,
                 teamRole: teamRole,
                 type: 'defense',
-                successRate: 50,
+                successRate: 75,
                 cost: 3,
                 targets: {
                     target: 'player',
@@ -138,7 +138,7 @@ async function createIntelligenceActions() {
             action: {
                 name: 'Reveal Node',
                 description: 'Reveal a node in the enemy team\'s network.',
-                duration: 30,
+                duration: 2,
                 teamRole: teamRole,
                 type: 'offense',
                 successRate: 50,
@@ -158,16 +158,40 @@ async function createIntelligenceActions() {
             action: {
                 name: 'Stop Military Action',
                 description: 'If the enemy military is running an offensive action, stop it from succeeding.',
-                duration: 30,
+                duration: 3,
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
-                cost: 3,
+                cost: 2,
             },
             effects: [
                 {
                     __component: 'effects.stop-offense-action',
                     teamRole: 'military',
+                }
+            ]
+        }
+    });
+
+    // Firewall
+    await strapi.entityService.create('api::action.action', {
+        data: {
+            action: {
+                name: 'Firewall',
+                description: 'Protect a network connection and make it harder for the enemy to attack it.',
+                duration: 2,
+                teamRole: teamRole,
+                type: 'defense',
+                successRate: 50,
+                targets: {
+                    target: 'edge',
+                    myTeam: true,
+                },
+                cost: 2,
+            },
+            effects: [
+                {
+                    __component: 'effects.defend-edge'
                 }
             ]
         }
@@ -183,7 +207,7 @@ async function createMilitaryActions() {
             action: {
                 name: 'Attack Node',
                 description: 'Attack a node in the enemy team\'s network.',
-                duration: 30,
+                duration: 4,
                 teamRole: teamRole,
                 type: 'offense',
                 successRate: 50,
@@ -191,7 +215,7 @@ async function createMilitaryActions() {
                     target: 'node',
                     myTeam: false,
                 },
-                cost: 3,
+                cost: 4,
             },
             effects: [
                 {
@@ -207,7 +231,7 @@ async function createMilitaryActions() {
             action: {
                 name: 'Defend Node',
                 description: 'Defend a node in your team\'s network.',
-                duration: 30,
+                duration: 2,
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
@@ -215,7 +239,7 @@ async function createMilitaryActions() {
                     target: 'node',
                     myTeam: true,
                 },
-                cost: 3,
+                cost: 2,
             },
             effects: [
                 {
@@ -231,40 +255,16 @@ async function createMilitaryActions() {
             action: {
                 name: 'Stop Intelligence Action',
                 description: 'If the enemy intelligence is running an offensive action, stop it from succeeding.',
-                duration: 30,
+                duration: 3,
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
-                cost: 3,
+                cost: 2,
             },
             effects: [
                 {
                     __component: 'effects.stop-offense-action',
                     teamRole: 'intelligence',
-                }
-            ]
-        }
-    });
-
-    // Firewall
-    await strapi.entityService.create('api::action.action', {
-        data: {
-            action: {
-                name: 'Firewall',
-                description: 'Protect a network connection and make it harder for the enemy to attack it.',
-                duration: 30,
-                teamRole: teamRole,
-                type: 'defense',
-                successRate: 50,
-                targets: {
-                    target: 'edge',
-                    myTeam: true,
-                },
-                cost: 3,
-            },
-            effects: [
-                {
-                    __component: 'effects.defend-edge'
                 }
             ]
         }
@@ -276,7 +276,7 @@ async function createMilitaryActions() {
             action: {
                 name: 'Compromise Firewall',
                 description: 'Weaken a firewall on the enemy team\'s network.',
-                duration: 30,
+                duration: 4,
                 teamRole: teamRole,
                 type: 'offense',
                 successRate: 50,
