@@ -54,7 +54,11 @@ async function createLeaderActions() {
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 100,
-                cost: 0,
+                cost: 1,
+                targets: {
+                    target: 'player',
+                    myTeam: true,
+                }
             },
             effects: [
                 {
@@ -75,7 +79,11 @@ async function createLeaderActions() {
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 100,
-                cost: 0,
+                cost: 5,
+                targets: {
+                    target: 'player',
+                    myTeam: true,
+                }
             },
             effects: [
                 {
@@ -96,7 +104,11 @@ async function createLeaderActions() {
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 100,
-                cost: 0,
+                cost: 10,
+                targets: {
+                    target: 'player',
+                    myTeam: true,
+                }
             },
             effects: [
                 {
@@ -117,7 +129,11 @@ async function createLeaderActions() {
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 100,
-                cost: 0,
+                cost: 20,
+                targets: {
+                    target: 'player',
+                    myTeam: true,
+                }
             },
             effects: [
                 {

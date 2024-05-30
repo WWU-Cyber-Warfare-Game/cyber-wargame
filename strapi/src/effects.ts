@@ -376,18 +376,13 @@ export default async function applyEffects(
                     });
                     break;
 
-                // moves funds from one player to another
+                // give funds to a player
                 case 'effects.distribute-funds':
                     console.log('EFFECT: distributing funds');
                     if (!targetUser) {
                         console.error('No target player ID provided for distribute-funds effect');
                         break;
                     }
-                    await strapi.entityService.update('plugin::users-permissions.user', userId, {
-                        data: {
-                            funds: user.funds - effect.amount
-                        }
-                    });
                     await strapi.entityService.update('plugin::users-permissions.user', targetUserId, {
                         data: {
                             funds: targetUser.funds + effect.amount

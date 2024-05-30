@@ -3,7 +3,7 @@ import NetworkFrame from "./network/NetworkFrame";
 import { SocketProvider } from "@/components/SocketContext";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getGameState } from "@/actions";
+import { getGameState, validateUser } from "@/actions";
 import Timer from "@/components/Timer";
 
 /**
@@ -18,6 +18,11 @@ export default async function Dashboard() {
 
     const gameState = await getGameState();
 
+    const user = await validateUser();
+    if (!user) {
+        redirect("/login");
+    }
+
     return (
         <div>
             <h2>Dashboard</h2>
@@ -31,7 +36,11 @@ export default async function Dashboard() {
                         <Timer time={gameState.endTime} />
                     </>
                 }
-                <NetworkFrame />
+                {user.team ?
+                    <NetworkFrame />
+                    :
+                    <p>You are not on a team.</p>
+                }
             </SocketProvider>
         </div>
     );

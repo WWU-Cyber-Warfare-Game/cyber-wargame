@@ -25,15 +25,19 @@ export default async function ActionPage() {
             <br />
             <Link href="/dashboard">Go to Dashboard</Link>
             <br />
-            <SocketProvider jwt={jwt}>
-                {gameState && gameState.endTime && 
-                <>
-                    <p>Time left:</p>
-                    <Timer time={gameState.endTime} />
-                </>
-                }
-                <ActionFrame user={user} />
-            </SocketProvider>
+            {user.team ?
+                <SocketProvider jwt={jwt}>
+                    {gameState && gameState.endTime &&
+                        <>
+                            <p>Time left:</p>
+                            <Timer time={gameState.endTime} />
+                        </>
+                    }
+                    <ActionFrame user={user} />
+                </SocketProvider>
+                :
+                <p>You are not on a team.</p>
+            }
         </div>
     );
 }
