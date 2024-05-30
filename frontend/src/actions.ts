@@ -603,15 +603,17 @@ export async function getActionPageData() {
     const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
 
     // parse users
-    const users = usersData.map((userTarget: any) => {
-      const ret: UserTarget = {
-        id: userTarget.id,
-        username: userTarget.attributes.username,
-        teamRole: userTarget.attributes.teamRole,
-        myTeam: userTarget.attributes.team.data.attributes.name === user.team
-      };
-      return ret;
-    });
+    const users = usersData
+      .filter((userTarget: any) => userTarget.attributes.team && userTarget.attributes.team.data)
+      .map((userTarget: any) => {
+        const ret: UserTarget = {
+          id: userTarget.id,
+          username: userTarget.attributes.username,
+          teamRole: userTarget.attributes.teamRole,
+          myTeam: userTarget.attributes.team.data.attributes.name === user.team
+        };
+        return ret;
+      });
 
     return {
       actionLog: actionLog,
