@@ -29,7 +29,9 @@
         "effects.defend-node",
         "effects.defend-edge",
         "effects.secure-node",
-        "effects.attack-edge"
+        "effects.attack-edge",
+        "effects.distribute-funds",
+        "effects.buff-debuff-targeted"
       ]
     }
   }

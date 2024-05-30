@@ -1,7 +1,8 @@
 {
   "collectionName": "components_actions_targets",
   "info": {
-    "displayName": "targets"
+    "displayName": "targets",
+    "description": ""
   },
   "options": {},
   "attributes": {
@@ -9,7 +10,8 @@
       "type": "enumeration",
       "enum": [
         "node",
-        "edge"
+        "edge",
+        "player"
       ],
       "required": true
     },

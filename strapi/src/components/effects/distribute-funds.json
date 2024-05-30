@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_effects_distribute_funds",
+  "info": {
+    "displayName": "Distribute Funds",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "amount": {
+      "type": "integer",
+      "required": true
+    }
+  }
+}

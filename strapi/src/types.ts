@@ -38,7 +38,7 @@ export interface Action {
     type: ActionType;
     successRate: number;
     targets?: {
-        target: "node" | "edge";
+        target: "node" | "edge" | "player";
         myTeam: boolean;
     }
     cost: number;
@@ -57,6 +57,7 @@ export interface PendingActionRequest {
     action: number;
     nodeId?: number;
     edgeId?: number;
+    userId?: number;
 }
 
 export interface PendingAction {

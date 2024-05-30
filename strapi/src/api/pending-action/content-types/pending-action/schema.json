@@ -35,6 +35,11 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::edge.edge"
+    },
+    "targetUser": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
     }
   }
 }

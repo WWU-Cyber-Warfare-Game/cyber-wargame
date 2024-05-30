@@ -5,7 +5,7 @@ import { emailRegex, usernameRegex, passwordRegex } from "./regex";
 import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole, Node, Edge, Target, Graph, PendingAction, GameState } from "./types";
+import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole, Node, Edge, Target, Graph, PendingAction, GameState, UserTarget } from "./types";
 import qs from "qs";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
@@ -36,17 +36,17 @@ async function sendGraphQLQuery(query: string) {
  * @returns The parsed user data
  */
 function parseUser(user: any) {
-    let team;
-    if (!user.attributes.team) team = null;
-    else team = user.attributes.team.data.attributes.name;
-    const ret: User = {
-        username: user.attributes.username,
-        email: user.attributes.email,
-        teamRole: user.attributes.teamRole,
-        team: team,
-        funds: user.attributes.funds
-    };
-    return ret;
+  let team;
+  if (!user.attributes.team) team = null;
+  else team = user.attributes.team.data.attributes.name;
+  const ret: User = {
+    username: user.attributes.username,
+    email: user.attributes.email,
+    teamRole: user.attributes.teamRole,
+    team: team,
+    funds: user.attributes.funds
+  };
+  return ret;
 }
 
 /**
@@ -533,6 +533,23 @@ export async function getActionPageData() {
           }
         }
       }
+
+      usersPermissionsUsers(filters: { username: { not: { eq: $user } } }) {
+        data {
+          id
+          attributes {
+            username
+            team {
+              data {
+                attributes {
+                  name
+                }
+              }
+            }
+            teamRole
+          }
+        }
+      }
     }    
     `);
     const data = await res.json();
@@ -542,6 +559,7 @@ export async function getActionPageData() {
     const modifiersData: any[] = data.data.modifiers.data;
     const nodesData: any[] = data.data.nodes.data;
     const edgesData: any[] = data.data.edges.data;
+    const usersData: any[] = data.data.usersPermissionsUsers.data;
 
     // parse action log
     const actionLog: ActionLog[] = actionLogData.map((action: any) => {
@@ -557,18 +575,18 @@ export async function getActionPageData() {
 
     // parse actions
     const actions: Action[] = actionsData.map((action: any) => {
-        const ret: Action = {
-            id: action.id,
-            name: action.attributes.action.name,
-            duration: action.attributes.action.duration,
-            description: action.attributes.action.description,
-            teamRole: action.attributes.action.teamRole,
-            type: action.attributes.action.type,
-            successRate: action.attributes.action.successRate,
-            targets: action.attributes.action.targets,
-            cost: action.attributes.action.cost
-        };
-        return ret;
+      const ret: Action = {
+        id: action.id,
+        name: action.attributes.action.name,
+        duration: action.attributes.action.duration,
+        description: action.attributes.action.description,
+        teamRole: action.attributes.action.teamRole,
+        type: action.attributes.action.type,
+        successRate: action.attributes.action.successRate,
+        targets: action.attributes.action.targets,
+        cost: action.attributes.action.cost
+      };
+      return ret;
     });
 
     // get end time
@@ -584,14 +602,26 @@ export async function getActionPageData() {
     // parse graph
     const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
 
+    // parse users
+    const users = usersData.map((userTarget: any) => {
+      const ret: UserTarget = {
+        id: userTarget.id,
+        username: userTarget.attributes.username,
+        teamRole: userTarget.attributes.teamRole,
+        myTeam: userTarget.attributes.team.data.attributes.name === user.team
+      };
+      return ret;
+    });
+
     return {
-        actionLog: actionLog,
-        actions: actions,
-        endTime: endTime,
-        modifiers: modifiers,
-        teamGraph: teamGraph,
-        opponentGraph: opponentGraph,
-        userFunds: user.funds,
+      actionLog: actionLog,
+      actions: actions,
+      endTime: endTime,
+      modifiers: modifiers,
+      teamGraph: teamGraph,
+      opponentGraph: opponentGraph,
+      userFunds: user.funds,
+      users: users
     };
   } catch (error) {
     console.error(error);

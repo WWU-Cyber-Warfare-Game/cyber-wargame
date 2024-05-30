@@ -4,11 +4,11 @@ import classNames from "classnames";
 import { MODIFIER_RATE } from "@/consts";
 import { getGraphData } from "@/actions";
 import { useContext, useEffect, useState } from "react";
-import { Node, Edge } from "@/types";
+import { Node, Edge, UserTarget } from "@/types";
 
 interface ActionButtonProps {
     readonly action: Action;
-    readonly onClick: (action: Action, selectedNode?: number, selectedEdge?: number) => void;
+    readonly onClick: (action: Action, selectedNode?: number, selectedEdge?: number, playerId?: number) => void;
     readonly disabled?: boolean;
     readonly modifiers: Modifiers;
     readonly setUserFunds: (userFunds: number) => void;
@@ -16,13 +16,14 @@ interface ActionButtonProps {
     readonly teamGraph: Graph;
     readonly opponentGraph: Graph;
     readonly userFunds: number;
+    readonly users: UserTarget[];
 }
 
 interface EdgeWithName extends Edge {
     name: string;
 }
 
-export default function ActionButton({ action, onClick, disabled, modifiers, userFunds, setButtonDisabled, teamGraph, opponentGraph }: Readonly<ActionButtonProps>) {
+export default function ActionButton({ action, onClick, disabled, modifiers, userFunds, setButtonDisabled, teamGraph, opponentGraph, users }: Readonly<ActionButtonProps>) {
     const totalModifier = modifiers.buff + (action.type === ActionType.Offense ? modifiers.offense : modifiers.defense);
     const [targetedActionSelected, setTargetedActionSelected] = useState(false);
 
@@ -55,6 +56,12 @@ export default function ActionButton({ action, onClick, disabled, modifiers, use
         onClick(action, undefined, edgeId);
     }
 
+    function handleUserSelect(event: React.ChangeEvent<HTMLSelectElement>) {
+        const userId = parseInt(event.target.value);
+        setTargetedActionSelected(false);
+        onClick(action, undefined, undefined, userId);
+    }
+
     let edgesWithName: EdgeWithName[] = [];
     if (action.targets) {
         const fetchedEdges = action.targets.myTeam ? teamGraph.edges : opponentGraph.edges;
@@ -70,7 +77,7 @@ export default function ActionButton({ action, onClick, disabled, modifiers, use
     console.log("UserFunds: " + userFunds);
     return (
         <div
-            className={disabled ? styles.actionButtonDisabled : userFunds < action.cost ? styles.actionButtonInvalidFunds: styles.actionButton}
+            className={disabled ? styles.actionButtonDisabled : userFunds < action.cost ? styles.actionButtonInvalidFunds : styles.actionButton}
             onClick={handleClick}
         >
             <p className={classNames(styles.actionName, styles.actionButtonLine)}>{action.name}</p>
@@ -96,6 +103,16 @@ export default function ActionButton({ action, onClick, disabled, modifiers, use
                             {edgesWithName.map((edge) => (
                                 <option value={edge.id} key={edge.id}>{edge.name}</option>
                             ))}
+                        </select>
+                    }
+                    {action.targets?.target === "player" &&
+                        <select name="target" id="target" defaultValue={""} onChange={handleUserSelect}>
+                            <option value="" disabled>Select a target</option>
+                            {users
+                                .filter((user) => user.myTeam === action.targets?.myTeam)
+                                .map((user) => (
+                                    <option value={user.id} key={user.id}>{user.username} ({user.teamRole})</option>
+                                ))}
                         </select>
                     }
                 </div>

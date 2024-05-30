@@ -19,47 +19,110 @@ export async function createTeams() {
 
 async function createLeaderActions() {
     const teamRole = 'leader';
-    // Buff Intelligence
+    // Buff Teammate
     await strapi.entityService.create('api::action.action', {
         data: {
             action: {
-                name: 'Buff Intelligence',
-                description: 'Increase the chance of success for all actions that the intelligence role performs.',
+                name: 'Buff Teammate',
+                description: 'Increase the chance of success for all actions that the teammate performs in the future.',
                 duration: 30,
                 teamRole: teamRole,
                 type: 'defense',
                 successRate: 50,
                 cost: 3,
+                targets: {
+                    target: 'player',
+                    myTeam: true,
+                }
             },
             effects: [
                 {
-                    __component: 'effects.buff-debuff',
-                    teamRole: 'intelligence',
+                    __component: 'effects.buff-debuff-targeted',
                     buff: 1,
-                    myTeam: true,
                 }
             ]
         }
     });
 
-    // Buff Military
+    // Distribute Funds (1)
     await strapi.entityService.create('api::action.action', {
         data: {
             action: {
-                name: 'Buff Military',
-                description: 'Increase the chance of success for all actions that the military role performs.',
-                duration: 30,
+                name: 'Distribute Funds (1)',
+                description: 'Give funds to another team member to use for actions.',
+                duration: 1,
                 teamRole: teamRole,
                 type: 'defense',
-                successRate: 50,
-                cost: 3,
+                successRate: 100,
+                cost: 0,
             },
             effects: [
                 {
-                    __component: 'effects.buff-debuff',
-                    teamRole: 'military',
-                    buff: 1,
-                    myTeam: true,
+                    __component: 'effects.distribute-funds',
+                    amount: 1,
+                }
+            ]
+        }
+    });
+
+    // Distribute Funds (5)
+    await strapi.entityService.create('api::action.action', {
+        data: {
+            action: {
+                name: 'Distribute Funds (5)',
+                description: 'Give funds to another team member to use for actions.',
+                duration: 1,
+                teamRole: teamRole,
+                type: 'defense',
+                successRate: 100,
+                cost: 0,
+            },
+            effects: [
+                {
+                    __component: 'effects.distribute-funds',
+                    amount: 5,
+                }
+            ]
+        }
+    });
+
+    // Distribute Funds (10)
+    await strapi.entityService.create('api::action.action', {
+        data: {
+            action: {
+                name: 'Distribute Funds (10)',
+                description: 'Give funds to another team member to use for actions.',
+                duration: 1,
+                teamRole: teamRole,
+                type: 'defense',
+                successRate: 100,
+                cost: 0,
+            },
+            effects: [
+                {
+                    __component: 'effects.distribute-funds',
+                    amount: 10,
+                }
+            ]
+        }
+    });
+
+    // Distribute Funds (20)
+    await strapi.entityService.create('api::action.action', {
+        data: {
+            action: {
+                name: 'Distribute Funds (20)',
+                description: 'Give funds to another team member to use for actions.',
+                duration: 1,
+                teamRole: teamRole,
+                type: 'defense',
+                successRate: 100,
+                cost: 0,
+            },
+            effects: [
+                {
+                    __component: 'effects.distribute-funds',
+                    amount: 20,
                 }
             ]
         }

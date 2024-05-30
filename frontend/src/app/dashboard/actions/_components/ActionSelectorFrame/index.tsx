@@ -1,6 +1,6 @@
 "use client";
 import { Socket } from "socket.io-client";
-import { Action, PendingAction, User, Modifiers, Graph } from "@/types";
+import { Action, PendingAction, User, Modifiers, Graph, UserTarget } from "@/types";
 import ActionButton from "./ActionButton";
 import Timer from "@/components/Timer";
 
@@ -19,6 +19,7 @@ interface ActionSelectorFrameProps {
     readonly setButtonDisabled: (disabled: boolean) => void;
     readonly setUserFunds: (funds: number) => void;
     readonly userFunds: number;
+    readonly users: UserTarget[];
 }
 
 export default function ActionSelectorFrame({
@@ -34,13 +35,15 @@ export default function ActionSelectorFrame({
     setButtonDisabled,
     setUserFunds,
     userFunds,
+    users
 }: Readonly<ActionSelectorFrameProps>) {
-    function handleActionClick(action: Action, nodeId?: number, edgeId?: number) {
-        const pendingAction = {
+    function handleActionClick(action: Action, nodeId?: number, edgeId?: number, userId?: number) {
+        const pendingAction: PendingAction = {
             user: user.username,
             action: action.id,
             nodeId: nodeId,
-            edgeId: edgeId
+            edgeId: edgeId,
+            userId: userId
         };
 
         if (socket) {
@@ -65,6 +68,7 @@ export default function ActionSelectorFrame({
                     setButtonDisabled={setButtonDisabled}
                     teamGraph={teamGraph}
                     opponentGraph={opponentGraph}
+                    users={users}
                 />
             ))}
             {endTime && <Timer time={endTime} />}
