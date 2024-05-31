@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   description: "A cyber wargame strategy game.",
 };
 
+export const dynamic = 'force-dynamic';
+
 /**
  * The root layout for the application. This layout includes a header with a link to the home page and a message indicating whether the user is logged in.
  * @param children The children of the layout
