@@ -29,8 +29,9 @@ body {
   font-size: 20px;
   text-shadow: 0 0 5px #C8C8C8;
 }
+
+/*   Issue with content: ""; tag not applying properly, should apply subtle gradient better seen over white background
 body::after {
-  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -38,9 +39,9 @@ body::after {
   height: 100vh;
   background: repeating-linear-gradient(
     0deg,
-    rgba(black, 0.15),
-    rgba(black, 0.15) 1px,
+    rgba(rgb(248, 7, 7), 0.15),
+    rgba(rgb(0, 0, 0), 0.15) 1px,
     transparent 1px,
     transparent 2px
   );
-}
+}  */
