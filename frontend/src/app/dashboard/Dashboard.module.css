@@ -1,4 +1,4 @@
-body {
+/* body {
     display: flex;
     width: fit-content;
     justify-content: left; 
@@ -7,10 +7,7 @@ body {
 div {
     width: 150%;
     align-items: center; 
-}
+} */
 .dashnav {
     align-items: center;
-}
-.buttonCSS {
-    display: flex;
 }

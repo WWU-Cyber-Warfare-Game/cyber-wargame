@@ -3,7 +3,7 @@ import { Socket } from "socket.io-client";
 import { Action, PendingAction, User, Modifiers, Graph, UserTarget } from "@/types";
 import ActionButton from "./ActionButton";
 import Timer from "@/components/Timer";
-import "./actionSelector.css";
+import styles from "./ActionSelectorFrame.module.css";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
@@ -55,7 +55,7 @@ export default function ActionSelectorFrame({
     }
 
     return (
-        <div className="buttonCollection">
+        <div className={styles.buttonCollection}>
             <h3 style={{display: "flex", flexDirection: "column", textAlign: "center", justifyContent: "center"}}>Perform Action</h3>
             {actions.map((action, index) => (
                 <ActionButton

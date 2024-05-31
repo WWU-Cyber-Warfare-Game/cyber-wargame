@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getGameState, validateUser } from "@/actions";
 import Timer from "@/components/Timer";
-import "./dashboard.css";
+import styles from "./Dashboard.module.css";
 /**
  * The dashboard page for the application. Displays a welcome message and a link to the chat page.
  * @returns 
@@ -24,7 +24,7 @@ export default async function Dashboard() {
     }
 
     return (        
-        <div className="dashNav">
+        <div className={styles.dashNav}>
             <h2>Dashboard</h2>
             <p>Welcome to your dashboard.</p>
             <Link href="/dashboard/chat"><p>Go to chat</p></Link>
