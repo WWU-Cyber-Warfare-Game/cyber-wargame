@@ -29,7 +29,7 @@ export default function NetworkFrame() {
     return(
         <div className={styles.networkContainer}>
             {target === "team" ? <h3>Team Network</h3> : <h3>Opponent Network</h3>}
-            <button onClick={switchTeams}>Switch teams</button>
+            <button className={styles.switchTeam} onClick={switchTeams}>Switch teams</button>
             <NetworkGraph target={target} graph={target === "team" ? teamGraph : opponentGraph} />
         </div>
     );

@@ -1,9 +1,9 @@
 .actionButton {
-    border: solid 1px black;
+    border: 2px solid lawngreen;
     padding: 5px;
     width: 25%;
     display: flex;
-    justify-content: center;
+    justify-content: normal;
     align-items: center;
     flex-direction: column;
     margin: 5px;
@@ -12,14 +12,16 @@
 .actionButton:hover {
     background-color: #f0f0f0;
     cursor: pointer;
+    color: red;
+    border: 2px solid red;
 }
 
 .actionButtonDisabled {
-    border: solid 1px black;
+    border: 2px solid lawngreen;
     padding: 5px;
     width: 25%;
     display: flex;
-    justify-content: center;
+    justify-content: normal;
     align-items: center;
     flex-direction: column;
     margin: 5px;

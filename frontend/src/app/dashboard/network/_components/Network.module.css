@@ -1,11 +1,24 @@
 .networkContainer {
-    border: solid 1px black;
+    flex-direction: column;
     padding: 5px;
     display: flex;
     justify-content: center;
     justify-items: center;
 }
-
+.switchTeam {
+    color:lawngreen;
+    background-color: transparent;
+    font: 1.3rem Inconsolata, monospace;
+    font-size: 18px;
+    text-shadow: 0 0 5px #C8C8C8;
+    border-radius: 10ch;
+    border-color: goldenrod;
+}
+.switchTeam:hover {
+    color: red;
+    background-color: white;
+    border-color: red;
+}
 /* .lowDefense {
     border: springgreen;
 }

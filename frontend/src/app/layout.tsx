@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
+import "./layout.css";
 import { validateUser } from "@/actions";
 
 export const metadata: Metadata = {
@@ -25,15 +26,17 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Link href="/"><h1>Cyber Wargame</h1></Link>
-        <>
-          {user ? (
-            <p>Welcome, {user.username}! <Link href={"/logout"}>Log out?</Link></p>
-          ) : (
-            <p>You are not currently logged in.</p>
-          )}
-        </>
+        <div className="loginNav">
+          <h1><Link href="/">Cyber Wargame</Link></h1>
+            {user ? (
+              <p>Welcome, {user.username}! <br />
+             <Link href={"/logout"}>Log out?<br /></Link></p>
+            ) : (
+             <p>You are not currently logged in.</p>
+            )}
+          
         {children}
+        </div>
       </body>
     </html>
   );

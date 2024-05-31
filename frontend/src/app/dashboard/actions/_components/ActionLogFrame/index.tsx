@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { ActionLog } from "@/types";
 import Entry from "./Entry";
 import { Socket } from "socket.io-client";
+import styles from './actionlog.module.css';
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
@@ -17,7 +18,7 @@ interface ActionLogFrameProps {
  */
 export default function ActionLogFrame({ actionLog }: Readonly<ActionLogFrameProps>) {
   return (
-    <div>
+    <div className={styles.logCSS}>
       <h3>Log</h3>
       <ul>
         {actionLog.sort((a, b) => b.time.getTime() - a.time.getTime()).map((entry, index) => (

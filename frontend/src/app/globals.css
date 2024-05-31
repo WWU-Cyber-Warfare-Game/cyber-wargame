@@ -1,7 +1,47 @@
 /* Put all your global styles here */
-
-header {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+@font-face {
+  font-family: 'VT323';
+  src: url('../fonts/VT323-Regular.ttf') format('truetype');
 }
+
+* {
+  margin: 0%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: black;
+ /* background-image: radial-gradient(rgba(17, 186, 17, 0.478), black 120%); */
+ background-image: radial-gradient(rgba(47, 130, 47, 0.75), rgb(0, 0, 0) 70%);
+ /* color: lawngreen;*/
+ color: white;
+ /* font-family: 'VT323', monospace; */
+  font: 1.3rem Inconsolata, monospace;
+  font-size: 20px;
+  text-shadow: 0 0 5px #C8C8C8;
+}
+
+/*   Issue with content: ""; tag not applying properly, should apply subtle gradient better seen over white background
+body::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(rgb(248, 7, 7), 0.15),
+    rgba(rgb(0, 0, 0), 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}  */
