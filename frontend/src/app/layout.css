@@ -6,6 +6,6 @@
     justify-content: center;
     align-content: flex-start;
     align-items: baseline;
-    a:-webkit-any-link {color:orange};
+    a:-webkit-any-link {color:rgb(103, 239, 105)};
 
 }
