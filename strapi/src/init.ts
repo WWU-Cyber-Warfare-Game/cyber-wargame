@@ -152,7 +152,7 @@ async function createIntelligenceActions() {
     await strapi.entityService.create('api::action.action', {
         data: {
             action: {
-                name: 'Reveal Node',
+                name: 'Port Scan',
                 description: 'Reveal a node in the enemy team\'s network.',
                 duration: 2,
                 teamRole: teamRole,
@@ -172,7 +172,7 @@ async function createIntelligenceActions() {
     await strapi.entityService.create('api::action.action', {
         data: {
             action: {
-                name: 'Stop Military Action',
+                name: 'Kill Suspicious Process',
                 description: 'If the enemy military is running an offensive action, stop it from succeeding.',
                 duration: 3,
                 teamRole: teamRole,
@@ -193,7 +193,7 @@ async function createIntelligenceActions() {
     await strapi.entityService.create('api::action.action', {
         data: {
             action: {
-                name: 'Firewall',
+                name: 'Deploy Firewall',
                 description: 'Protect a network connection and make it harder for the enemy to attack it.',
                 duration: 2,
                 teamRole: teamRole,
@@ -221,7 +221,7 @@ async function createMilitaryActions() {
     await strapi.entityService.create('api::action.action', {
         data: {
             action: {
-                name: 'Attack Node',
+                name: 'Hack Node',
                 description: 'Attack a node in the enemy team\'s network.',
                 duration: 4,
                 teamRole: teamRole,
@@ -245,7 +245,7 @@ async function createMilitaryActions() {
     await strapi.entityService.create('api::action.action', {
         data: {
             action: {
-                name: 'Defend Node',
+                name: 'Harden Node',
                 description: 'Defend a node in your team\'s network.',
                 duration: 2,
                 teamRole: teamRole,
@@ -269,7 +269,7 @@ async function createMilitaryActions() {
     await strapi.entityService.create('api::action.action', {
         data: {
             action: {
-                name: 'Stop Intelligence Action',
+                name: 'Halt Active Port Scan',
                 description: 'If the enemy intelligence is running an offensive action, stop it from succeeding.',
                 duration: 3,
                 teamRole: teamRole,
