@@ -23,7 +23,7 @@ async function createLeaderActions() {
     await strapi.entityService.create('api::action.action', {
         data: {
             action: {
-                name: 'Buff Teammate',
+                name: 'Hire Consultant',
                 description: 'Increase the chance of success for all actions that the teammate performs in the future.',
                 duration: 5,
                 teamRole: teamRole,
