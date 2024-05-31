@@ -8,10 +8,9 @@ export default function Entry({ entry }: Readonly<EntryProps>) {
     return (
         <div className="buttonCSS">
             <p>Time: {entry.time.toLocaleString()}</p>
-            <p>Action Name: {entry.action.name}</p>
-            <p>Duration: {entry.action.duration}</p>
-            <p>Description: {entry.action.description}</p>
-            <p>Role: {entry.action.teamRole}</p>
+            <p>Action Name: {entry.name}</p>
+            <p>Description: {entry.description}</p>
+            <p>Role: {entry.teamRole}</p>
             <p>End State: {entry.endState}</p>
         </div>
     )

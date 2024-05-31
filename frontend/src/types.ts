@@ -11,6 +11,7 @@ export interface User {
     email: string;
     teamRole: TeamRole;
     team: string;
+    funds: number
 }
 
 export interface Message {
@@ -33,17 +34,26 @@ export interface Action {
     teamRole: TeamRole;
     type: ActionType;
     successRate: number;
-    targetsNode?: boolean;
+    cost: number;
+    targets?: {
+        target: "node" | "edge" | "player";
+        myTeam: boolean;
+    }
 }
+
+export type Target = "team" | "opponent";
 
 export enum ActionEndState {
     Success = "success",
     Fail = "fail",
+    PartialFail = "partialfail",
     Stopped = "stopped"
 }
 
 export interface ActionLog {
-    action: Action;
+    name: string;
+    description: string;
+    teamRole: TeamRole;
     time: Date;
     endState: ActionEndState;
 }
@@ -52,6 +62,8 @@ export interface PendingAction {
     user: string;
     action: number;
     nodeId?: number;
+    edgeId?: number;
+    userId?: number;
 }
 
 export interface ActionResponse {
@@ -72,8 +84,26 @@ export interface Edge {
     targetId: string;
 }
 
+export interface Graph {
+    nodes: Node[];
+    edges: Edge[];
+}
+
 export interface Modifiers {
     offense: number;
     defense: number;
     buff: number;
 }
+
+export enum GameState {
+    NotStarted = "notstarted",
+    Running = "running",
+    Ended = "ended"
+}
+
+export type UserTarget = {
+    id: number,
+    username: string,
+    teamRole: TeamRole,
+    myTeam: boolean
+};

@@ -403,9 +403,12 @@ export interface PluginUploadFile extends Schema.CollectionType {
     folderPath: Attribute.String &
       Attribute.Required &
       Attribute.Private &
-      Attribute.SetMinMax<{
-        min: 1;
-      }>;
+      Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -441,9 +444,12 @@ export interface PluginUploadFolder extends Schema.CollectionType {
   attributes: {
     name: Attribute.String &
       Attribute.Required &
-      Attribute.SetMinMax<{
-        min: 1;
-      }>;
+      Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      >;
     pathId: Attribute.Integer & Attribute.Required & Attribute.Unique;
     parent: Attribute.Relation<
       'plugin::upload.folder',
@@ -462,9 +468,12 @@ export interface PluginUploadFolder extends Schema.CollectionType {
     >;
     path: Attribute.String &
       Attribute.Required &
-      Attribute.SetMinMax<{
-        min: 1;
-      }>;
+      Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -503,6 +512,12 @@ export interface PluginContentReleasesRelease extends Schema.CollectionType {
   attributes: {
     name: Attribute.String & Attribute.Required;
     releasedAt: Attribute.DateTime;
+    scheduledAt: Attribute.DateTime;
+    timezone: Attribute.String;
+    status: Attribute.Enumeration<
+      ['ready', 'blocked', 'failed', 'done', 'empty']
+    > &
+      Attribute.Required;
     actions: Attribute.Relation<
       'plugin::content-releases.release',
       'oneToMany',
@@ -551,11 +566,13 @@ export interface PluginContentReleasesReleaseAction
       'morphToOne'
     >;
     contentType: Attribute.String & Attribute.Required;
+    locale: Attribute.String;
     release: Attribute.Relation<
       'plugin::content-releases.release-action',
       'manyToOne',
       'plugin::content-releases.release'
     >;
+    isEntryValid: Attribute.Boolean;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -595,10 +612,13 @@ export interface PluginI18NLocale extends Schema.CollectionType {
   };
   attributes: {
     name: Attribute.String &
-      Attribute.SetMinMax<{
-        min: 1;
-        max: 50;
-      }>;
+      Attribute.SetMinMax<
+        {
+          min: 1;
+          max: 50;
+        },
+        number
+      >;
     code: Attribute.String & Attribute.Unique;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -758,6 +778,15 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToOne',
       'api::team.team'
     >;
+    funds: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Attribute.DefaultTo<0>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -784,7 +813,7 @@ export interface ApiActionAction extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     action: Attribute.Component<'actions.placeholder-action'> &
@@ -796,12 +825,16 @@ export interface ApiActionAction extends Schema.CollectionType {
         'effects.stop-offense-action',
         'effects.reveal-node',
         'effects.attack-node',
-        'effects.defend-node'
+        'effects.defend-node',
+        'effects.defend-edge',
+        'effects.secure-node',
+        'effects.attack-edge',
+        'effects.distribute-funds',
+        'effects.buff-debuff-targeted'
       ]
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::action.action',
       'oneToOne',
@@ -831,11 +864,38 @@ export interface ApiEdgeEdge extends Schema.CollectionType {
   attributes: {
     source: Attribute.Relation<'api::edge.edge', 'oneToOne', 'api::node.node'>;
     target: Attribute.Relation<'api::edge.edge', 'oneToOne', 'api::node.node'>;
+    defense: Attribute.Integer & Attribute.Required & Attribute.DefaultTo<0>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::edge.edge', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::edge.edge', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiGameGame extends Schema.SingleType {
+  collectionName: 'games';
+  info: {
+    singularName: 'game';
+    pluralName: 'games';
+    displayName: 'Game';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    winner: Attribute.Relation<'api::game.game', 'oneToOne', 'api::team.team'>;
+    endTime: Attribute.DateTime;
+    gameState: Attribute.Enumeration<['notstarted', 'running', 'ended']> &
+      Attribute.Required &
+      Attribute.DefaultTo<'notstarted'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::game.game', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::game.game', 'oneToOne', 'admin::user'> &
       Attribute.Private;
   };
 }
@@ -886,10 +946,13 @@ export interface ApiNodeNode extends Schema.CollectionType {
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
-    team: Attribute.Relation<'api::node.node', 'manyToOne', 'api::team.team'>;
+    team: Attribute.Relation<'api::node.node', 'oneToOne', 'api::team.team'>;
     defense: Attribute.Integer & Attribute.Required;
     isCoreNode: Attribute.Boolean & Attribute.Required;
     visible: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
+    compromised: Attribute.Boolean &
       Attribute.Required &
       Attribute.DefaultTo<false>;
     createdAt: Attribute.DateTime;
@@ -921,6 +984,16 @@ export interface ApiPendingActionPendingAction extends Schema.CollectionType {
       'api::pending-action.pending-action',
       'oneToOne',
       'api::node.node'
+    >;
+    targetEdge: Attribute.Relation<
+      'api::pending-action.pending-action',
+      'oneToOne',
+      'api::edge.edge'
+    >;
+    targetUser: Attribute.Relation<
+      'api::pending-action.pending-action',
+      'oneToOne',
+      'plugin::users-permissions.user'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -954,7 +1027,9 @@ export interface ApiResolvedActionResolvedAction extends Schema.CollectionType {
     user: Attribute.String;
     date: Attribute.DateTime;
     action: Attribute.Component<'actions.placeholder-action'>;
-    endState: Attribute.Enumeration<['success', 'fail', 'stopped']> &
+    endState: Attribute.Enumeration<
+      ['success', 'fail', 'partialfail', 'stopped']
+    > &
       Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -998,7 +1073,6 @@ export interface ApiTeamTeam extends Schema.CollectionType {
     mediaModifiers: Attribute.Component<'modifiers.modifiers'> &
       Attribute.Required;
     diplomatModifiers: Attribute.Component<'modifiers.modifiers'>;
-    team: Attribute.Relation<'api::team.team', 'oneToMany', 'api::node.node'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::team.team', 'oneToOne', 'admin::user'> &
@@ -1028,6 +1102,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'api::action.action': ApiActionAction;
       'api::edge.edge': ApiEdgeEdge;
+      'api::game.game': ApiGameGame;
       'api::message.message': ApiMessageMessage;
       'api::node.node': ApiNodeNode;
       'api::pending-action.pending-action': ApiPendingActionPendingAction;

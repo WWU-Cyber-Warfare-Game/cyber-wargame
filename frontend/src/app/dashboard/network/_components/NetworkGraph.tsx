@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import ReactFlow, { Node as ReactFlowNode, Edge as ReactFlowEdge, useNodesState, useEdgesState } from 'reactflow';
-import { getEdges, getNodes } from "@/actions";
+import { getGraphData } from "@/actions";
 import Dagre from '@dagrejs/dagre';
-import { Edge, Node } from "@/types";
+import { Edge, Graph, Node, Target } from "@/types";
 import 'reactflow/dist/style.css';
+import styles from './Network.module.css';
+
+interface NetworkGraphProps {
+    target: Target;
+    graph: Graph;
+}
 
 /**
  * Generates a layout for the nodes and edges
@@ -26,10 +32,14 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
             const reactFlowNode: ReactFlowNode = {
                 id: node.id,
                 data: {
-                    label: node.name,
+                    label: node.name + (node.isCoreNode ? " (Core)" : ""),
                     isCoreNode: node.isCoreNode
                 },
-                position: { x: x, y: y }
+                position: { x: x, y: y },
+                draggable: false,
+                selectable: false,
+                connectable: false,
+                className: node.defense < 3 ? styles.lowDefense : node.defense < 6 ? styles.mediumDefense : styles.highDefense
             };
             return reactFlowNode;
         }),
@@ -46,21 +56,15 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
 };
 
 // creates the networkGraph component
-export default function NetworkGraph() {
+export default function NetworkGraph({ target, graph }: NetworkGraphProps) {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
     useEffect(() => {
-        Promise.all([getNodes(), getEdges()]).then(([fetchedNodes, fetchedEdges]) => {
-            if (fetchedNodes === null || fetchedEdges === null) {
-                console.error("Error: nodes or edges is null");
-                return;
-            }
-            const layoutedElements = getLayoutedElements(fetchedNodes, fetchedEdges);
-            setNodes([...layoutedElements.nodes]);
-            setEdges([...layoutedElements.edges]);
-        });
-    }, [setNodes, setEdges]);
+        const layoutedElements = getLayoutedElements(graph.nodes, graph.edges);
+        setNodes([...layoutedElements.nodes]);
+        setEdges([...layoutedElements.edges]);
+    }, [target, graph, setNodes, setEdges]);
 
     return (
         // must be inside div

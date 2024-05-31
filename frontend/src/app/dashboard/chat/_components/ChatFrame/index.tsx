@@ -2,15 +2,15 @@
 
 import { getTeamUsers, validateUser } from "@/actions";
 import { User } from "@/types";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import ChatBox from "./ChatBox";
 import { io, Socket } from "socket.io-client";
+import { SocketContext } from "@/components/SocketContext";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
 interface ChatFrameProps {
     readonly user: User;
-    readonly jwt: string;
 }
 
 /**
@@ -19,7 +19,7 @@ interface ChatFrameProps {
  * @param jwt The JSON web token for the user
  * @returns 
  */
-export default function ChatFrame({ user, jwt }: Readonly<ChatFrameProps>) {
+export default function ChatFrame({ user }: Readonly<ChatFrameProps>) {
     /**
      * Capitalizes the first letter of a string
      * @param s A string to capitalize
@@ -37,8 +37,8 @@ export default function ChatFrame({ user, jwt }: Readonly<ChatFrameProps>) {
 
     const [receiver, setReceiver] = useState<string>("");
     const [teamUsers, setTeamUsers] = useState<User[]>([]);
-    const [socket, setSocket] = useState<Socket | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const { socket } = useContext(SocketContext);
 
     // get the team members when the component mounts
     useEffect(() => {
@@ -51,25 +51,6 @@ export default function ChatFrame({ user, jwt }: Readonly<ChatFrameProps>) {
 
         fetchTeamUsers();
     }, [user]);
-
-    // connect to socket server and get messages from the server when component mounts
-    useEffect(() => {
-        const newSocket = io(`${STRAPI_URL}`, {
-            auth: {
-                token: jwt
-            }
-        });
-        newSocket.on("connect", () => {
-            setSocket(newSocket);
-        });
-        newSocket.on("connect_error", () => {
-            setError("Error connecting to socket server");
-        });
-
-        return () => {
-            newSocket.disconnect();
-        };
-    }, [jwt]);
 
     return (
         <div>
@@ -87,7 +68,7 @@ export default function ChatFrame({ user, jwt }: Readonly<ChatFrameProps>) {
                 :
                 <p>You are not currently on a team.</p>
             }
-            {receiver != "" && user && jwt && socket ?
+            {receiver != "" && user && socket ?
                 <ChatBox user={user} receiver={receiver} socket={socket} setError={setError} />
                 :
                 <p>Select a team member to chat with.</p>

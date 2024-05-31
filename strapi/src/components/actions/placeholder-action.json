@@ -12,7 +12,7 @@
       "required": true
     },
     "description": {
-      "type": "string"
+      "type": "text"
     },
     "duration": {
       "type": "float",
@@ -44,9 +44,17 @@
       "min": 0,
       "default": 50
     },
-    "targetsNode": {
-      "type": "boolean",
-      "default": false
+    "targets": {
+      "displayName": "targets",
+      "type": "component",
+      "repeatable": false,
+      "component": "actions.targets"
+    },
+    "cost": {
+      "type": "integer",
+      "default": 0,
+      "min": 0,
+      "required": true
     }
   }
 }

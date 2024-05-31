@@ -1,14 +1,28 @@
 import { Server, Namespace, Socket } from 'socket.io';
-import { PendingAction, Action, TeamRole, User, PendingActionRequest, ActionType, ActionCompleteRequest, Message } from './types';
+import {
+  PendingAction,
+  Action,
+  TeamRole,
+  User,
+  PendingActionRequest,
+  ActionType,
+  ActionCompleteRequest,
+  Message,
+  GameState,
+  SocketServer
+} from './types';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { getUser } from './utilities';
+import { getUser, checkAction, updateUserFunds } from './utilities';
 import applyEffects from './effects';
 import { MODIFIER_RATE } from './consts';
 import ActionQueue from './queue';
-type SocketServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> | Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
+import { getGameState, setGameState, setWinner } from './game-state';
+import { existsSync, openSync, closeSync } from 'node:fs';
+import { createActions, createTeams } from './init';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 let actionQueue: ActionQueue;
+let gameEndCheckerInterval: NodeJS.Timeout;
 
 /**
  * Converts minutes to milliseconds
@@ -120,37 +134,6 @@ async function checkReceiver(userId: number, receiver: string) {
 }
 
 /**
- * Checks if user can perform action and returns the action if they can
- * @param username The user's username
- * @param actionId The ID of the action to check
- * @returns The action if the user can perform it, otherwise `null`
- */
-async function checkAction(username: string, actionId: number) {
-  const user = await getUser(username);
-  const res = await strapi.entityService.findOne('api::action.action', actionId, {
-    populate: '*'
-  });
-  if (!res) {
-    console.error('user ' + username + ' attempted to perform action ' + actionId + ' that does not exist');
-    return null;
-  }
-  const action: Action = {
-    id: res.id as number,
-    name: res.action.name,
-    duration: res.action.duration,
-    description: res.action.description,
-    teamRole: res.action.teamRole as TeamRole,
-    type: res.action.type as ActionType,
-    successRate: res.action.successRate
-  };
-  if (user.teamRole !== action.teamRole) {
-    console.error('user ' + username + ' attempted to perform action ' + action.name + ' that does not match their team role');
-    return null;
-  }
-  return action;
-}
-
-/**
  * Handles the completion of an action
  * @param actionCompleteRequest The action complete request
  * @param frontend The frontend socket server
@@ -166,8 +149,26 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
     }
   );
   const successRate = pendingActionRes.action.successRate;
-  const endState = await getSuccess(successRate, pendingActionRes.user, pendingActionRes.action.type as ActionType) ? 'success' : 'fail';
-  console.log('end state: ' + endState);
+  let endState: 'success' | 'fail' | 'partialfail' =
+    await getSuccess(successRate, pendingActionRes.user, pendingActionRes.action.type as ActionType) ? 'success' : 'fail';
+
+  // parse and apply action effects
+  if (endState === 'success') {
+    const user = await getUser(pendingActionRes.user);
+    const partialFail = await applyEffects(
+      pendingActionRes.actionId,
+      user,
+      actionQueue,
+      frontend,
+      pendingActionRes.targetNode && pendingActionRes.targetNode.id as number,
+      pendingActionRes.targetEdge && pendingActionRes.targetEdge.id as number,
+      pendingActionRes.targetUser && pendingActionRes.targetUser.id as number
+    );
+    if (partialFail) {
+      endState = 'partialfail';
+    }
+  }
+
   await strapi.entityService.create('api::resolved-action.resolved-action', {
     data: {
       user: pendingActionRes.user,
@@ -179,16 +180,6 @@ async function actionComplete(actionCompleteRequest: ActionCompleteRequest, fron
 
   // remove action from pending queue
   await strapi.entityService.delete('api::pending-action.pending-action', actionCompleteRequest.pendingActionId);
-
-  // parse and apply action effects
-  if (endState === 'success') {
-    const user = await getUser(pendingActionRes.user);
-    if (pendingActionRes.targetNode) {
-      await applyEffects(pendingActionRes.actionId, user, actionQueue, pendingActionRes.targetNode.id as number);
-    } else {
-      await applyEffects(pendingActionRes.actionId, user, actionQueue);
-    }
-  }
 
   // emit action complete to user
   frontend.emit('actionComplete');
@@ -241,7 +232,7 @@ async function joinRoom(users: string[], userId: number, socket: Socket) {
  * @param pendingActionReq The pending action request
  * @param socket The sender's socket
  */
-async function startAction(pendingActionReq: PendingActionRequest, socket: Socket) {
+async function startAction(pendingActionReq: PendingActionRequest, socket: Socket, userId: number) {
   console.log('action received');
 
   // check if action is valid
@@ -262,14 +253,24 @@ async function startAction(pendingActionReq: PendingActionRequest, socket: Socke
     return;
   }
 
+  //update the users funds
+  const updated = await updateUserFunds(userId, action.cost); 
+
+  if(!updated) {
+    socket.emit('error', 'Error updating users funds');
+  }
+
   // add action to pending queue
+  console.log(pendingActionReq.nodeId, pendingActionReq.edgeId, pendingActionReq.userId);
   const res = await strapi.entityService.create('api::pending-action.pending-action', {
     data: {
       user: pendingActionReq.user,
       date: new Date(Date.now() + minToMs(action.duration)),
       action: action,
       actionId: action.id,
-      targetNode: pendingActionReq.nodeId
+      targetNode: pendingActionReq.nodeId,
+      targetEdge: pendingActionReq.edgeId,
+      targetUser: pendingActionReq.userId
     }
   });
 
@@ -284,6 +285,31 @@ async function startAction(pendingActionReq: PendingActionRequest, socket: Socke
   actionQueue.addAction(pendingAction);
 }
 
+/**
+ * Checks every 5 seconds if the game has ended
+ * @returns The interval
+ */
+function startGameEndChecker(frontend: SocketServer) {
+  const interval = setInterval(async () => {
+    const game = await getGameState();
+    if (game.gameState === GameState.Running && new Date() >= game.endTime) {
+      const teams = await strapi.entityService.findMany('api::team.team');
+      if (teams.length < 2) {
+        console.error('too few teams to end game');
+        return;
+      }
+      if (teams[0].victoryPoints > teams[1].victoryPoints) {
+        setWinner(teams[0].id as number, frontend);
+      } else if (teams[0].victoryPoints < teams[1].victoryPoints) {
+        setWinner(teams[1].id as number, frontend);
+      } else {
+        setWinner(null, frontend);
+      }
+    }
+  }, 5000);
+  return interval;
+}
+
 export default {
   /**
    * An asynchronous register function that runs before
@@ -291,9 +317,7 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/*{ strapi }*/) {
-    actionQueue = new ActionQueue();
-  },
+  register(/*{ strapi }*/) { },
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -303,12 +327,25 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ /* strapi */ }) {
+    // initialize game if not already initialized
+    if (!existsSync('.init')) {
+      console.log('Initializing game...');
+      closeSync(openSync('.init', 'w'));
+      await createActions();
+      await createTeams();
+    }
+
+    // create socket server
     const frontend = new Server(strapi.server.httpServer, {
       cors: {
         origin: [`${FRONTEND_URL}`], //dashboard, can add other origins
         methods: ['GET', 'POST'],
       },
     });
+
+    // start game end checker and action queue
+    gameEndCheckerInterval = startGameEndChecker(frontend);
+    actionQueue = new ActionQueue();
 
     // listen for action complete
     actionQueue.eventEmitter.on('actionComplete', async (actionCompleteRequest: ActionCompleteRequest) =>
@@ -324,6 +361,11 @@ export default {
         return;
       }
 
+      // reject connection if game is not running
+      const gameState = await getGameState();
+      if (gameState.gameState !== GameState.Running)
+        socket.disconnect();
+
       // join user to their own room
       const user = await strapi.entityService.findOne('plugin::users-permissions.user', userId);
       socket.join(user.username);
@@ -337,11 +379,16 @@ export default {
       socket.on('join-room', async (users: string[]) => await joinRoom(users, userId, socket));
 
       // listens for pending actions
-      socket.on('startAction', async (pendingActionReq: PendingActionRequest) => await startAction(pendingActionReq, socket));
+      socket.on('startAction', async (pendingActionReq: PendingActionRequest) => await startAction(pendingActionReq, socket, userId));
     });
   },
 
+  /**
+   * A function that runs when the application is closing
+   * This includes fast reloads
+   */
   destroy() {
     actionQueue.stopQueue();
+    clearInterval(gameEndCheckerInterval);
   }
 };

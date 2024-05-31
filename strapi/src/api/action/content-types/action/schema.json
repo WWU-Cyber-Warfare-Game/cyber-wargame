@@ -8,7 +8,7 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
@@ -26,7 +26,12 @@
         "effects.stop-offense-action",
         "effects.reveal-node",
         "effects.attack-node",
-        "effects.defend-node"
+        "effects.defend-node",
+        "effects.defend-edge",
+        "effects.secure-node",
+        "effects.attack-edge",
+        "effects.distribute-funds",
+        "effects.buff-debuff-targeted"
       ]
     }
   }

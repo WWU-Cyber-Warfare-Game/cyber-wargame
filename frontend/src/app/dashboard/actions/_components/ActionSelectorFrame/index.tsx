@@ -1,10 +1,8 @@
 "use client";
-import { io, Socket } from "socket.io-client";
-import { useState, useEffect, use } from "react";
-import { Action, PendingAction, User, Modifiers } from "@/types";
+import { Socket } from "socket.io-client";
+import { Action, PendingAction, User, Modifiers, Graph, UserTarget } from "@/types";
 import ActionButton from "./ActionButton";
-import { getActions, getModifiers } from "@/actions";
-import Timer from "./Timer";
+import Timer from "@/components/Timer";
 import "./actionSelector.css";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
@@ -12,96 +10,66 @@ const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 interface ActionSelectorFrameProps {
     readonly socket: Socket | null;
     readonly user: User;
+    readonly modifiers: Modifiers;
+    readonly actions: Action[];
+    readonly endTime: Date | null;
+    readonly setEndTime: (endTime: Date | null) => void;
+    readonly teamGraph: Graph;
+    readonly opponentGraph: Graph;
+    readonly buttonDisabled: boolean;
+    readonly setButtonDisabled: (disabled: boolean) => void;
+    readonly setUserFunds: (funds: number) => void;
+    readonly userFunds: number;
+    readonly users: UserTarget[];
 }
 
-export default function ActionSelectorFrame({ socket, user }: Readonly<ActionSelectorFrameProps>) {
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [actions, setActions] = useState<Action[]>([]);
-    const [butttonDisabled, setButtonDisabled] = useState(false);
-    const [endTime, setEndTime] = useState<Date | null>(null);
-    const [modifiers, setModifiers] = useState<Modifiers>({ offense: 0, defense: 0, buff: 0 });
-
-    function refresh() {
-        // Get the list of actions from the server
-        getActions().then((res) => {
-            if (res) {
-                setActions(res.actions);
-                setButtonDisabled(res.endTime !== null);
-                if (res.endTime) setEndTime(new Date(res.endTime));
-            } else {
-                setError("Error fetching actions");
-                setButtonDisabled(true);
-            }
-        });
-        // Get modifiers from the server
-        getModifiers().then((res) => {
-            if (res) {
-                setModifiers(res);
-            } else {
-                setError("Error fetching modifiers");
-            }
-        });
-        setLoading(false);
-        setEndTime(null);
-    }
-
-    useEffect(() => {
-        refresh();
-    }, []);
-
-    useEffect(() => {
-        // re-enable buttons when action is complete
-        if (socket) socket.on('actionComplete', () => refresh());
-
-        // connection error handling
-        if (socket) socket.on('connect_error', () => {
-            setError("Error connecting to socket server");
-            setButtonDisabled(true);
-        });
-
-        // error handling
-        if (socket) socket.on('error', (error: string) => {
-            setError(error);
-            setButtonDisabled(true);
-        });
-
-        // get rid of the error message when the connection is re-established
-        if (socket) socket.on('connect', () => {
-            setError(null);
-            setButtonDisabled(false);
-            refresh();
-        });
-    }, [socket]);
-
-    function handleActionClick(action: Action, nodeId?: number) {
-        const pendingAction = {
+export default function ActionSelectorFrame({
+    socket,
+    user,
+    modifiers,
+    actions,
+    endTime,
+    setEndTime,
+    teamGraph,
+    opponentGraph,
+    buttonDisabled,
+    setButtonDisabled,
+    setUserFunds,
+    userFunds,
+    users
+}: Readonly<ActionSelectorFrameProps>) {
+    function handleActionClick(action: Action, nodeId?: number, edgeId?: number, userId?: number) {
+        const pendingAction: PendingAction = {
             user: user.username,
             action: action.id,
-            nodeId: nodeId
+            nodeId: nodeId,
+            edgeId: edgeId,
+            userId: userId
         };
 
         if (socket) {
             socket.emit('startAction', pendingAction);
             setButtonDisabled(true);
+            setEndTime(new Date(Date.now() + action.duration * 60 * 1000));
         }
-
-        setEndTime(new Date(Date.now() + action.duration * 60 * 1000));
     }
 
     return (
         <div className="buttonCollection">
             <h3 style={{display: "flex", flexDirection: "column", textAlign: "center", justifyContent: "center"}}>Perform Action</h3>
-            {loading && <p>Loading...</p>}
-            {error && <p>{error}</p>}
             {actions.map((action, index) => (
                 <ActionButton
                     key={index}
                     action={action}
                     onClick={handleActionClick}
-                    disabled={butttonDisabled}
+                    disabled={buttonDisabled}
                     modifiers={modifiers}
+                    userFunds={userFunds}
+                    setUserFunds={setUserFunds}
                     setButtonDisabled={setButtonDisabled}
+                    teamGraph={teamGraph}
+                    opponentGraph={opponentGraph}
+                    users={users}
                 />
             ))}
             {endTime && <Timer time={endTime} />}

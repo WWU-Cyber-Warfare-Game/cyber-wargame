@@ -1,5 +1,6 @@
 import { ActionCompleteRequest, PendingAction } from "./types";
 import EventEmitter from "node:events";
+import { checkAction } from "./utilities";
 
 /**
 * function dateCompare
@@ -53,9 +54,27 @@ export default class ActionQueue {
     }
 
     /**
-     * Starts the queue checking process
+     * Gets the queue from the database
+     */
+    private async fetchQueue() {
+        const actions = await strapi.entityService.findMany('api::pending-action.pending-action', {});
+        actions.forEach(async (pendingAction) => {
+            const action = await checkAction(pendingAction.user, pendingAction.actionId);
+            const item: PendingAction = {
+                id: pendingAction.id as number,
+                user: pendingAction.user,
+                date: new Date(pendingAction.date),
+                action: action
+            };
+            this.addAction(item);
+        });
+    }
+
+    /**
+     * Grabs any actions currently in the queue and starts the queue checking process
      */
     public constructor() {
+        this.fetchQueue();
         this.interval = setInterval(this.checkQueue.bind(this), iterator * 1000);
     }
 

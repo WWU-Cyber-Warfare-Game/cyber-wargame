@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_actions_targets",
+  "info": {
+    "displayName": "targets",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "target": {
+      "type": "enumeration",
+      "enum": [
+        "node",
+        "edge",
+        "player"
+      ],
+      "required": true
+    },
+    "myTeam": {
+      "type": "boolean",
+      "required": true
+    }
+  }
+}

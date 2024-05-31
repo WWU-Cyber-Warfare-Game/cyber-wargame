@@ -1,0 +1,34 @@
+{
+  "kind": "singleType",
+  "collectionName": "games",
+  "info": {
+    "singularName": "game",
+    "pluralName": "games",
+    "displayName": "Game",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "winner": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::team.team"
+    },
+    "endTime": {
+      "type": "datetime"
+    },
+    "gameState": {
+      "type": "enumeration",
+      "enum": [
+        "notstarted",
+        "running",
+        "ended"
+      ],
+      "required": true,
+      "default": "notstarted"
+    }
+  }
+}

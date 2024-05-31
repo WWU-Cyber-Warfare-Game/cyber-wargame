@@ -28,6 +28,7 @@
       "enum": [
         "success",
         "fail",
+        "partialfail",
         "stopped"
       ],
       "required": true

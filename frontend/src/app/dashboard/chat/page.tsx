@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { getTeamUsers, validateUser } from "@/actions";
+import { validateUser, getGameState } from "@/actions";
 import { redirect } from "next/navigation";
-import styles from "./ChatPage.module.css";
-import { User } from "@/types";
-import { useEffect, useRef, useState } from "react";
 import ChatFrame from "./_components/ChatFrame";
 import { cookies } from "next/headers";
+import { SocketProvider } from "@/components/SocketContext";
+import Timer from "@/components/Timer";
 
 /**
  * The chat page for the application. Displays a welcome message and a list of team members to chat with.
@@ -19,12 +18,22 @@ export default async function ChatPage() {
         redirect("/login");
     }
 
+    const gameState = await getGameState();
+
     return (
         <div>
             <h2>Chat Page</h2>
             <Link href="/dashboard">Back to dashboard</Link>
             <p>Welcome to the chat page!</p>
-            <ChatFrame user={user} jwt={jwt} />
+            <SocketProvider jwt={jwt}>
+                {gameState && gameState.endTime &&
+                    <>
+                        <p>Time left:</p>
+                        <Timer time={gameState.endTime} />
+                    </>
+                }
+                <ChatFrame user={user} />
+            </SocketProvider>
         </div>
     );
 };

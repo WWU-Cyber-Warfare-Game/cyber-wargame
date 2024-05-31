@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_effects_buff_debuff_targeteds",
+  "info": {
+    "displayName": "Add Buff/Debuff (Targeted)",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "buff": {
+      "type": "integer",
+      "required": true
+    }
+  }
+}

@@ -27,6 +27,19 @@
     cursor: not-allowed;
 }
 
+.actionButtonInvalidFunds {
+    border: solid 1px red;
+    padding: 5px;
+    width: 25%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin: 5px;
+    background-color: #ecacac;
+    cursor: not-allowed;
+}
+
 .actionName {
     font-weight: bold;
 }

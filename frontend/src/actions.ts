@@ -5,28 +5,48 @@ import { emailRegex, usernameRegex, passwordRegex } from "./regex";
 import axios, { isAxiosError } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole, Node, Edge } from "./types";
+import { User, Message, Action, ActionLog, ActionResponse, Modifiers, TeamRole, Node, Edge, Target, Graph, PendingAction, GameState, UserTarget } from "./types";
 import qs from "qs";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 
 /**
+ * Sends a GraphQL query to the Strapi API.
+ * @param query The GraphQL query to send to the Strapi API
+ * @returns A response from the Strapi API
+ */
+async function sendGraphQLQuery(query: string) {
+  return await fetch(`${STRAPI_URL}/graphql`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${STRAPI_API_TOKEN}`
+    },
+    body: JSON.stringify({
+      query: query
+    }),
+    cache: "no-cache"
+  });
+}
+
+/**
  * Parses the user data retreived from Strapi.
  * @param data The data retreived from the Strapi API
  * @returns The parsed user data
  */
-function parseUser(data: any): User {
-    let team;
-    if (!data.team) team = null;
-    else team = data.team.name;
-
-    return {
-        username: data.username,
-        email: data.email,
-        teamRole: data.teamRole,
-        team: team
-    };
+function parseUser(user: any) {
+  let team;
+  if (!user.attributes.team) team = null;
+  else team = user.attributes.team.data.attributes.name;
+  const ret: User = {
+    username: user.attributes.username,
+    email: user.attributes.email,
+    teamRole: user.attributes.teamRole,
+    team: team,
+    funds: user.attributes.funds
+  };
+  return ret;
 }
 
 /**
@@ -36,35 +56,35 @@ function parseUser(data: any): User {
  * @returns null if there is no error, or an error message
  */
 export async function logIn(prevState: string | null, formData: FormData) {
-    const formSchema = z.object({
-        identifier: z.string(),
-        password: z.string()
-    });
+  const formSchema = z.object({
+    identifier: z.string(),
+    password: z.string()
+  });
 
-    const validataedFormData = formSchema.safeParse({
-        identifier: formData.get("email"),
-        password: formData.get("password")
-    });
+  const validataedFormData = formSchema.safeParse({
+    identifier: formData.get("email"),
+    password: formData.get("password")
+  });
 
-    if (!validataedFormData.success) return "Server-side validation failed";
+  if (!validataedFormData.success) return "Server-side validation failed";
 
-    try {
-        const res = await axios.post(`${STRAPI_URL}/api/auth/local`, validataedFormData.data);
-        if (res.data.jwt) {
-            cookies().set("jwt", res.data.jwt);
-        }
-    } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-            return error.response.data.error.message;
-        } else if (isAxiosError(error) && error.message) {
-            return error.message;
-        } else if (isAxiosError(error) && error.code == "ECONNREFUSED") {
-            return "Connection refused. Is the Strapi server running?";
-        } else {
-            return "An unknown error occurred";
-        }
+  try {
+    const res = await axios.post(`${STRAPI_URL}/api/auth/local`, validataedFormData.data);
+    if (res.data.jwt) {
+      cookies().set("jwt", res.data.jwt);
     }
-    redirect("/dashboard");
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data.error.message;
+    } else if (isAxiosError(error) && error.message) {
+      return error.message;
+    } else if (isAxiosError(error) && error.code == "ECONNREFUSED") {
+      return "Connection refused. Is the Strapi server running?";
+    } else {
+      return "An unknown error occurred";
+    }
+  }
+  redirect("/dashboard");
 }
 
 /**
@@ -74,46 +94,46 @@ export async function logIn(prevState: string | null, formData: FormData) {
  * @returns null if there is no error, or an error message
  */
 export async function signUp(prevState: string | null, formData: FormData) {
-    const formSchema = z.object({
-        email: z.string().regex(emailRegex),
-        username: z.string().regex(usernameRegex),
-        password: z.string().regex(passwordRegex),
-    });
+  const formSchema = z.object({
+    email: z.string().regex(emailRegex),
+    username: z.string().regex(usernameRegex),
+    password: z.string().regex(passwordRegex),
+  });
 
-    const validataedFormData = formSchema.safeParse({
-        email: formData.get("email"),
-        username: formData.get("username"),
-        password: formData.get("password"),
-    });
+  const validataedFormData = formSchema.safeParse({
+    email: formData.get("email"),
+    username: formData.get("username"),
+    password: formData.get("password"),
+  });
 
-    if (!validataedFormData.success) return "Server-side validation failed";
-    if (validataedFormData.data.password !== formData.get("confirmPassword")) return "Passwords do not match";
+  if (!validataedFormData.success) return "Server-side validation failed";
+  if (validataedFormData.data.password !== formData.get("confirmPassword")) return "Passwords do not match";
 
-    try {
-        const res = await axios.post(`${STRAPI_URL}/api/auth/local/register`, validataedFormData.data);
-        if (res.data.jwt) {
-            cookies().set("jwt", res.data.jwt);
-        }
-    } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-            return error.response.data.error.message;
-        } else if (isAxiosError(error) && error.message) {
-            return error.message;
-        } else if (isAxiosError(error) && error.code == "ECONNREFUSED") {
-            return "Connection refused. Is the Strapi server running?";
-        } else {
-            return "An unknown error occurred";
-        }
+  try {
+    const res = await axios.post(`${STRAPI_URL}/api/auth/local/register`, validataedFormData.data);
+    if (res.data.jwt) {
+      cookies().set("jwt", res.data.jwt);
     }
-    redirect("/dashboard");
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data.error.message;
+    } else if (isAxiosError(error) && error.message) {
+      return error.message;
+    } else if (isAxiosError(error) && error.code == "ECONNREFUSED") {
+      return "Connection refused. Is the Strapi server running?";
+    } else {
+      return "An unknown error occurred";
+    }
+  }
+  redirect("/dashboard");
 }
 
 /**
  * Logs the user out by deleting the JWT cookie, then redirects back to the home page.
  */
 export async function logOut() {
-    cookies().delete("jwt");
-    redirect("/");
+  cookies().delete("jwt");
+  redirect("/");
 }
 
 /**
@@ -121,25 +141,53 @@ export async function logOut() {
  * @returns A User object if the user is validated, or null if they are not.
  */
 export async function validateUser() {
-    try {
-        let jwt = cookies().get("jwt")?.value;
-        if (!jwt) return null;
+  try {
+    let jwt = cookies().get("jwt")?.value;
+    if (!jwt) return null;
 
-        const res = await fetch(`${STRAPI_URL}/api/users/me?populate=*`, {
-            headers: {
-                Authorization: `Bearer ${jwt}`
-            }
+    const res = await fetch(`${STRAPI_URL}/api/users/me`, {
+      headers: {
+        Authorization: `Bearer ${jwt}`
+      }
+    });
+
+    if (res.ok) {
+      const unparsedData = await res.json();
+      const tmp = {
+        username: unparsedData.username,
+        email: unparsedData.email,
+        teamRole: unparsedData.teamRole,
+        funds: unparsedData.funds
+      };
+      try {
+        const res = await fetch(`${STRAPI_URL}/api/users?populate=team&filters[username][$eq]=${tmp.username}`, {
+          headers: {
+            Authorization: `Bearer ${STRAPI_API_TOKEN}`
+          }
         });
-
-        if (res.ok) {
-            const unparsedData = await res.json();
-            return parseUser(unparsedData);
+        if (!res.ok) {
+          console.error(res);
+          return null;
         }
-        return null;
-    } catch (error) {
+        const unparsedData = await res.json();
+        const ret: User = {
+          username: tmp.username,
+          email: tmp.email,
+          teamRole: tmp.teamRole,
+          funds: tmp.funds,
+          team: unparsedData[0].team ? unparsedData[0].team.name : null,
+        };
+        return ret;
+      } catch (error) {
         console.error(error);
         return null;
+      }
     }
+    return null;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
 /**
@@ -148,18 +196,46 @@ export async function validateUser() {
  * @returns An array of User objects
  */
 export async function getTeamUsers(team: string) {
-    const res = await fetch(`${STRAPI_URL}/api/users?populate=*&filters[team][name][$eq]=${team}`, {
-        headers: {
-            Authorization: `Bearer ${STRAPI_API_TOKEN}`
-        }
-    });
+  try {
+    const res = await sendGraphQLQuery(`
+        {
+            usersPermissionsUsers(filters: {
+              team: {
+                name: {
+                  eq: "${team}"
+                }
+              }
+            }, sort: "username:asc") {
+              data {
+                attributes {
+                  username
+                  email
+                  teamRole
+                  team {
+                    data {
+                      attributes {
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `);
 
     if (res.ok) {
-        const unparsedData = await res.json();
-        return unparsedData.map((user: any) => parseUser(user));
+      const data = await res.json();
+      const parsedData: User[] = data.data.usersPermissionsUsers.data.map((user: any) => parseUser(user));
+      return parsedData;
+    } else {
+      console.error(res);
+      return [] as User[];
     }
-    console.error(res);
+  } catch (error) {
+    console.error(error);
     return [] as User[];
+  }
 }
 
 /**
@@ -168,20 +244,44 @@ export async function getTeamUsers(team: string) {
  * @returns A User object if the user exists, or null if they do not.
  */
 export async function getUser(username: string) {
-    const res = await fetch(`${STRAPI_URL}/api/users?populate=*&filters[username][$eq]=${username}`, {
-        headers: {
-            Authorization: `Bearer ${STRAPI_API_TOKEN}`
-        }
-    });
+  try {
+    const res = await sendGraphQLQuery(`
+        {
+            usersPermissionsUsers(filters: {
+              username: {
+                eq: "${username}"
+              }
+            }) {
+              data {
+                attributes {
+                  username
+                  email
+                  teamRole
+                  team {
+                    data {
+                      attributes {
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `);
 
     if (res.ok) {
-        const unparsedData = await res.json();
-        const user = unparsedData[0];
-        if (!user) return null;
-        return parseUser(user);
+      const unparsedData = await res.json();
+      const user = unparsedData[0];
+      if (!user) return null;
+      return parseUser(user);
     }
     console.error(res);
     return null;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
 /**
@@ -190,329 +290,437 @@ export async function getUser(username: string) {
  * @returns An array of Message objects, or null if there is an error
  */
 export async function getMessages(username: string) {
+  const user = await validateUser();
+  if (!user) {
+    console.error("User not validated.");
+    return null;
+  }
 
-    // parses the data retreived from the Strapi API and returns an array of Message objects
-    function parseResponseData(data: any) {
-        let messages: Message[] = [];
-        data.forEach(function (m: any) {
-            const newMessage: Message = {
-                message: m.attributes.message,
-                date: new Date(Date.parse(m.attributes.date)),
-                sender: m.attributes.sender,
-                receiver: m.attributes.receiver
-            }
-            messages.push(newMessage);
-        });
-        return messages;
-    }
-
-    const user = await validateUser();
-    if (!user) {
-        console.error("User not validated.");
-        return null;
-    }
-
-    // creates a query that get the last 100 messages between the current user and the other user
-    const query = qs.stringify({
-        pagination: {
-            limit: 100
-        },
-        sort: "date:desc",
-        populate: "*",
-        filters: {
-            $or: [
-                {
-                    sender: user.username,
-                    receiver: username
+  try {
+    const res = await sendGraphQLQuery(`
+    {
+        messages(
+          pagination: {
+              limit: 100
+          },
+          sort: "date:desc",
+          filters: {
+            or: [
+              {
+                sender: {
+                  eq: "${user.username}"
                 },
-                {
-                    sender: username,
-                    receiver: user.username
+                receiver: {
+                  eq: "${username}"
                 }
+              },
+              {
+                sender: {
+                  eq: "${username}"
+                },
+                receiver: {
+                  eq: "${user.username}"
+                }
+              }
             ]
+          }
+        ) {
+          data {
+            attributes {
+              message
+              date
+              sender
+              receiver
+            }
+          }
         }
-    });
-
-    const res = await fetch(`${STRAPI_URL}/api/messages?${query}`, {
-        headers: {
-            Authorization: `Bearer ${STRAPI_API_TOKEN}`
-        }
-    });
+      }
+    `);
 
     if (!res.ok) {
-        console.error(res);
-        return null;
+      console.error(res);
+      return null;
     }
     const data = await res.json();
-    return parseResponseData(data.data).sort((a, b) => a.date.getTime() - b.date.getTime());
-}
-
-/**
- * Gets all the actions that have been performed.
- * @returns An array of ActionLog objects, or null if there is an error
- */
-export async function getActionLog() {
-    function parseActionLog(data: any): ActionLog {
-        return {
-            action: data.attributes.action,
-            time: new Date(Date.parse(data.attributes.date)),
-            endState: data.attributes.endState
-        }
-    }
-
-    const user = await validateUser();
-    if (!user) {
-        console.error("User not validated.");
-        return null;
-    }
-    try {
-        // creates a query that gets the last 100 resolved actions for the current user
-        const query = qs.stringify({
-            pagination: {
-                limit: 100
-            },
-            sort: "date:desc",
-            populate: "*",
-            filters: {
-                user: user.username
-            }
-        });
-        // NOTE: right now this only fetches the resolved actions for the current user, not the whole team
-        const res = await fetch(`${STRAPI_URL}/api/resolved-actions?${query}`, {
-            headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
-            }
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            return data.data.map((action: any) => parseActionLog(action));
-        } else {
-            console.error('Failed to fetch action log:', res.status, res.statusText);
-            return null;
-        }
-    } catch (error) {
-        console.error('Error fetching action log:', error);
-        return null;
-    }
-}
-
-/**
- * Gets all the actions that can be performed.
- * @returns An array of Action objects, or null if there is an error
- */
-export async function getActions() {
-    function parseAction(data: any): Action {
-        return {
-            id: data.id,
-            name: data.attributes.action.name,
-            duration: data.attributes.action.duration,
-            description: data.attributes.action.description,
-            teamRole: data.attributes.action.teamRole,
-            type: data.attributes.action.type,
-            successRate: data.attributes.action.successRate,
-            targetsNode: data.attributes.action.targetsNode || false
+    const parsedData: Message[] = data.data.messages.data
+      .map((message: any) => {
+        const ret: Message = {
+          message: message.attributes.message,
+          date: new Date(Date.parse(message.attributes.date)),
+          sender: message.attributes.sender,
+          receiver: message.attributes.receiver
         };
-    }
-
-    const user = await validateUser();
-    if (!user) {
-        console.error("User not validated.");
-        return null;
-    }
-
-    try {
-        const actionsRes = await fetch(`${STRAPI_URL}/api/actions?populate=*&filters[action][teamRole][$eq]=${user.teamRole}`, {
-            headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
-            }
-        });
-
-        const currentActionRes = await fetch(`${STRAPI_URL}/api/pending-actions?filters[user][$eq]=${user.username}`, {
-            headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
-            }
-        });
-
-        if (actionsRes.ok && currentActionRes.ok) {
-            const actions = await actionsRes.json();
-            const currentAction = await currentActionRes.json();
-
-            let endTime: Date | null = null;
-            if (currentAction.data.length > 0) {
-                endTime = new Date(Date.parse(currentAction.data[0].attributes.date));
-            }
-
-            return {
-                actions: actions.data.map((action: any) => parseAction(action)),
-                endTime: endTime
-            } as ActionResponse;
-        } else {
-            const errorRes = actionsRes.ok ? currentActionRes : actionsRes;
-            console.error('Failed to fetch actions:', errorRes.status, errorRes.statusText);
-            return null;
-        }
-    } catch (error) {
-        console.error('Error fetching actions:', error);
-        return null;
-    }
+        return ret;
+      });
+    return parsedData.sort((a, b) => a.date.getTime() - b.date.getTime());
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
 /**
- * Gets all the nodes of the network graph
- * @returns An array of nodes, or null if there is an error
+ * Parses the graph data for the network graph.
+ * @param nodesData All of the nodes
+ * @param edgesData All of the edges
+ * @param user The current user
+ * @returns The two graphs
  */
-export async function getNodes(enemyTeam: boolean = false) {
-    function parseNodes(data: any) {
-        let nodes: Node[] = [];
-        data.forEach(function (n: any) {
-            const newNode: Node = {
-                id: n.id.toString(),
-                name: n.attributes.name,
-                defense: n.attributes.defense,
-                isCoreNode: n.attributes.isCoreNode
-            }
-            nodes.push(newNode);
-        });
-        return nodes;
-    }
+function parseGraphData(nodesData: any[], edgesData: any[], user: User) {
+  const nodes = nodesData
+    .filter((node: any) => {
+      if (node.attributes.team.data.attributes.name === user.team) return true;
+      else if (node.attributes.team.data.attributes.name !== user.team && node.attributes.visible) return true;
+      return false;
+    })
+    .map((unParsedNode: any) => {
+      const node: Node = {
+        id: unParsedNode.id,
+        name: unParsedNode.attributes.name,
+        defense: unParsedNode.attributes.defense,
+        isCoreNode: unParsedNode.attributes.isCoreNode,
+      };
+      return {
+        node: node,
+        isTeam: unParsedNode.attributes.team.data.attributes.name === user.team
+      };
+    });
 
-    try {
-        // Make API request to fetch nodes
-        const user = await validateUser();
-        if (!user) {
-            console.error("User not validated.");
-            return null;
-        }
-        let fetchedNodes;
-        if (enemyTeam) {
-            fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$ne]=${user.team}&filters[visible][$eq]=true&populate=*`, {
-                headers: {
-                    Authorization: `Bearer ${STRAPI_API_TOKEN}`
-                }
-            });
-        } else {
-            fetchedNodes = await fetch(`${STRAPI_URL}/api/nodes?filters[team][name][$eq]=${user.team}&populate=*`, {
-                headers: {
-                    Authorization: `Bearer ${STRAPI_API_TOKEN}`
-                }
-            });
-        }
-        const unparsedNodes = await fetchedNodes.json();
+  const edges: Edge[] = edgesData
+    .map((edge: any) => {
+      const ret: Edge = {
+        id: edge.id,
+        sourceId: edge.attributes.source.data.id,
+        targetId: edge.attributes.target.data.id,
+      };
+      return ret;
+    })
+    .filter((edge) =>
+      nodes.map((node) => node.node.id)
+        .includes(edge.sourceId)
+      && nodes.map((node) => node.node.id).includes(edge.targetId)
+    );
 
-        //parse the data
-        return parseNodes(unparsedNodes.data);
-    } catch (error) {
-        console.error('Error fetching nodes:', error);
-        return null;
-    }
-};
+  const teamNodes = nodes.filter((node) => node.isTeam).map((node) => node.node);
+  const opponentNodes = nodes.filter((node) => !node.isTeam).map((node) => node.node);
+  const teamEdges = edges.filter((edge) => teamNodes.map((node) => node.id).includes(edge.sourceId) && teamNodes.map((node) => node.id).includes(edge.targetId));
+  const opponentEdges = edges.filter((edge) => opponentNodes.map((node) => node.id).includes(edge.sourceId) && opponentNodes.map((node) => node.id).includes(edge.targetId));
+  const teamGraph: Graph = {
+    nodes: teamNodes,
+    edges: teamEdges
+  };
+  const opponentGraph: Graph = {
+    nodes: opponentNodes,
+    edges: opponentEdges
+  };
+
+  return {
+    teamGraph: teamGraph,
+    opponentGraph: opponentGraph
+  };
+}
 
 /**
- * Gets all the edges of the network graph
- * @returns An array of edges, or null if there is an error
+ * Fetches all of the data needed for the action page.
+ * @returns Action log, actions, modifiers, and the two graphs; or `null` if there is an error
  */
-export async function getEdges() {
-    function parseEdges(data: any) {
-        let edges: Edge[] = [];
-        data.forEach(function (e: any) {
-            const newEdge: Edge = {
-                id: e.id.toString(),
-                sourceId: e.attributes.source.data.id.toString(),
-                targetId: e.attributes.target.data.id.toString()
+export async function getActionPageData() {
+  const user = await validateUser();
+  if (!user) {
+    console.error("User not validated.");
+    return null;
+  }
+  try {
+    const res = await sendGraphQLQuery(`
+    query(
+      $user: String = "${user.username}"
+      $team: String = "${user.team}"
+      $teamRole: String = "${user.teamRole}"
+    ) {
+      actionLog: resolvedActions(
+        pagination: { limit: 100 }
+        sort: "date:desc"
+        filters: { user: { eq: $user } }
+      ) {
+        data {
+          attributes {
+            action {
+              name
+              description
+              teamRole
             }
-            edges.push(newEdge);
-        });
-        return edges;
-    }
-
-    try {
-        const user = await validateUser();
-        if (!user) {
-            console.error("User not validated.");
-            return null;
+            date
+            endState
+          }
         }
-        // Make API request to fetch nodes
-        // NOTE: this sends edges for all nodes, all ids are unique so it should be fine, just unnecessary data
-        const fetchedEdges = await fetch(`${STRAPI_URL}/api/edges?populate=*`, {
-            headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+      }
+    
+      actions(filters: { action: { teamRole: { eq: $teamRole } } }) {
+        data {
+          id
+          attributes {
+            action {
+              name
+              duration
+              description
+              teamRole
+              type
+              successRate
+              cost
+              targets {
+                target
+                myTeam
+              }
             }
-        });
-        const unparsedEdges = await fetchedEdges.json();
+          }
+        }
+      }
+    
+      pendingActions(filters: { user: { eq: $user } }) {
+        data {
+          attributes {
+            date
+          }
+        }
+      }
+    
+      modifiers: teams(filters: { name: { eq: $team } }) {
+        data {
+          attributes {
+            ${user.teamRole}Modifiers {
+              offense
+              defense
+              buff
+            }
+          }
+        }
+      }
+    
+      nodes(pagination: { pageSize: 100 }) {
+        data {
+          id
+          attributes {
+            name
+            team {
+              data {
+                attributes {
+                  name
+                }
+              }
+            }
+            defense
+            isCoreNode
+            visible
+          }
+        }
+      }
+    
+      edges(pagination: { pageSize: 100 }) {
+        data {
+          id
+          attributes {
+            source {
+              data {
+                id
+              }
+            }
+            target {
+              data {
+                id
+              }
+            }
+            defense
+          }
+        }
+      }
 
-        //parse the data
-        return parseEdges(unparsedEdges.data);
-    } catch (error) {
-        console.error('Error fetching edges:', error);
-        return null;
-    }
-};
+      usersPermissionsUsers(filters: { username: { not: { eq: $user } } }) {
+        data {
+          id
+          attributes {
+            username
+            team {
+              data {
+                attributes {
+                  name
+                }
+              }
+            }
+            teamRole
+          }
+        }
+      }
+    }    
+    `);
+    const data = await res.json();
+    const actionLogData: any[] = data.data.actionLog.data;
+    const actionsData: any[] = data.data.actions.data;
+    const pendingActionsData: any[] = data.data.pendingActions.data;
+    const modifiersData: any[] = data.data.modifiers.data;
+    const nodesData: any[] = data.data.nodes.data;
+    const edgesData: any[] = data.data.edges.data;
+    const usersData: any[] = data.data.usersPermissionsUsers.data;
+
+    // parse action log
+    const actionLog: ActionLog[] = actionLogData.map((action: any) => {
+      const ret: ActionLog = {
+        name: action.attributes.action.name,
+        description: action.attributes.action.description,
+        teamRole: action.attributes.action.teamRole,
+        time: new Date(Date.parse(action.attributes.date)),
+        endState: action.attributes.endState
+      }
+      return ret;
+    });
+
+    // parse actions
+    const actions: Action[] = actionsData.map((action: any) => {
+      const ret: Action = {
+        id: action.id,
+        name: action.attributes.action.name,
+        duration: action.attributes.action.duration,
+        description: action.attributes.action.description,
+        teamRole: action.attributes.action.teamRole,
+        type: action.attributes.action.type,
+        successRate: action.attributes.action.successRate,
+        targets: action.attributes.action.targets,
+        cost: action.attributes.action.cost
+      };
+      return ret;
+    });
+
+    // get end time
+    const endTime = pendingActionsData.length > 0 ? new Date(Date.parse(pendingActionsData[0].attributes.date)) : null;
+
+    // parse modifiers
+    const modifiers: Modifiers = {
+      offense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].offense,
+      defense: modifiersData[0].attributes[`${user.teamRole}Modifiers`].defense,
+      buff: modifiersData[0].attributes[`${user.teamRole}Modifiers`].buff
+    };
+
+    // parse graph
+    const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
+
+    // parse users
+    const users = usersData
+      .filter((userTarget: any) => userTarget.attributes.team && userTarget.attributes.team.data)
+      .map((userTarget: any) => {
+        const ret: UserTarget = {
+          id: userTarget.id,
+          username: userTarget.attributes.username,
+          teamRole: userTarget.attributes.teamRole,
+          myTeam: userTarget.attributes.team.data.attributes.name === user.team
+        };
+        return ret;
+      });
+
+    return {
+      actionLog: actionLog,
+      actions: actions,
+      endTime: endTime,
+      modifiers: modifiers,
+      teamGraph: teamGraph,
+      opponentGraph: opponentGraph,
+      userFunds: user.funds,
+      users: users
+    };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
 
 /**
- * Gets the current modifiers that the user has.
- * @returns the modifiers, or `null` if there is an error
+ * Gets the team and opponent graphs for the network graph.
+ * @returns The team and opponent graphs, or `null` if there is an error
  */
-export async function getModifiers() {
-    const user = await validateUser();
-    if (!user) {
-        console.error("User not validated.");
-        return null;
-    }
-    try {
-        const res = await fetch(`${STRAPI_URL}/api/teams?filters[name][$eq]=${user.team}&populate=*`, {
-            headers: {
-                Authorization: `Bearer ${STRAPI_API_TOKEN}`
+export async function getGraphData() {
+  const user = await validateUser();
+  if (!user) {
+    console.error("User not validated.");
+    return null;
+  }
+  try {
+    const res = await sendGraphQLQuery(`
+    {
+      nodes(pagination: { pageSize: 100 }) {
+        data {
+          id
+          attributes {
+            name
+            team {
+              data {
+                attributes {
+                  name
+                }
+              }
             }
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            let modifiers: Modifiers;
-            switch (user.teamRole) {
-                case TeamRole.Leader:
-                    modifiers = {
-                        offense: data.data[0].attributes.leaderModifiers.offense,
-                        defense: data.data[0].attributes.leaderModifiers.defense,
-                        buff: data.data[0].attributes.leaderModifiers.buff
-                    };
-                    break;
-                case TeamRole.Intelligence:
-                    modifiers = {
-                        offense: data.data[0].attributes.intelligenceModifiers.offense,
-                        defense: data.data[0].attributes.intelligenceModifiers.defense,
-                        buff: data.data[0].attributes.intelligenceModifiers.buff
-                    };
-                    break;
-                case TeamRole.Military:
-                    modifiers = {
-                        offense: data.data[0].attributes.militaryModifiers.offense,
-                        defense: data.data[0].attributes.militaryModifiers.defense,
-                        buff: data.data[0].attributes.militaryModifiers.buff
-                    };
-                    break;
-                case TeamRole.Diplomat:
-                    modifiers = {
-                        offense: data.data[0].attributes.diplomatModifiers.offense,
-                        defense: data.data[0].attributes.diplomatModifiers.defense,
-                        buff: data.data[0].attributes.diplomatModifiers.buff
-                    };
-                    break;
-                case TeamRole.Media:
-                    modifiers = {
-                        offense: data.data[0].attributes.mediaModifiers.offense,
-                        defense: data.data[0].attributes.mediaModifiers.defense,
-                        buff: data.data[0].attributes.mediaModifiers.buff
-                    };
-                    break;
-            }
-            return modifiers;
-        } else {
-            console.error('Failed to fetch buff:', res.status, res.statusText);
-            return null;
+            defense
+            isCoreNode
+            visible
+          }
         }
-    } catch (error) {
-        console.error('Error fetching buff:', error);
-        return null;
+      }
+    
+      edges(pagination: { pageSize: 100 }) {
+        data {
+          id
+          attributes {
+            source {
+              data {
+                id
+              }
+            }
+            target {
+              data {
+                id
+              }
+            }
+            defense
+          }
+        }
+      }
     }
+    `);
+    const data = await res.json();
+    const nodesData: any[] = data.data.nodes.data;
+    const edgesData: any[] = data.data.edges.data;
+    const { teamGraph, opponentGraph } = parseGraphData(nodesData, edgesData, user);
+    return {
+      teamGraph: teamGraph,
+      opponentGraph: opponentGraph
+    };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+/**
+ * Gets the current game state.
+ * @returns The current game state
+ */
+export async function getGameState() {
+  try {
+    const res = await fetch(`${STRAPI_URL}/api/game?populate=*`, {
+      headers: {
+        Authorization: `Bearer ${STRAPI_API_TOKEN}`
+      },
+      cache: "no-cache"
+    });
+    if (!res.ok) {
+      console.error(res);
+      return null;
+    }
+    const data = await res.json();
+    return {
+      gameState: data.data.attributes.gameState as GameState,
+      endTime: data.data.attributes.endTime ? new Date(Date.parse(data.data.attributes.endTime)) : null,
+      winner: data.data.attributes.winner.data ? data.data.attributes.winner.data.attributes.name : null
+    };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
