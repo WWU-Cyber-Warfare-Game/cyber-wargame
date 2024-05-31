@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateUser, logOut } from "./actions";
 
-const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
 
 // list of pages that require authentication
 // all children of these pages will also require authentication

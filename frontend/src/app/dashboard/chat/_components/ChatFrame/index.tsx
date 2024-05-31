@@ -7,7 +7,7 @@ import ChatBox from "./ChatBox";
 import { io, Socket } from "socket.io-client";
 import { SocketContext } from "@/components/SocketContext";
 
-const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
 
 interface ChatFrameProps {
     readonly user: User;

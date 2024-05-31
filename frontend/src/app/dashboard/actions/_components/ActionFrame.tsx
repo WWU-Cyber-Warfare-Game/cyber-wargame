@@ -12,7 +12,7 @@ interface ActionFrameProps {
     readonly user: User;
 }
 
-const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
 
 /**
  * The action frame for the application. Displays the action selector and the action log.

@@ -5,7 +5,7 @@ import ActionButton from "./ActionButton";
 import Timer from "@/components/Timer";
 import styles from "./ActionSelectorFrame.module.css";
 
-const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
 
 interface ActionSelectorFrameProps {
     readonly socket: Socket | null;

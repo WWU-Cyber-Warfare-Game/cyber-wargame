@@ -4,7 +4,7 @@ import { createContext } from "react";
 import React, { useState, useEffect } from "react";
 import { Socket, io } from "socket.io-client";
 
-const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
 
 export const SocketContext = createContext({
     socket: null as Socket | null,
