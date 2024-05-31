@@ -6,7 +6,7 @@ import Entry from "./Entry";
 import { Socket } from "socket.io-client";
 import styles from './actionlog.module.css';
 
-const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
 
 interface ActionLogFrameProps {
   readonly actionLog: ActionLog[];
