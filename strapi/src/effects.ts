@@ -379,7 +379,7 @@ export default async function applyEffects(
                     if (!targetEdgeId) console.error('No target edge ID provided for attack-edge effect');
                     await strapi.entityService.update('api::node.node', targetNodeId, {
                         data: {
-                            defense: targetNode.defense - DEFENSE_RATE
+                            defense: targetEdge.defense - DEFENSE_RATE
                         }
                     });
                     break;
