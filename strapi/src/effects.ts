@@ -60,7 +60,7 @@ export default async function applyEffects(
         const targetEdge = targetEdgeId ? await strapi.entityService.findOne('api::edge.edge', targetEdgeId) : null;
         const targetUser = targetUserId ? await strapi.entityService.findOne('plugin::users-permissions.user', targetUserId) : null;
 
-        effects.forEach(async (effect) => {
+        for (const effect of effects) {
             switch (effect.__component) {
 
                 // add victory points to user's team or opposing team
@@ -398,7 +398,7 @@ export default async function applyEffects(
                     });
                     break;
             }
-        });
+        }
 
         // reset the buff to 0 if there is no buff/debuff effect
         if (effects.filter((effect) => effect.__component === 'effects.buff-debuff').length === 0) {
