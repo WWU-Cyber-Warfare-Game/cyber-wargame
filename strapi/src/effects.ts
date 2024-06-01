@@ -225,11 +225,19 @@ export default async function applyEffects(
                         },
                         populate: '*'
                     });
-                    const offenseAction = res.filter(async (action) => {
+                    // Use map to create an array of promises and then await all of them
+                    const offenseActions = await Promise.all(res.map(async (action) => {
                         const actionUser = await getUser(action.user);
-                        return actionUser.team !== user.team;
-                    })[0];
-                    if (offenseAction) {
+                        return {
+                            ...action,
+                            shouldInclude: actionUser.team !== user.team
+                        };
+                    }));
+
+                    // Filter the results based on the resolved value
+                    const filteredOffenseActions = offenseActions.filter(action => action.shouldInclude);
+                    if (filteredOffenseActions.length > 0) {
+                        const offenseAction = filteredOffenseActions[0];
                         await strapi.entityService.create('api::resolved-action.resolved-action', {
                             data: {
                                 user: offenseAction.user,
