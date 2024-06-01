@@ -63,6 +63,11 @@ export default async function applyEffects(
         for (const effect of effects) {
             try {
                 switch (effect.__component) {
+                    // FOR TESTING: throws an error
+                    case 'effects.error':
+                        console.error('EFFECT: error');
+                        throw new Error("This error is caused intentionally by the action's effects");
+
                     // add victory points to user's team or opposing team
                     case 'effects.add-victory-points':
                         console.log('EFFECT: adding victory points');

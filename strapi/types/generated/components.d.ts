@@ -138,6 +138,15 @@ export interface EffectsDistributeFunds extends Schema.Component {
   };
 }
 
+export interface EffectsError extends Schema.Component {
+  collectionName: 'components_effects_errors';
+  info: {
+    displayName: 'Error';
+    description: '';
+  };
+  attributes: {};
+}
+
 export interface EffectsRevealNode extends Schema.Component {
   collectionName: 'components_effects_reveal_nodes';
   info: {
@@ -220,6 +229,7 @@ declare module '@strapi/types' {
       'effects.defend-edge': EffectsDefendEdge;
       'effects.defend-node': EffectsDefendNode;
       'effects.distribute-funds': EffectsDistributeFunds;
+      'effects.error': EffectsError;
       'effects.reveal-node': EffectsRevealNode;
       'effects.secure-node': EffectsSecureNode;
       'effects.stop-offense-action': EffectsStopOffenseAction;
