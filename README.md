@@ -10,5 +10,4 @@
 - Generate an API key with full permissions in Strapi and set `STRAPI_API_KEY` in `.env.local` in `frontend`.
 - For further instructions, see the READMEs in the individual directories.
 
-## Figma Design Links
-- [OLD](https://www.figma.com/file/XcUKMbDtdU089AALdSTlDZ/SP-Landing?type=design&mode=design&t=vDXiULTKo9GHUpCH-1)
+For more information, see the wiki.
