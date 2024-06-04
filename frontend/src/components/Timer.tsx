@@ -44,5 +44,5 @@ export default function Timer({ time }: Readonly<TimerProps>) {
         setDays(Math.floor(timeLeft / 1000 / 60 / 60 / 24));
     }, [timeLeft]);
 
-    return <p>{days > 0 && `${days}d`} {days > 0 && `${hours}h`} {minutes}m {seconds}s</p>
+    return <p>{days > 0 && `${days}d`} {(timeLeft / 1000 / 60 / 60 >= 1) && `${hours}h`} {minutes}m {seconds}s</p>
 }
